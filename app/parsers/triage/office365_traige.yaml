@@ -1,0 +1,67 @@
+parser_name: office365_triage
+parser_type: triage
+
+match:
+  location: office365
+
+fields:
+  risk_score: rule.level
+  description: rule.description
+  subject: data.office365.Subject
+  sender: data.office365.P2Sender
+  recipient: data.office365.Recipients[0]
+  verdict: data.office365.Verdict
+
+enrichment:
+  - type: tag_if
+    condition: "rule.level >= 10"
+    tag: "High Risk"
+
+  - type: tag_if
+    condition: "'Spam' == data.office365.Verdict"
+    tag: "Email Classified as Spam"
+
+  - type: tag_if
+    condition: "'ThreatIntelligence' in rule.groups"
+    tag: "Threat Intel Trigger"
+
+  - type: tag_if
+    condition: "'@malicious.org' in data.office365.P2Sender"
+    tag: "Known Malicious Sender"
+
+  - type: tag_if
+    condition: "'employee3@company.no' in data.office365.Recipients"
+    tag: "Targeted Employee"
+
+  - type: ip_lookup
+    field: data.office365.SenderIp
+
+  - type: set_field_if
+    field: resolution
+    condition: "data.office365.Verdict == 'Clean'"
+    value: "not_applicable"
+
+  - type: set_field_if
+    field: recommended_status
+    condition: "rule.level <= 5"
+    value: "done"
+
+  - type: set_field_if
+    field: recommended_status
+    condition: "data.office365.Verdict == 'Clean'"
+    value: "done"
+
+  - type: set_field_if
+    field: recommended_resolution
+    condition: "data.office365.Verdict == 'Clean'"
+    value: "not_applicable"
+
+  - type: set_field_if
+    field: recommended_action
+    condition: "rule.level >= 13"
+    value: "Escalate to Incident Response"
+
+  - type: set_field_if
+    field: recommended_playbook
+    condition: "rule.level >= 13"
+    value: "incident_response_email"

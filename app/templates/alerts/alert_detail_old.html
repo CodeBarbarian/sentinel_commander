@@ -1,0 +1,230 @@
+{% extends "_design.html" %}
+{% block title %}Alert #{{ alert.id }} - Sentinel Commander{% endblock %}
+
+{% block content %}
+<div class="container-fluid my-8">
+    <div class="row">
+        <!-- Left Sidebar - Playbooks -->
+        <div class="col-md-3">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header text-white fw-bold" style="background-color: var(--sc-secondary);">
+                    Playbooks
+                </div>
+                <div class="card-body">
+                    <p style="color: var(--sc-muted);">Coming soon...</p>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">Recon Workflow</li>
+                        <li class="list-group-item">Phishing Triage</li>
+                        <li class="list-group-item">Threat Hunt</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-6">
+            <div class="card shadow-sm mb-3">
+                <div class="card-header text-white d-flex justify-content-between align-items-center"
+                     style="background-color: var(--sc-primary);">
+                    <h4 class="mb-0">Alert #{{ alert.id }}</h4>
+                    <a href="/web/v1/alerts" class="btn btn-sm"
+                       style="background-color: var(--sc-light); color: var(--sc-text);">&larr; Back to Alerts</a>
+                </div>
+            </div>
+
+            <!-- Search and Controls -->
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <div class="input-group me-3" style="flex-grow: 1; max-width: 75%;">
+                    <input type="text" id="alertSearch" class="form-control" placeholder="🔍 Search alert content...">
+                    <button class="btn btn-outline-primary" id="alertSearchButton" type="button">Search</button>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-secondary" onclick="expandAll()">Expand All</button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="collapseAll()">Collapse All</button>
+                </div>
+            </div>
+
+            <!-- Accordion Section -->
+            <div class="accordion" id="alertAccordion">
+                {% for section in rendered_sections %}
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading-{{ loop.index }}">
+                        <button class="accordion-button {% if not loop.first %}collapsed{% endif %}" type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#collapse-{{ loop.index }}"
+                                aria-expanded="{{ 'true' if loop.first else 'false' }}">
+                            📁 {{ section.title }}
+                        </button>
+                    </h2>
+                    <div id="collapse-{{ loop.index }}"
+                         class="accordion-collapse collapse {% if loop.first %}show{% endif %}"
+                         data-bs-parent="#alertAccordion">
+                        <div class="accordion-body">
+                            <div class="row">
+                                {% for field in section.fields %}
+                                <div class="{% if field.style == 'json' %}col-md-12{% else %}col-md-6{% endif %} mb-3">
+                                    <div class="d-flex flex-column">
+                                        {% if not field.no_label %}<strong class="mb-1">{{ field.label }}:</strong>{% endif %}
+                                        {% if field.style in ['badge', 'severity_color'] %}
+                                        <span class="badge" style="background-color: {{ field.color if field.color else '#6c757d' }};">
+                                            {{ field.value }}
+                                        </span>
+                                        {% elif field.style == 'italic' %}
+                                        <em>{{ field.value }}</em>
+                                        {% elif field.style == 'bold' %}
+                                        <strong>{{ field.value }}</strong>
+                                        {% elif field.style == 'tag_list' %}
+                                        <div class="d-flex flex-wrap gap-1">
+                                            {% for tag in field.value.split(',') %}
+                                            <span class="badge bg-blue text-white">{{ tag.strip() }}</span>
+                                            {% endfor %}
+                                        </div>
+                                        {% elif field.style == 'json' %}
+                                        <pre class="p-2 border rounded copyable-json" style="background-color: var(--sc-pre-bg); white-space: pre-wrap; cursor: pointer;"><code>{{ field.value }}</code></pre>
+                                        {% else %}
+                                        <span><code class="copyable-json" style="cursor: pointer;">{{ field.value }}</code></span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Right Sidebar - Actions -->
+        <div class="col-md-3">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header text-white fw-bold" style="background-color: var(--sc-dark);">
+                    Actions
+                </div>
+                <div class="card-body d-grid gap-2">
+                    <button class="btn btn-outline-primary">✫️ Promote to Case</button>
+                    <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editAlertModal">✏️ Edit Alert</button>
+
+                    <textarea class="form-control mt-2" placeholder="Add comment..." rows="4"></textarea>
+                    <button class="btn btn-sm btn-success mt-2">💬 Submit Comment</button>
+
+                    <hr>
+                    <h6>Previous Comments</h6>
+                    <ul class="list-group">
+                        <li class="list-group-item small">2025-03-25 08:00 — Investigating phishing email</li>
+                        <li class="list-group-item small">2025-03-24 16:30 — Assigned to analyst team</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Alert Modal -->
+    <div class="modal fade" id="editAlertModal" tabindex="-1" aria-labelledby="editAlertModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form class="modal-content" method="post" action="/web/v1/alerts/{{ alert.id }}/update">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editAlertModalLabel">✏️ Edit Alert</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-select" name="status" id="status">
+                            <option value="new">New</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="done">Done</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="resolution" class="form-label">Resolution</label>
+                        <select class="form-select" name="resolution" id="resolution">
+                            <option value="">--</option>
+                            <option value="under_investigation">Under Investigation</option>
+                            <option value="false_positive">False Positive</option>
+                            <option value="true_positive_no_impact">TP (No Impact)</option>
+                            <option value="true_positive_with_impact">TP (Impact)</option>
+                            <option value="not_applicable">Not Applicable</option>
+                            <option value="legitimate">Legitimate</option>
+                            <option value="unknown">Unknown</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="resolution_comment" class="form-label">Comment</label>
+                        <textarea class="form-control" name="resolution" id="resolution_comment" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">📂 Save Changes</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1055">
+    <div id="copyToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                Copied to clipboard!
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function expandAll() {
+        document.querySelectorAll('.accordion-collapse').forEach(el => el.classList.add('show'));
+    }
+    function collapseAll() {
+        document.querySelectorAll('.accordion-collapse').forEach(el => el.classList.remove('show'));
+    }
+    function highlightMatch(text, term) {
+        const regex = new RegExp(`(${term})`, 'gi');
+        return text.replace(regex, '<mark>$1</mark>');
+    }
+    function runSearch() {
+        const input = document.getElementById("alertSearch");
+        const filter = input.value.toLowerCase().trim();
+        if (filter.length < 2) return;
+        const results = [];
+        const sections = document.querySelectorAll(".accordion-item");
+        sections.forEach(section => {
+            const title = section.querySelector(".accordion-button")?.innerText.trim();
+            const contentElement = section.querySelector(".accordion-body");
+            if (!title || !contentElement) return;
+            const content = contentElement.innerText.trim();
+            if (content.toLowerCase().includes(filter)) {
+                section.querySelector(".accordion-collapse")?.classList.add("show");
+                results.push(`
+                    <div class="mb-3">
+                        <h6>${title}</h6>
+                        <pre class="p-2 rounded border" style="background-color: var(--sc-pre-bg);">
+<code>${highlightMatch(content, filter)}</code></pre>
+                    </div>
+                `);
+            }
+        });
+        const resultsContainer = document.getElementById("searchResultsContent");
+        resultsContainer.innerHTML = results.length > 0 ? results.join("") : "<p style='color: var(--sc-muted);'>No matches found.</p>";
+        const modal = new bootstrap.Modal(document.getElementById("searchResultModal"));
+        modal.show();
+    }
+    document.getElementById("alertSearchButton").addEventListener("click", runSearch);
+    document.getElementById("alertSearch").addEventListener("keypress", function (e) {
+        if (e.key === "Enter") runSearch();
+    });
+
+    document.addEventListener("click", function(e) {
+        if (e.target.classList.contains("copyable-json")) {
+            const text = e.target.innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const toast = new bootstrap.Toast(document.getElementById('copyToast'));
+                toast.show();
+            });
+        }
+    });
+</script>
+{% endblock %}

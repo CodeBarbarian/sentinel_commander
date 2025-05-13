@@ -1,0 +1,141 @@
+{% extends "_design.html" %}
+{% block title %}Playbooks{% endblock %}
+
+{% block extrastyle %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown.min.css">
+<style>
+.markdown-body {
+  background-color: #f9f9f9;
+  padding: 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>📘 Playbooks</h3>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newPlaybookModal">➕ New Playbook</button>
+  </div>
+
+  {% if playbooks %}
+  <table class="table table-hover align-middle">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Classification</th>
+        <th>Last Updated</th>
+        <th style="width: 150px;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for pb in playbooks %}
+      <tr>
+        <td>
+          <strong>{{ pb.name }}</strong><br>
+          <button class="btn btn-sm btn-outline-primary mt-1" data-bs-toggle="collapse"
+                  data-bs-target="#stepsPreview{{ pb.id }}">📖 View Steps</button>
+        </td>
+        <td>{{ pb.description }}</td>
+        <td>{{ pb.classification or "—" }}</td>
+        <td>{{ pb.updated_at.strftime('%Y-%m-%d %H:%M') }}</td>
+        <td>
+          <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal"
+                  data-bs-target="#editPlaybookModal{{ pb.id }}">Edit</button>
+          <form method="post" action="/web/v1/playbooks/{{ pb.id }}/delete" class="d-inline">
+            <button type="submit" class="btn btn-sm btn-outline-danger"
+                    onclick="return confirm('Delete this playbook?')">Delete</button>
+          </form>
+        </td>
+      </tr>
+      <tr class="collapse" id="stepsPreview{{ pb.id }}">
+        <td colspan="5">
+          <div class="border rounded p-3 bg-dark markdown-body">
+            {{ pb.rendered_steps | safe }}
+          </div>
+        </td>
+      </tr>
+
+      <!-- Edit Modal -->
+      <div class="modal fade" id="editPlaybookModal{{ pb.id }}" tabindex="-1"
+           aria-labelledby="editPlaybookLabel{{ pb.id }}" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <form method="post" action="/web/v1/playbooks/{{ pb.id }}/edit">
+              <div class="modal-header">
+                <h5 class="modal-title" id="editPlaybookLabel{{ pb.id }}">Edit Playbook</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <div class="mb-3">
+                  <label class="form-label">Name</label>
+                  <input name="name" class="form-control" value="{{ pb.name }}" required>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Description</label>
+                  <textarea name="description" class="form-control">{{ pb.description }}</textarea>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Classification</label>
+                  <input name="classification" class="form-control" value="{{ pb.classification }}">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Steps (Markdown or checklist)</label>
+                  <textarea name="steps" rows="6" class="form-control">{{ pb.steps }}</textarea>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>No playbooks created yet. Use the button above to get started.</p>
+  {% endif %}
+</div>
+
+<!-- New Playbook Modal -->
+<div class="modal fade" id="newPlaybookModal" tabindex="-1" aria-labelledby="newPlaybookLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form method="post" action="/web/v1/playbooks">
+        <div class="modal-header">
+          <h5 class="modal-title" id="newPlaybookLabel">New Playbook</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Name</label>
+            <input name="name" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea name="description" class="form-control"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Classification</label>
+            <input name="classification" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Steps (Markdown or checklist)</label>
+            <textarea name="steps" rows="6" class="form-control"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-success">Create</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

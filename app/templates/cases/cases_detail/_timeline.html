@@ -1,0 +1,23 @@
+<div class="tab-pane fade" id="timeline" role="tabpanel">
+  <h5>📅 Case Timeline</h5>
+  {% if timeline %}
+    <ul class="list-group">
+      {% for event in timeline %}
+        <li class="list-group-item">
+          <small class="text-muted">
+            {{ event.timestamp.strftime('%Y-%m-%d %H:%M:%S') }} — {{ event.event_type }}
+          </small><br>
+          <strong>{{ event.message }}</strong><br>
+          {% if event.details %}
+            <small>{{ event.details }}</small><br>
+          {% endif %}
+          {% if event.actor_id %}
+            <span class="badge bg-secondary">Actor ID: {{ event.actor_id }}</span>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-muted">No timeline entries yet.</p>
+  {% endif %}
+</div>

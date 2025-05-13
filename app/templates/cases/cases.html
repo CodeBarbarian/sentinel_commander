@@ -1,0 +1,133 @@
+{% extends "_design.html" %}
+{% block title %}Cases{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2>Cases</h2>
+  <a href="/web/v1/cases/new" class="btn btn-success">
+    <i class="bi bi-plus-circle me-1"></i> Create Case
+  </a>
+</div>
+  <!-- Summary Stats -->
+  <div class="row mb-4">
+    {% set status_counts = {'new': 0, 'in_progress': 0, 'escalated': 0, 'done': 0} %}
+    {% for case in cases %}
+      {% set _ = status_counts.__setitem__(case.state, status_counts.get(case.state, 0) + 1) %}
+    {% endfor %}
+    {% set total = cases | length %}
+
+    <div class="col-md-3">
+      <div class="card text-bg-primary shadow-sm text-center">
+        <div class="card-body">
+          <h6 class="card-title">Total</h6>
+          <h3>{{ total }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-bg-danger shadow-sm text-center">
+        <div class="card-body">
+          <h6 class="card-title">Escalated</h6>
+          <h3>{{ status_counts['escalated'] }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-bg-warning shadow-sm text-center">
+        <div class="card-body">
+          <h6 class="card-title">In Progress</h6>
+          <h3>{{ status_counts['in_progress'] }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-bg-success shadow-sm text-center">
+        <div class="card-body">
+          <h6 class="card-title">New</h6>
+          <h3>{{ status_counts['new'] }}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Helper Macros -->
+  {% macro render_case_table(title, cases) %}
+    <h4 class="mt-5 mb-3">{{ title }}</h4>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Title</th>
+            <th>Severity</th>
+            <th>Classification</th>
+            <th>Customer</th>
+            <th>Assigned</th>
+            <th>Created</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for case in cases %}
+            <tr>
+              <td>{{ case.title }}</td>
+              <td>
+                <span class="badge
+                  {% if case.severity >= 15 %}text-bg-danger
+                  {% elif case.severity >= 10 %}text-bg-warning
+                  {% else %}text-bg-success{% endif %}">
+                  {{ case.severity }}
+                </span>
+              </td>
+              <td><span class="badge text-bg-secondary">{{ case.classification }}</span></td>
+              <td>{{ case.customer_id }}</td>
+              <td>{{ case.assigned_to or "Unassigned" }}</td>
+              <td>{{ case.created_at.strftime('%Y-%m-%d') }}</td>
+              <td>
+                <span class="badge
+                  {% if case.state == 'new' %}text-bg-secondary
+                  {% elif case.state == 'triage' %}text-bg-info
+                  {% elif case.state == 'in_progress' %}text-bg-warning
+                  {% elif case.state == 'waiting' %}text-bg-light
+                  {% elif case.state == 'escalated' %}text-bg-danger
+                  {% elif case.state == 'monitoring' %}text-bg-primary
+                  {% elif case.state == 'done' %}text-bg-success
+                  {% elif case.state == 'archived' %}text-bg-dark
+                  {% else %}text-bg-secondary{% endif %}">
+                  {{ case.state }}
+                </span>
+              </td>
+              <td>
+                <a href="/web/v1/cases/{{ case.id }}" class="btn btn-sm btn-outline-primary">View</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endmacro %}
+
+  <!-- Render Each Group -->
+  {% set escalated_cases = cases | selectattr("state", "equalto", "escalated") | list %}
+  {% if escalated_cases %}
+    {{ render_case_table("🔥 Escalated Cases", escalated_cases) }}
+  {% endif %}
+
+  {% set in_progress_cases = cases | selectattr("state", "equalto", "in_progress") | list %}
+  {% if in_progress_cases %}
+    {{ render_case_table("🛠️ In Progress", in_progress_cases) }}
+  {% endif %}
+
+  {% set new_cases = cases | selectattr("state", "equalto", "new") | list %}
+  {% if new_cases %}
+    {{ render_case_table("📥 New Cases", new_cases) }}
+  {% endif %}
+
+  {% set done_cases = cases | selectattr("state", "equalto", "done") | list %}
+  {% if done_cases %}
+    {{ render_case_table("✅ Done Cases", done_cases) }}
+  {% endif %}
+
+</div>
+{% endblock %}

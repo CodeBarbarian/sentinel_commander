@@ -1,0 +1,213 @@
+{% extends "_design.html" %}
+{% block title %}Settings{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <h2 class="mb-4">System Settings</h2>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs" id="settingsTabs" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#general" type="button">General Settings</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#parsers" type="button">Parsers</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#modules" type="button">Modules</button>
+        </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content border border-top-0 p-4">
+        <!-- General Settings -->
+        <div class="tab-pane fade show active" id="general">
+            <h5>General Configuration</h5>
+            <form>
+                <div class="mb-3">
+                    <label for="systemName" class="form-label">System Name</label>
+                    <input type="text" class="form-control" id="systemName" value="Sentinel Commander">
+                </div>
+                <div class="mb-3">
+                    <label for="defaultSeverity" class="form-label">Default Alert Severity</label>
+                    <select class="form-select" id="defaultSeverity">
+                        <option>Low</option>
+                        <option selected>Medium</option>
+                        <option>High</option>
+                        <option>Critical</option>
+                    </select>
+                </div>
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" id="autoUpdateToggle" checked>
+                    <label class="form-check-label" for="autoUpdateToggle">Enable Auto Updates</label>
+                </div>
+                <button class="btn btn-primary" type="button">Save General Settings</button>
+            </form>
+        </div>
+
+        <!-- Parsers -->
+        <div class="tab-pane fade" id="parsers">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5>Parsers</h5>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addParserModal">+ Add Parser</button>
+            </div>
+            <p class="text-muted">Manage YAML parsers for interpreting alert formats.</p>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Parser Name</th>
+                        <th>Filename</th>
+                        <th>Location</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="parser-table-body">
+                    <!-- Filled by JS -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Modules -->
+        <div class="tab-pane fade" id="modules">
+            <h5>Modules & Integrations</h5>
+            <div class="form-check form-switch mb-2">
+                <input class="form-check-input" type="checkbox" id="wazuhModule" checked>
+                <label class="form-check-label" for="wazuhModule">Wazuh Integration</label>
+            </div>
+            <div class="form-check form-switch mb-2">
+                <input class="form-check-input" type="checkbox" id="mispModule" checked>
+                <label class="form-check-label" for="mispModule">MISP Threat Intelligence</label>
+            </div>
+            <div class="form-check form-switch mb-2">
+                <input class="form-check-input" type="checkbox" id="openctiModule">
+                <label class="form-check-label" for="openctiModule">OpenCTI Visualization</label>
+            </div>
+            <button class="btn btn-primary mt-2" type="button">Save Module Settings</button>
+        </div>
+    </div>
+</div>
+
+<!-- Add Parser Modal -->
+<div class="modal fade" id="addParserModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <form id="addParserForm" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Parser</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <label for="parserYaml" class="form-label">Paste YAML Content</label>
+                <textarea class="form-control" id="parserYaml" rows="15" required></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary">Save Parser</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Parser Modal -->
+<div class="modal fade" id="editParserModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Edit Parser: <span id="editParserName"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div id="yamlEditor" style="height: 500px; width: 100%;"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" onclick="saveParserEdits()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Ace Editor Script -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.2/ace.js" crossorigin="anonymous"></script>
+
+<script>
+    let currentEditFilename = "";
+    let currentEditLocation = "";
+    let editor;
+
+    async function loadParsers() {
+        const res = await fetch("/api/v1/parsers");
+        const parsers = await res.json();
+        const table = document.getElementById("parser-table-body");
+        table.innerHTML = "";
+
+        parsers.forEach(p => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${p.name}</td>
+                <td><code>${p.filename}</code></td>
+                <td><span class="badge bg-${p.location === 'default' ? 'info' : 'secondary'}">${p.location}</span></td>
+                <td>
+                    <button class="btn btn-sm btn-secondary me-1" onclick="openEditor('${p.filename}', '${p.name}', '${p.location}')">Edit</button>
+                </td>
+            `;
+            table.appendChild(row);
+        });
+    }
+
+    document.getElementById("addParserForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const yaml = document.getElementById("parserYaml").value;
+        const res = await fetch("/api/v1/parsers", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ yaml })
+        });
+
+        if (res.ok) {
+            bootstrap.Modal.getInstance(document.getElementById("addParserModal")).hide();
+            setTimeout(() => loadParsers(), 300);
+        } else {
+            const err = await res.json();
+            alert("Error: " + (err.detail || "Unknown"));
+        }
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        loadParsers();
+        editor = ace.edit("yamlEditor");
+        editor.setTheme("ace/theme/monokai");
+        editor.session.setMode("ace/mode/yaml");
+    });
+
+    async function openEditor(filename, name, location) {
+        currentEditFilename = filename;
+        currentEditLocation = location;
+        document.getElementById("editParserName").textContent = name;
+
+        const res = await fetch(`/api/v1/parsers/view/${location}/${filename}`);
+        if (res.ok) {
+            const content = await res.text();
+            editor.setValue(content, -1);
+            new bootstrap.Modal(document.getElementById("editParserModal")).show();
+        } else {
+            alert("Failed to load parser");
+        }
+    }
+
+    async function saveParserEdits() {
+    const yaml = editor.getValue();
+    const res = await fetch(`/api/v1/parsers/view/${currentEditLocation}/${currentEditFilename}`, {
+        method: "PUT",
+        headers: { "Content-Type": "text/plain" },
+        body: yaml
+    });
+
+    if (res.ok) {
+        bootstrap.Modal.getInstance(document.getElementById("editParserModal")).hide();
+        loadParsers();
+    } else {
+        const err = await res.json();
+        alert("Save failed: " + (err.detail || "Unknown"));
+    }
+}
+
+</script>
+{% endblock %}

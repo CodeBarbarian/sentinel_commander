@@ -1,0 +1,154 @@
+{% extends "_design.html" %}
+{% block title %}Case: {{ case.title }}{% endblock %}
+
+{% block extrastyle %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown.min.css">
+<style>
+.markdown-body {
+  background-color: #f9f9f9;
+  padding: 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  {% if case.state == 'done' %}
+    <div class="alert alert-info mt-4">
+        <strong>📌 Closing Note:</strong><br>
+        {{ case.closing_note }}
+    </div>
+    {% endif %}
+{% include "cases/cases_detail/_header.html" %}
+{% include "cases/cases_detail/_metadata.html" %}
+{% include "cases/cases_detail/_tabs.html" %}
+
+
+  <div class="tab-content border p-4 rounded" style="background-color: var(--sc-card-bg); border-color: var(--sc-border); color: var(--sc-text);">
+
+    <!-- Summary -->
+    {% include "cases/cases_detail/_summary.html" %}
+
+    <!-- Placeholder tabs -->
+    {% include "cases/cases_detail/_alerts.html"  %}
+    {% include "cases/cases_detail/_notes.html"  %}
+    {% include "cases/cases_detail/_timeline.html" %}
+    {% include "cases/cases_detail/_tasks.html" %}
+    {% include "cases/cases_detail/_assets.html" %}
+    {% include "cases/cases_detail/_iocs.html" %}
+    {% include "cases/cases_detail/_evidence.html" %}
+    {% include "cases/cases_detail/_playbooks.html" %}
+
+  </div>
+</div>
+
+{% include "cases/cases_detail/modals/edit_case_modal.html" %}
+{% include "cases/cases_detail/modals/close_case_modal.html" %}
+{% include "cases/cases_detail/modals/add_note_modal.html" %}
+{% include "cases/cases_detail/modals/add_task_modal.html" %}
+{% include "cases/cases_detail/modals/create_asset_modal.html" %}
+{% include "cases/cases_detail/modals/link_asset_modal.html" %}
+
+<script>
+  async function populateDropdowns() {
+    const customerSelect = document.getElementById("editCustomer");
+    const assignedToSelect = document.getElementById("editAssignedTo");
+    const stateSelect = document.getElementById("editState");
+
+    const [customersRes, usersRes] = await Promise.all([
+      fetch("/api/v1/customers"),
+      fetch("/api/v1/users")
+    ]);
+
+    const customers = await customersRes.json();
+    const users = await usersRes.json();
+
+    customerSelect.innerHTML = '<option value="">— Select Customer —</option>';
+    customers.forEach(c => {
+      const option = document.createElement("option");
+      option.value = c.id;
+      option.textContent = c.name;
+      if (c.id === {{ case.customer_id or "null" }}) option.selected = true;
+      customerSelect.appendChild(option);
+    });
+
+    assignedToSelect.innerHTML = '<option value="">— Unassigned —</option>';
+    users.forEach(u => {
+      const option = document.createElement("option");
+      option.value = u.id;
+      option.textContent = `${u.full_name || u.username}`;
+      if (u.id === {{ case.assigned_to or "null" }}) option.selected = true;
+      assignedToSelect.appendChild(option);
+    });
+
+    // Select current state
+    if (stateSelect) {
+      const currentState = "{{ case.state }}".toLowerCase();
+      for (let option of stateSelect.options) {
+        if (option.value.toLowerCase() === currentState) {
+          option.selected = true;
+          break;
+        }
+      }
+    }
+  }
+
+  // Load dropdowns each time modal is opened
+  document.getElementById("editCaseModal")
+    .addEventListener("show.bs.modal", populateDropdowns);
+
+  // Save tab to localStorage & update URL hash
+  document.querySelectorAll('a[data-bs-toggle="tab"]').forEach(function (tab) {
+    tab.addEventListener("shown.bs.tab", function (event) {
+      const href = event.target.getAttribute("href");
+      localStorage.setItem("activeTab", href);
+      history.replaceState(null, null, href); // updates URL hash
+    });
+  });
+
+  // On page load, activate last active tab
+  document.addEventListener('DOMContentLoaded', function () {
+    const activeTab = localStorage.getItem('activeTab');
+    if (activeTab) {
+      const tabTrigger = document.querySelector(`a[data-bs-toggle="tab"][href="${activeTab}"]`);
+      if (tabTrigger) {
+        new bootstrap.Tab(tabTrigger).show();
+      }
+    }
+  });
+  document.addEventListener("paste", function (event) {
+    const clipboardItems = event.clipboardData.items;
+    for (let i = 0; i < clipboardItems.length; i++) {
+      const item = clipboardItems[i];
+      if (item.type.indexOf("image") !== -1) {
+        const file = item.getAsFile();
+        const input = document.getElementById("clipboard-file");
+
+        // Create a new DataTransfer to assign clipboard file to input
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        input.files = dt.files;
+
+        // Optional: auto-fill title/type
+        const titleInput = document.querySelector("input[name='title']");
+        if (titleInput && !titleInput.value) {
+          titleInput.value = "Screenshot from clipboard";
+        }
+
+        const typeInput = document.querySelector("input[name='type']");
+        if (typeInput && !typeInput.value) {
+          typeInput.value = "screenshot";
+        }
+
+        alert("📋 Screenshot pasted into upload field!");
+        break;
+      }
+    }
+  });
+
+</script>
+
+
+{% endblock %}

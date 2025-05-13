@@ -1,0 +1,77 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+  <div class="container-fluid">
+    <a class="navbar-brand fw-bold" href="/web/v1/dashboard">Sentinel Commander</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+
+        <!-- Dashboard -->
+        <li class="nav-item">
+          <a class="nav-link {% if request.url.path.startswith('/web/v1/dashboard') %}active{% endif %}"
+             href="/web/v1/dashboard">Dashboard</a>
+        </li>
+
+        <!-- Cases -->
+        <li class="nav-item">
+          <a class="nav-link {% if request.url.path.startswith('/web/v1/cases') %}active{% endif %}"
+             href="/web/v1/cases">Cases</a>
+        </li>
+
+        <!-- Alerts Dropdown -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle {% if request.url.path.startswith('/web/v1/alerts') %}active{% endif %}"
+             href="#" role="button" data-bs-toggle="dropdown">
+            Alerts
+          </a>
+          <ul class="dropdown-menu dropdown-menu-dark">
+            <li><a class="dropdown-item" href="/web/v1/alerts">View Alerts</a></li>
+            <li><a class="dropdown-item" href="/web/v1/sentineliq/triage">🧠 Sentinel IQ</a></li>
+          </ul>
+        </li>
+
+        <!-- IRDB Dropdown -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle {% if request.url.path.startswith('/web/v1/assets') or request.url.path.startswith('/web/v1/iocs') or request.url.path.startswith('/web/v1/playbooks') %}active{% endif %}"
+             href="#" role="button" data-bs-toggle="dropdown">
+            IRDB
+          </a>
+          <ul class="dropdown-menu dropdown-menu-dark">
+            <li><a class="dropdown-item" href="/web/v1/assets">Assets</a></li>
+            <li><a class="dropdown-item" href="/web/v1/iocs">Indicators of Compromise</a></li>
+            <li><a class="dropdown-item" href="/web/v1/playbooks">Playbooks</a></li>
+          </ul>
+        </li>
+
+        <!-- Settings Dropdown -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle {% if 'settings' in request.url.path %}active{% endif %}"
+             href="#" role="button" data-bs-toggle="dropdown">
+            Settings
+          </a>
+          <ul class="dropdown-menu dropdown-menu-dark">
+            <li><a class="dropdown-item" href="/web/v1/sources">Sources</a></li>
+            <li><a class="dropdown-item" href="/web/v1/users">Users</a></li>
+          </ul>
+        </li>
+
+        <!-- Dark Mode Toggle -->
+        <li class="nav-item d-flex align-items-center">
+          <button class="btn btn-outline-light btn-sm me-2 mt-1" id="darkModeToggle" title="Toggle Theme">
+            🌓
+          </button>
+        </li>
+
+      </ul>
+      {% if request.session.user %}
+  <div class="text-end small text-muted">
+    Logged in as {{ request.session.user.username }} |
+    <a href="/web/v1/logout">Logout</a>
+  </div>
+{% endif %}
+
+    </div>
+  </div>
+</nav>

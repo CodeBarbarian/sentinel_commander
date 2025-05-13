@@ -1,0 +1,17 @@
+<ul class="nav nav-tabs modern-tabs mb-3" id="caseTabs" role="tablist">
+  {% for tab in ["Summary", "Alerts", "Notes", "Timeline", "Tasks", "Assets", "IOCs", "Evidence", "Playbooks"] %}
+    <li class="nav-item" role="presentation">
+      <a
+        class="nav-link {% if loop.index0 == 0 %}active{% endif %}"
+        id="{{ tab.lower() }}-tab"
+        data-bs-toggle="tab"
+        href="#{{ tab.lower() }}"
+        role="tab"
+        aria-controls="{{ tab.lower() }}"
+        aria-selected="{% if loop.index0 == 0 %}true{% else %}false{% endif %}"
+      >
+        {{ tab }}
+      </a>
+    </li>
+  {% endfor %}
+</ul>

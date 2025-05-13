@@ -1,0 +1,26 @@
+<!-- Add Note Modal -->
+<div class="modal fade" id="addNoteModal" tabindex="-1" aria-labelledby="addNoteModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addNoteModalLabel">Add Note</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <form id="add-note-form" method="post" action="/web/v1/cases/{{ case.id }}/notes">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="noteContent" class="form-label">Note Content</label>
+            <textarea class="form-control" id="noteContent" name="content" rows="4" required></textarea>
+          </div>
+
+          <input type="hidden" name="author_id" value="1"> <!-- Replace with actual logged-in user ID -->
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Add Note</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

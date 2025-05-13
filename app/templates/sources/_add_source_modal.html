@@ -1,0 +1,29 @@
+<!-- Create Source Modal -->
+<div class="modal fade" id="createSourceModal" tabindex="-1" aria-labelledby="createSourceModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form id="createSourceForm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createSourceModalLabel">Create New Source</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="mb-3">
+                        <label for="sourceName" class="form-label">Source Name (internal)</label>
+                        <input type="text" class="form-control" id="sourceName" name="name" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="displayName" class="form-label">Display Name (friendly)</label>
+                        <input type="text" class="form-control" id="displayName" name="display_name" required>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Create</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

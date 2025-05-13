@@ -1,0 +1,187 @@
+{% extends "_design.html" %}
+
+{% block title %}Dashboard - Sentinel Commander{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Dashboard</h2>
+
+<!-- Top stats -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-bg-primary h-100">
+            <div class="card-body">
+                <h5 class="card-title">Alerts Today</h5>
+                <p class="card-text fs-3">{{ stats.alerts_today }}</p>
+            </div>
+            <div class="card-footer bg-transparent border-top-0">
+                <a href="/web/v1/alerts" class="text-white text-decoration-underline">Go to Alerts</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-bg-warning h-100">
+            <div class="card-body">
+                <h5 class="card-title">Open Cases</h5>
+                <p class="card-text fs-3">{{ stats.open_cases }}</p>
+            </div>
+            <div class="card-footer bg-transparent border-top-0">
+                <a href="/web/v1/cases" class="text-dark text-decoration-underline">Go to Cases</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-bg-success h-100">
+            <div class="card-body">
+                <h5 class="card-title">Sources</h5>
+                <p class="card-text fs-3">{{ stats.sources }}</p>
+            </div>
+            <div class="card-footer bg-transparent border-top-0">
+                <a href="/web/v1/sources" class="text-white text-decoration-underline">Go to Sources</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-bg-secondary h-100">
+            <div class="card-body">
+                <h5 class="card-title">Unique Tags</h5>
+                <p class="card-text fs-3">{{ stats.unique_tags }}</p>
+            </div>
+            <div class="card-footer bg-transparent border-top-0">
+                <a href="/web/alerts?view=tags" class="text-white text-decoration-underline">View Tags</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <!-- Recent alerts -->
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Recent Alerts</h5>
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Source</th>
+                    <th>Severity</th>
+                    <th>Status</th>
+                    <th>Message</th>
+                    <th>Created</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for alert in recent_alerts %}
+                <tr>
+                    <td><a href="/web/v1/alerts/{{ alert.id }}">{{ alert.id }}</a></td>
+                    <td>{{ alert.source_display_name or "Unknown" }}</td>
+                    <td>
+{% set severity_label =
+    "Critical" if alert.severity == 15 else
+    "High" if alert.severity in [12, 13, 14] else
+    "Medium" if alert.severity in [7, 8, 9, 10, 11] else
+    "Low" if alert.severity in [1, 2, 3, 4, 5, 6] else
+    "Informational"
+%}
+<span class="badge
+    {% if alert.severity == 15 %}
+        bg-danger
+    {% elif alert.severity in [12, 13, 14] %}
+        bg-warning text-dark
+    {% elif alert.severity in [7, 8, 9, 10, 11] %}
+        bg-info text-dark
+    {% elif alert.severity in [1, 2, 3, 4, 5, 6] %}
+        bg-success
+    {% else %}
+        bg-secondary
+    {% endif %}">
+    {{ severity_label }}
+</span>
+                    </td>
+                    <td>
+                            <span class="badge
+                                {% if alert.status == 'new' %}bg-primary
+                                {% elif alert.status == 'in_progress' %}bg-warning text-dark
+                                {% elif alert.status == 'done' %}bg-success
+                                {% else %}bg-secondary{% endif %}">
+                                {{ alert.status }}
+                            </span>
+                    </td>
+                    <td>{{ alert.message | default("N/A") | truncate(40) }}</td>
+                    <td>{{ alert.created_at.strftime('%Y-%m-%d %H:%M:%S') if alert.created_at else "Unknown" }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const severityChart = new Chart(document.getElementById('severityChart'), {
+        type: 'doughnut',
+        data: {
+            labels: {{ charts.severity_labels | safe }},
+            datasets: [{
+                data: {{ charts.severity_values | safe }},
+                backgroundColor: ['#dc3545', '#fd7e14', '#ffc107', '#28a745', '#6c757d']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                tooltip: {
+                    enabled: true
+                }
+            }
+        }
+    });
+
+    const timelineChart = new Chart(document.getElementById('timelineChart'), {
+        type: 'line',
+        data: {
+            labels: {{ charts.timeline_labels | safe }},
+            datasets: [{
+                label: 'Alerts',
+                data: {{ charts.timeline_values | safe }},
+                fill: true,
+                borderColor: '#0d6efd',
+                backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                tension: 0.3,
+                pointRadius: 3
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false
+                }
+            },
+            interaction: {
+                mode: 'nearest',
+                axis: 'x',
+                intersect: false
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+{% endblock %}

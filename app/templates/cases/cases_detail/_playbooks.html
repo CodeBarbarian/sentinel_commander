@@ -1,0 +1,43 @@
+<div class="tab-pane fade" id="playbooks" role="tabpanel">
+  <h5>🛠️ Linked Playbooks</h5>
+  {% if playbooks %}
+    <ul class="list-group mb-3">
+      {% for playbook in playbooks %}
+        <li class="list-group-item">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <strong>{{ playbook.name }}</strong><br>
+              <small>{{ playbook.description }}</small><br>
+              <button class="btn btn-sm btn-outline-primary mt-2" data-bs-toggle="collapse" data-bs-target="#playbookSteps{{ playbook.id }}">
+                📖 View Steps
+              </button>
+            </div>
+            <form method="post" action="/web/v1/cases/{{ case.id }}/playbooks/{{ playbook.id }}/unlink">
+              <button type="submit" class="btn btn-sm btn-danger">Unlink</button>
+            </form>
+          </div>
+
+          <div class="collapse mt-3" id="playbookSteps{{ playbook.id }}">
+            <div class="border rounded p-3 bg-dark markdown-body">
+              {{ playbook.rendered_steps | safe }}
+            </div>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No playbooks linked to this case.</p>
+  {% endif %}
+
+  <h6>Add Playbook to Case</h6>
+  <form method="post" action="/web/v1/cases/{{ case.id }}/playbooks/link">
+    <div class="input-group">
+      <select name="playbook_id" class="form-select">
+        {% for pb in all_playbooks %}
+          <option value="{{ pb.id }}">{{ pb.name }}</option>
+        {% endfor %}
+      </select>
+      <button class="btn btn-primary" type="submit">Link</button>
+    </div>
+  </form>
+</div>

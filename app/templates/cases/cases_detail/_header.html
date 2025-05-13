@@ -1,0 +1,13 @@
+<div class="d-flex justify-content-between align-items-start flex-wrap mb-4">
+    <div>
+      <h2 class="mb-1">{{ case.title }}</h2>
+      <div class="d-flex align-items-center flex-wrap gap-2">
+        <span class="badge status-badge status-{{ case.state|replace('_', '-')|lower }}">{{ case.state|capitalize }}</span>
+        <span class="badge severity-badge {{ 'severity-critical' if case.severity >= 14 else 'severity-high' if case.severity >= 10 else 'severity-medium' if case.severity >= 6 else 'severity-low' }}">
+          Severity: {{ case.severity }}
+        </span>
+        <small class="text-muted ms-2">Created: {{ case.created_at.strftime('%Y-%m-%d') }}</small>
+      </div>
+    </div>
+    <a href="/web/v1/cases" class="btn btn-outline-primary mt-2">← Back to Cases</a>
+  </div>

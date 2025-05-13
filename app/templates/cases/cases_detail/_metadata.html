@@ -1,0 +1,42 @@
+<div class="d-flex justify-content-end mb-2">
+    <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editCaseModal">
+        Edit Case Details
+    </button>
+        {% if case.state != "done" %}
+    <button class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#closeCaseModal">
+        Close Case
+    </button>
+    {% endif %}
+</div>
+<div class="row mb-4">
+    <div class="col-md-6 mb-3">
+        <div class="card p-3">
+            <h6 class="text-muted">Customer</h6>
+            <p>{{ customer_name or "—" }}</p>
+
+            <h6 class="text-muted">Assigned To</h6>
+            <p>{{ assigned_to_username or "Unassigned" }}</p>
+
+            <h6 class="text-muted">State</h6>
+            <p>
+                <span class="badge status-{{ case.state|lower|replace(" ", "-") }}">
+                {{ case.state or "—" }}
+                </span>
+            </p>
+        </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <div class="card p-3">
+            <h6 class="text-muted">Classification</h6>
+            <p>{{ case.classification or "—" }}</p>
+
+            <h6 class="text-muted">Tags</h6>
+            <div class="d-flex flex-wrap gap-1">
+                {% for tag in case.tags %}
+                <span class="badge bg-secondary">{{ tag.tag }}</span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+

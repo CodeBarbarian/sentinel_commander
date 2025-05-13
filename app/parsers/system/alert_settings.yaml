@@ -1,0 +1,62 @@
+parser_name: alert_settings
+name: alert_settings
+match:
+  source: "*"
+
+display:
+  layout: card
+  always_show:
+#    - field: message
+#      label: Title
+#      style: bold
+
+    - field: severity
+      label: Severity
+      style: severity_level
+      translate:
+        1: "Low"
+        2: "Low"
+        3: "Low"
+        4: "Low"
+        5: "Low"
+        6: "Medium"
+        7: "Medium"
+        8: "Medium"
+        9: "Medium"
+        10: "High"
+        11: "High"
+        12: "High"
+        13: "High"
+        14: "High"
+        15: "Critical"
+      color_map:
+        critical: "#dc3545"  # red
+        high: "#fd7e14"      # orange
+        medium: "#ffc107"    # yelLow
+        low: "#198754"       # green
+        unknown: "#6c757d"   # gray
+
+    - field: status
+      label: Status
+      style: badge
+      color_map:
+        new: "#0000FF"
+        done: "#198754"
+      translate:
+        new: "New"
+        in_progress: "In Progress"
+        done: "Done"
+
+    - field: resolution
+      label: Resolution
+      style: badge
+      translate:
+        under_investigation: "Under Investigation"
+
+#    - field: customer
+#      label: Customer
+#      style: badge
+
+    - field: asset_tags
+      label: Asset Tags
+      style: tag_list

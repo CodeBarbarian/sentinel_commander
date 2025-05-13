@@ -1,0 +1,157 @@
+body.sc-body {
+    background-color: var(--sc-bg);
+    color: var(--sc-text);
+    font-family: "Segoe UI", Roboto, Helvetica, sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+a {
+    color: var(--sc-link);
+}
+
+.card {
+    background-color: var(--sc-card-bg);
+    border: 1px solid var(--sc-border);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.table {
+    color: var(--sc-text);
+}
+
+.table thead {
+    background-color: var(--sc-border);
+}
+
+.table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+tr.selected-row {
+    background-color: var(--sc-selected) !important;
+}
+
+#selected-count {
+    font-weight: bold;
+    margin-left: 1rem;
+}
+
+.table-hover tbody tr:hover {
+    background-color: var(--sc-hover);
+}
+
+.navbar {
+    border-bottom: 1px solid var(--sc-border);
+}
+
+.nav-link.active {
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.btn-outline-primary {
+    color: var(--sc-link);
+    border-color: var(--sc-link);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--sc-link);
+    color: white;
+}
+
+.container-fluid {
+    max-width: 100% !important;
+    padding-left: 2rem;
+    padding-right: 2rem;
+}
+
+.accordion-body {
+    padding: 1rem;
+}
+.alert-card {
+    transition: 0.2s ease all;
+}
+.alert-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transform: scale(1.01);
+}
+
+
+.status-badge {
+  padding: 0.35em 0.6em;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+}
+
+.severity-badge {
+  padding: 0.35em 0.6em;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+}
+.severity-badge:hover,
+.status-badge:hover {
+  opacity: 0.85;
+  cursor: default;
+}
+
+.status-new {
+    background-color: #6c757d; /* Gray */
+    border-radius: 2rem
+}
+
+.status-in-progress {
+  background-color: #0dcaf0; /* Light blue (info) */
+  color: #000;
+    border-radius: 2rem
+}
+
+.status-done {
+  background-color: #20c997; /* Teal/Success-ish */
+    border-radius: 2rem
+}
+
+/* SEVERITY COLORS */
+.severity-critical {
+  background-color: #d63384; /* Pinkish-red */
+    border-radius: 2rem
+}
+
+.severity-high {
+  background-color: #dc3545; /* Red */
+    border-radius: 2rem
+}
+
+.severity-medium {
+  background-color: #fd7e14; /* Orange */
+    border-radius: 2rem
+}
+
+.severity-low {
+  background-color: #198754; /* Green */
+    border-radius: 2rem
+}
+
+/* Tab look refinements */
+.modern-tabs .nav-link {
+    font-weight: 500;
+    border: none;
+    color: var(--sc-muted);
+    background-color: transparent;
+    margin-right: 0.5rem;
+    transition: color 0.2s;
+}
+.modern-tabs .nav-link.active {
+    color: var(--sc-link);
+    border-bottom: 2px solid var(--sc-link);
+    background-color: transparent;
+}
+
+.modal.fade.show {
+    transition: none !important;
+}
