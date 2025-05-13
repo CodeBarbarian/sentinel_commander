@@ -74,6 +74,9 @@ app.include_router(cases.router, prefix="/api/v1", tags=["Cases API"])
 app.include_router(customers.router, prefix="/api/v1", tags=["Customers API"])
 app.include_router(users.router, prefix="/api/v1", tags=["Users API"])
 
+# Sentinel IQ
+app.include_router(sentineliq_view.router, prefix="/web/v1", tags=["SentinelIQ"])
+
 # Dashboard
 app.include_router(dashboard_view.router, prefix="/web/v1", tags=["Dashboard"])
 
@@ -96,8 +99,7 @@ app.include_router(auth_view.router, prefix="/web/v1", tags=["Users"])
 # Playbooks
 app.include_router(playbooks_view.router, prefix="/web/v1", tags=["Playbooks"])
 
-# Sentinel IQ
-app.include_router(sentineliq_view.router, prefix="/web/v1", tags=["SentinelIQ"])
+
 
 # Cases Routers
 app.include_router(cases_view.router, prefix="/web/v1", tags=["Cases"])
@@ -124,8 +126,3 @@ def format_datetime(value, format="%Y-%m-%d %H:%M:%S"):
 
 templates.env.filters["datetime"] = format_datetime
 
-@app.exception_handler(StarletteHTTPException)
-async def auth_exception_handler(request: Request, exc: StarletteHTTPException):
-    if exc.status_code == 401:
-        return RedirectResponse(url="/web/v1/login", status_code=302)
-    raise exc

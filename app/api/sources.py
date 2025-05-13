@@ -9,7 +9,8 @@ import secrets
 from fastapi import Path
 from app.core.security import require_admin_api_key
 
-router = APIRouter()
+from app.core.security import require_admin_api_key
+router = APIRouter(dependencies=[Depends(require_admin_api_key)])
 
 def get_db():
     db = SessionLocal()

@@ -9,9 +9,9 @@ from app.models.case_tag import CaseTag
 from app.schemas.case import CaseCreate, CaseUpdate, CaseResponse
 from app.schemas.case_tag import CaseTagCreate, CaseTagOut
 
-router = APIRouter()
+from app.core.security import require_admin_api_key
+router = APIRouter(dependencies=[Depends(require_admin_api_key)])
 templates = Jinja2Templates(directory="app/templates")
-
 
 @router.get("/cases", response_model=List[CaseResponse])
 def list_cases(db: Session = Depends(get_db)):

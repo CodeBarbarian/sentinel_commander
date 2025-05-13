@@ -7,6 +7,7 @@ from app.schemas.alert import AlertCreate
 from datetime import datetime
 from typing import Optional
 import uuid
+import logging
 
 router = APIRouter()
 
@@ -20,8 +21,8 @@ def get_db():
 
 
 @router.post("/webhook/{guid}")
-def receive_alert(guid: str, payload: AlertCreate, request: Request, db: Session = Depends(get_db)):
-    # 1. Validate Source by GUID and API Key
+async def receive_alert(guid: str, request: Request, db: Session = Depends(get_db)):
+    # 1. Validate Source by GUID
     source = db.query(Source).filter(Source.guid == guid).first()
     if not source or not source.is_active:
         raise HTTPException(status_code=403, detail="Invalid or inactive source")
@@ -35,7 +36,17 @@ def receive_alert(guid: str, payload: AlertCreate, request: Request, db: Session
     if token != source.api_key:
         raise HTTPException(status_code=403, detail="Invalid API key")
 
-    # 3. Deduplication check
+    # 3. Parse the incoming payload manually
+    try:
+        raw_body = await request.body()
+        body_str = raw_body.decode()
+        payload = AlertCreate.model_validate_json(body_str)
+    except Exception as e:
+        logging.error(f"[Webhook] Failed to parse payload: {e}")
+        logging.error(f"[Webhook] Raw body: {body_str}")
+        raise HTTPException(status_code=422, detail="Payload validation failed")
+
+    # 4. Deduplication check
     existing_alert = None
     if payload.source_ref_id:
         existing_alert = db.query(Alert).filter(
@@ -62,7 +73,7 @@ def receive_alert(guid: str, payload: AlertCreate, request: Request, db: Session
         else:
             return {"status": "duplicate", "id": existing_alert.id}
 
-    # 4. Create new alert
+    # 5. Create new alert
     new_alert = Alert(
         source_id=source.id,
         source=payload.source,

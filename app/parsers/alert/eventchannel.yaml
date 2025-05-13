@@ -1,0 +1,19 @@
+parser_name: eventchannel_parser
+parser_type: alert
+match:
+  location: EventChannel
+
+fields:
+  description: rule.description
+  rule_level: rule.level
+  groups: rule.groups
+  message: data.win.system.message
+  agent: agent.name
+  tags:
+    - Event Channel
+    - Windows
+
+enrichment:
+  - type: tag_if
+    condition: "rule.level == 3"
+    tag: "Not Important"

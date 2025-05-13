@@ -5,10 +5,11 @@ import json
 from datetime import datetime
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Request
 from fastapi.responses import PlainTextResponse
+from fastapi import Depends
 
 from app.utils.parser.engine import run_custom_parser
-
-router = APIRouter()
+from app.core.security import require_admin_api_key
+router = APIRouter(dependencies=[Depends(require_admin_api_key)])
 DEFAULT_PARSER_DIR = "app/parsers/default"
 PARSER_DIR = "app/parsers/custom"
 BACKUP_DIR = "app/parsers/backups"

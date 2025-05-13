@@ -1,10 +1,11 @@
 from fastapi import APIRouter, HTTPException, UploadFile, File
 from fastapi.responses import PlainTextResponse
+from fastapi import Depends
 from typing import List
 import os
 import yaml
-
-router = APIRouter()
+from app.core.security import require_admin_api_key
+router = APIRouter(dependencies=[Depends(require_admin_api_key)])
 PARSERS_DIR = "app/parsers"
 
 # Ensure the directory exists

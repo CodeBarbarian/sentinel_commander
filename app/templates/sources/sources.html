@@ -12,8 +12,7 @@
             + Create Source
         </button>
     </div>
-<p class="text-muted" id="source-count">Loading sources...</p>
-
+<p class="text-muted" id="source-count">Total sources: {{ sources|length }}</p>
     <div class="table-responsive">
         <table class="table table-striped align-middle">
             <thead class="table-dark">
@@ -26,112 +25,51 @@
                 <th>Actions</th>
             </tr>
             </thead>
-            <tbody id="sources-body">
-            <!-- Dynamically filled via JS -->
+            <tbody>
+            {% for source in sources %}
+            <tr>
+                <td>{{ source.display_name }}</td>
+                <td>{{ source.name }}</td>
+                <td><code>{{ source.guid }}</code></td>
+                <td>
+                    <code id="api-{{ source.guid }}" style="cursor: pointer;"
+                          onclick="copyToClipboard('api-{{ source.guid }}')">
+                        {{ source.api_key }}
+                    </code>
+                </td>
+                <td>
+                        <span class="badge {{ 'bg-success' if source.is_active else 'bg-secondary' }}">
+                            {{ 'Active' if source.is_active else 'Inactive' }}
+                        </span>
+                </td>
+                <td>
+                    <form method="post" action="/web/v1/sources/{{ source.guid }}/toggle" class="d-inline">
+                        <button class="btn btn-sm btn-outline-warning me-1" type="submit">Toggle</button>
+                    </form>
+                    <form method="post" action="/web/v1/sources/{{ source.guid }}/regenerate" class="d-inline">
+                        <button class="btn btn-sm btn-outline-info me-1" type="submit">New Key</button>
+                    </form>
+                    <form method="post" action="/web/v1/sources/{{ source.guid }}/delete" class="d-inline"
+                          onsubmit="return confirm('Are you sure?');">
+                        <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                    </form>
+                </td>
+
+            </tr>
+            {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
-
 {% include "sources/_add_source_modal.html" %}
 
+
 <script>
-
-    async function fetchSources() {
-        const res = await fetch("/api/v1/sources");
-        const data = await res.json();
-        const body = document.getElementById("sources-body");
-        document.getElementById("source-count").textContent = `Total sources: ${data.length}`;
-
-        body.innerHTML = "";
-
-        data.forEach(source => {
-            const row = document.createElement("tr");
-
-            row.innerHTML = `
-                <td>${source.display_name}</td>
-                <td>${source.name}</td>
-                <td><code>${source.guid}</code></td>
-                <td>
-                    <code id="api-${source.guid}" style="cursor: pointer;" onclick="copyToClipboard('api-${source.guid}')">${source.api_key}</code></td>
-                <td>
-                    <span class="badge ${source.is_active ? 'bg-success' : 'bg-secondary'}">
-                        ${source.is_active ? 'Active' : 'Inactive'}
-                    </span>
-                </td>
-                <td>
-                    <button class="btn btn-sm btn-outline-warning me-1" onclick="toggleSource('${source.guid}')">Toggle</button>
-                    <button class="btn btn-sm btn-outline-info me-1" onclick="regenerateKey('${source.guid}')">New Key</button>
-                    <button class="btn btn-sm btn-outline-danger" onclick="deleteSource('${source.guid}')">Delete</button>
-                </td>
-            `;
-            body.appendChild(row);
-        });
-    }
-
-    async function toggleSource(guid) {
-        const res = await fetch(`/api/v1/sources/${guid}/toggle`, {method: "PATCH"});
-        if (res.ok) fetchSources();
-        else alert("Toggle failed");
-    }
-
-    async function regenerateKey(guid) {
-        if (!confirm("Regenerate API Key?")) return;
-        const res = await fetch(`/api/v1/sources/${guid}/regenerate_key`, {method: "PATCH"});
-        if (res.ok) fetchSources();
-        else alert("Key regeneration failed");
-    }
-
-    async function deleteSource(guid) {
-        if (!confirm("Are you sure you want to delete this source?")) return;
-        const res = await fetch(`/api/v1/sources/${guid}`, {method: "DELETE"});
-        if (res.ok) fetchSources();
-        else {
-            const err = await res.json();
-            alert(err.detail || "Delete failed");
-        }
-    }
-
-    fetchSources();
-</script>
-<script>
-    document.getElementById("createSourceForm").addEventListener("submit", async function (e) {
-        e.preventDefault();
-
-        const name = document.getElementById("sourceName").value.trim();
-        const display_name = document.getElementById("displayName").value.trim();
-
-        if (!name || !display_name) {
-            alert("Both fields are required.");
-            return;
-        }
-
-        const response = await fetch("/api/v1/sources", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({name, display_name}),
-        });
-
-        if (response.ok) {
-            const modalEl = document.getElementById('createSourceModal');
-            const modalInstance = bootstrap.Modal.getInstance(modalEl);
-            modalInstance.hide();
-
-            setTimeout(() => location.reload(), 300);
-        } else {
-            const error = await response.json();
-            alert("Error: " + (error.detail || "Unknown error"));
-        }
-    });
-    function copyToClipboard(id) {
+function copyToClipboard(id) {
     const text = document.getElementById(id).textContent;
     navigator.clipboard.writeText(text).then(() => {
         alert("API key copied!");
     }).catch(err => alert("Copy failed."));
 }
-
 </script>
-
 {% endblock %}

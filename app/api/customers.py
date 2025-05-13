@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.models.customer import Customer
 from app.schemas.customer import CustomerCreate, CustomerUpdate, CustomerResponse
-
-router = APIRouter()
+from app.core.security import require_admin_api_key
+router = APIRouter(dependencies=[Depends(require_admin_api_key)])
 
 @router.post("/customers", response_model=CustomerResponse)
 def create_customer(customer: CustomerCreate, db: Session = Depends(get_db)):

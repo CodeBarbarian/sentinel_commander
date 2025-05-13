@@ -1,0 +1,29 @@
+parser_name: eventchannel_triage
+parser_type: triage
+
+match:
+  location: EventChannel
+
+fields:
+  risk_score: rule.level
+  description: rule.description
+
+enrichment:
+  - type: tag_if
+    condition: "rule.level >= 10"
+    tag: "High Risk"
+
+  - type: set_field_if
+    field: recommended_status
+    condition: "rule.level <= 5"
+    value: "done"
+
+  - type: set_field_if
+    field: recommended_resolution
+    condition: "rule.level == 3"
+    value: "not_applicable"
+
+  - type: set_field_if
+    field: recommended_action
+    condition: "rule.level >= 12"
+    value: "Escalate to Incident Response"
