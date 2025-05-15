@@ -175,3 +175,6 @@ cython_debug/
 
 # PyCharm
 .idea/
+
+# Sentinel DB
+sentinel.db

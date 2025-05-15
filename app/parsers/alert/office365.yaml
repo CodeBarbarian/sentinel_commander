@@ -10,7 +10,10 @@ fields:
   threat_type: data.office365.DetectionMethod
   recipient: data.office365.Recipients[0]
   message_link: data.office365.EventDeepLink
-  auth_details: data.office365.AuthDetails
+  SPF: data.office365.AuthDetails[0]
+  DKIM: data.office365.AuthDetails[1]
+  DMARC: data.office365.AuthDetails[2]
+  COMP: data.office365.AuthDetails[3]
   ip: data.office365.SenderIp
   tags:
     - office365
