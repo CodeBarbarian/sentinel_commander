@@ -45,7 +45,7 @@
 1. **Clone the repository**
 
 ```bash
-git clone https://github.com/your-org/sentinel-commander.git
+git clone https://github.com/codebarbarian/sentinel-commander.git
 cd sentinel-commander
 ```
 

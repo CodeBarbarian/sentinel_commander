@@ -1,9 +1,6 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import RedirectResponse
-from fastapi import Request
-from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.core.database import Base, engine
 

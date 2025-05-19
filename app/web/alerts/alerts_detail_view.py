@@ -7,7 +7,7 @@ from starlette.responses import RedirectResponse
 
 from app.core.database import SessionLocal
 from app.models.alert import Alert
-from app.utils.parser.general_parser_engine import run_parser_for_type  # ✅ New engine!
+from app.utils.parser.general_parser_engine import run_parser_for_type
 from app.utils.parser.renderer import render_alert_detail_fields
 import json
 from app.utils import auth
