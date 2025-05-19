@@ -10,6 +10,8 @@ router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 @router.get("/login", response_class=HTMLResponse)
 def login_form(request: Request):
+    if request.session.get("user"):
+        return RedirectResponse("/web/v1/dashboard", status_code=302)
     return templates.TemplateResponse("auth/login.html", {"request": request})
 
 @router.post("/login")

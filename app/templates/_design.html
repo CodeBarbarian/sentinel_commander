@@ -17,7 +17,9 @@
     {% block extrastyle %}{% endblock %}
 </head>
 <body class=" sc-body theme-dark">
+{% if request.session.get('user') %}
     {% include "_navbar.html" %}
+{% endif %}
     <main class="container-fluid my-4 px-4">
         {% block content %}{% endblock %}
     </main>

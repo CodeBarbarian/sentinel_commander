@@ -1,4 +1,5 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -63,6 +64,10 @@ app = FastAPI(title="Sentinel IR")
 app.add_middleware(SessionMiddleware, secret_key="CHANGE_ME_TO_SOMETHING_RANDOM")
 # Webhook / Main Entrypoint for alerts
 app.include_router(webhook.router, tags=["Webhook"])
+
+
+
+
 
 # API's
 app.include_router(alerts.router, prefix="/api/v1", tags=["Alerts API"])
@@ -130,3 +135,10 @@ def format_datetime(value, format="%Y-%m-%d %H:%M:%S"):
 
 templates.env.filters["datetime"] = format_datetime
 
+# Default Route
+@app.get("/")
+async def root_redirect(request: Request):
+    # You can check for session if you want to route logged-in users differently
+    if request.session.get("user_id"):
+        return RedirectResponse(url="/web/v1/dashboard")
+    return RedirectResponse(url="/web/v1/login")
