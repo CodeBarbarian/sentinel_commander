@@ -1,82 +1,83 @@
 {% extends "_design.html" %}
-{% block title %}Create New Case{% endblock %}
+{% block title %}Create New Case - Sentinel Commander{% endblock %}
 
 {% block content %}
-<h2 class="mb-4">Create New Case</h2>
+<div class="card alert-card p-4">
+  <h5 class="tactical-heading mb-3">📝 Create New Case</h5>
 
-<form id="caseWizardForm" method="post" action="/web/v1/cases/create">
-  <div id="wizardSteps">
+  <form id="caseWizardForm" method="post" action="/web/v1/cases/create">
+    <div id="wizardSteps">
 
-    <!-- Step 1: Basic Info -->
-    <div class="wizard-step" data-step="1">
-      <h5>Step 1: Case Details</h5>
-      <div class="mb-3"><label class="form-label">Title</label><input name="title" class="form-control" required></div>
-      <div class="mb-3"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="3"></textarea></div>
-      <div class="mb-3"><label class="form-label">Severity</label>
-        <select name="severity" class="form-select" required>
-          {% for sev in range(1, 16) %}
-          <option value="{{ sev }}">{{ sev }}</option>
-          {% endfor %}
-        </select>
+      <!-- Step 1: Basic Info -->
+      <div class="wizard-step" data-step="1">
+        <h6 class="tactical-heading">Step 1: Case Details</h6>
+        <div class="mb-3"><label class="form-label">Title</label><input name="title" class="form-control" required></div>
+        <div class="mb-3"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="3"></textarea></div>
+        <div class="mb-3"><label class="form-label">Severity</label>
+          <select name="severity" class="form-select" required>
+            {% for sev in range(1, 16) %}
+              <option value="{{ sev }}">{{ sev }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="mb-3"><label class="form-label">Classification</label><input name="classification" class="form-control"></div>
+        <div class="mb-3"><label class="form-label">Tags (comma-separated)</label><input name="tags" class="form-control"></div>
       </div>
-      <div class="mb-3"><label class="form-label">Classification</label><input name="classification" class="form-control"></div>
-      <div class="mb-3"><label class="form-label">Tags (comma-separated)</label><input name="tags" class="form-control"></div>
+
+      <!-- Step 2: Assignment -->
+      <div class="wizard-step d-none" data-step="2">
+        <h6 class="tactical-heading">Step 2: Assignment</h6>
+        <div class="mb-3">
+          <label class="form-label">Customer</label>
+          <select name="customer_id" class="form-select" required>
+            {% for customer in customers %}
+              <option value="{{ customer.id }}">{{ customer.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Assigned To</label>
+          <select name="assigned_to" class="form-select">
+            <option value="">— Unassigned —</option>
+            {% for user in users %}
+              <option value="{{ user.id }}">{{ user.username }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">State</label>
+          <select name="state" class="form-select">
+            {% for state_option in ["new", "in_progress", "investigating", "escalated"] %}
+              <option value="{{ state_option }}">{{ state_option|capitalize }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <!-- Step 3: Summary -->
+      <div class="wizard-step d-none" data-step="3">
+        <h6 class="tactical-heading">Step 3: Review & Confirm</h6>
+        <p class="text-muted">Please click "Create Case" to submit your new case. You can go back to edit before saving.</p>
+      </div>
     </div>
 
-    <!-- Step 2: Assignment -->
-    <div class="wizard-step d-none" data-step="2">
-      <h5>Step 2: Assignment</h5>
-      <div class="mb-3">
-        <label class="form-label">Customer</label>
-        <select name="customer_id" class="form-select" required>
-          {% for customer in customers %}
-          <option value="{{ customer.id }}">{{ customer.name }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Assigned To</label>
-        <select name="assigned_to" class="form-select">
-          <option value="">— Unassigned —</option>
-          {% for user in users %}
-          <option value="{{ user.id }}">{{ user.username }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">State</label>
-        <select name="state" class="form-select">
-          {% for state_option in ["new", "in_progress", "investigating", "escalated"] %}
-          <option value="{{ state_option }}">{{ state_option|capitalize }}</option>
-          {% endfor %}
-        </select>
+    <!-- Wizard Controls -->
+    <div class="d-flex justify-content-between mt-4">
+      <button type="button" id="prevStep" class="btn btn-outline-secondary d-none">← Back</button>
+      <div class="ms-auto">
+        <button type="button" id="nextStep" class="btn btn-outline-primary">Next →</button>
+        <button type="submit" id="submitCase" class="btn btn-success d-none">✅ Create Case</button>
       </div>
     </div>
+  </form>
+</div>
 
-    <!-- Step 3: Summary -->
-    <div class="wizard-step d-none" data-step="3">
-      <h5>Step 3: Review & Confirm</h5>
-      <p class="text-muted">Please click "Create Case" to submit your new case. You can go back to edit before saving.</p>
-    </div>
-
-  </div>
-
-  <!-- Wizard Controls -->
-  <div class="mt-4 d-flex justify-content-between">
-    <button type="button" id="prevStep" class="btn btn-outline-secondary d-none">Back</button>
-    <div class="ms-auto">
-      <button type="button" id="nextStep" class="btn btn-primary">Next</button>
-      <button type="submit" id="submitCase" class="btn btn-success d-none">Create Case</button>
-    </div>
-  </div>
-</form>
-
+<!-- Wizard Logic -->
 <script>
   const steps = document.querySelectorAll(".wizard-step");
   const nextBtn = document.getElementById("nextStep");
   const prevBtn = document.getElementById("prevStep");
   const submitBtn = document.getElementById("submitCase");
-
   let currentStep = 1;
 
   function showStep(step) {

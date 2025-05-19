@@ -1,44 +1,63 @@
 {% extends "_design.html" %}
-{% block title %}Customers{% endblock %}
+{% block title %}Customers - Sentinel Commander{% endblock %}
+
 {% block content %}
 <div class="card alert-card">
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h5 class="mb-0">Customer Management</h5>
-    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addCustomerModal">+ Add Customer</button>
+    <h5 class="tactical-heading">🛡️ Customer Management</h5>
+    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addCustomerModal">
+      + Add Customer
+    </button>
   </div>
 
-  <table class="table table-sm table-hover table-striped">
-    <thead>
-      <tr><th>Name</th><th>Description</th><th class="text-end">Actions</th></tr>
-    </thead>
-    <tbody>
-      {% for customer in customers %}
-      <tr>
-        <td>{{ customer.name }}</td>
-        <td>{{ customer.description or "" }}</td>
-        <td class="text-end">
-          <form method="post" action="/web/v1/customers/delete" onsubmit="return confirm('Delete customer?');">
-            <input type="hidden" name="customer_id" value="{{ customer.id }}">
-            <button class="btn btn-sm btn-outline-danger">Delete</button>
-          </form>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  {% if customers %}
+    <div class="table-responsive">
+      <table class="tactical-table">
+        <thead>
+          <tr class="tactical-table-header">
+            <th>Name</th>
+            <th>Description</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for customer in customers %}
+          <tr class="{% if loop.index is even %}tactical-table-row{% else %}tactical-table-row-alt{% endif %} tactical-table-hover">
+            <td class="fw-semibold">{{ customer.name }}</td>
+            <td class="text-muted">{{ customer.description or "—" }}</td>
+            <td class="text-end">
+                <button
+                        type="button"
+                        class="btn btn-sm btn-outline-danger"
+                        data-bs-toggle="modal"
+                        data-bs-target="#confirmDeleteModal"
+                        data-customer-id="{{ customer.id }}"
+                        data-customer-name="{{ customer.name }}"
+                >
+                    Delete
+                </button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="text-muted">No customers registered yet.</div>
+  {% endif %}
 </div>
 
-<!-- Modal -->
-<div class="modal fade" id="addCustomerModal" tabindex="-1">
+<!-- Add Customer Modal -->
+<div class="modal fade" id="addCustomerModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
     <form method="post" action="/web/v1/customers/create" class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Add Customer</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <h5 class="modal-title">Add New Customer</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <input class="form-control mb-2" name="name" placeholder="Customer Name" required>
-        <textarea class="form-control" name="description" placeholder="Description (optional)"></textarea>
+        <input class="form-control mb-3" name="name" placeholder="Customer Name" required>
+        <textarea class="form-control" name="description" rows="3" placeholder="Description (optional)"></textarea>
       </div>
       <div class="modal-footer">
         <button type="submit" class="btn btn-success">Create</button>
@@ -47,4 +66,38 @@
     </form>
   </div>
 </div>
+
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form method="post" action="/web/v1/customers/delete" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Confirm Deletion</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete <strong id="customerName"></strong>?</p>
+        <input type="hidden" name="customer_id" id="customerIdInput">
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-danger">Confirm Delete</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  const deleteModal = document.getElementById('confirmDeleteModal');
+  deleteModal.addEventListener('show.bs.modal', function (event) {
+    const button = event.relatedTarget;
+    const customerId = button.getAttribute('data-customer-id');
+    const customerName = button.getAttribute('data-customer-name');
+
+    deleteModal.querySelector('#customerIdInput').value = customerId;
+    deleteModal.querySelector('#customerName').textContent = customerName;
+  });
+</script>
+
 {% endblock %}
