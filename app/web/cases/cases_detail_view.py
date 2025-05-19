@@ -27,11 +27,8 @@ from app.models.playbooks import Playbook
 from app.schemas.playbooks import PlaybookOut
 import markdown
 from app.utils import auth
-import shutil
-import os
 from datetime import datetime
-import uuid
-from werkzeug.utils import secure_filename
+
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
