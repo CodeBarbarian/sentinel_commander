@@ -18,6 +18,10 @@ enrichment:
     tag: "High Risk"
 
   - type: tag_if
+    condition: "data.office365.DeliveryAction == 'Blocked'"
+    tag: "Blocked by M365"
+
+  - type: tag_if
     condition: "'Spam' == data.office365.Verdict"
     tag: "Email Classified as Spam"
 
@@ -33,9 +37,6 @@ enrichment:
     condition: "'employee3@company.no' in data.office365.Recipients"
     tag: "Targeted Employee"
 
-  - type: ip_lookup
-    field: data.office365.SenderIp
-
   - type: set_field_if
     field: resolution
     condition: "data.office365.Verdict == 'Clean'"
@@ -48,13 +49,18 @@ enrichment:
 
   - type: set_field_if
     field: recommended_status
-    condition: "data.office365.Verdict == 'Clean'"
+    condition: "data.office365.DeliveryAction == 'Blocked'"
     value: "done"
 
   - type: set_field_if
-    field: recommended_resolution
-    condition: "data.office365.Verdict == 'Clean'"
-    value: "not_applicable"
+    field: resolution
+    condition: "data.office365.DeliveryAction == 'Blocked'"
+    value: "unknown"
+
+  - type: set_field_if
+    field: playbook
+    condition: "data.office365.DeliveryAction == 'Blocked'"
+    value: "Office 365 - Blocked"
 
   - type: set_field_if
     field: recommended_action
@@ -63,5 +69,5 @@ enrichment:
 
   - type: set_field_if
     field: recommended_playbook
-    condition: "rule.level >= 13"
-    value: "incident_response_email"
+    condition: "rule.level >= 12"
+    value: "Office 365 - Blocked"

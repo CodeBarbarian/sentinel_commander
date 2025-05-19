@@ -14,6 +14,12 @@
              href="/web/v1/dashboard">Dashboard</a>
         </li>
 
+        <!-- Customers -->
+        <li class="nav-item">
+          <a class="nav-link {% if request.url.path.startswith('/web/v1/customers') %}active{% endif %}"
+             href="/web/v1/customers">Customers</a>
+        </li>
+
         <!-- Cases -->
         <li class="nav-item">
           <a class="nav-link {% if request.url.path.startswith('/web/v1/cases') %}active{% endif %}"

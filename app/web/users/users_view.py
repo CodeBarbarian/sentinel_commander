@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Form, Depends
+from fastapi import APIRouter, Request, Form, Depends, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
 from app.core.database import get_db
@@ -50,10 +50,54 @@ def create_user(
 def delete_user(
     user_id: int = Form(...),
     db: Session = Depends(get_db),
-    user=Depends(auth.get_current_user)
+    current_user=Depends(auth.get_current_user)
 ):
-    user = db.query(User).filter(User.id == user_id).first()
-    if user:
-        db.delete(user)
-        db.commit()
+    # Ensure current_user is a real model, not a dict
+    if isinstance(current_user, dict):
+        current_user = db.query(User).filter(User.id == current_user.get("id")).first()
+
+    user_to_delete = db.query(User).filter(User.id == user_id).first()
+    if not user_to_delete:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Prevent deleting self
+    if current_user.id == user_to_delete.id:
+        raise HTTPException(status_code=400, detail="You cannot delete your own user")
+
+    # Count other admin accounts
+    admin_count = db.query(User).filter(User.role == "admin", User.id != user_to_delete.id).count()
+
+    if user_to_delete.role == "admin" and admin_count == 0:
+        raise HTTPException(status_code=400, detail="You cannot delete the last admin user")
+
+    db.delete(user_to_delete)
+    db.commit()
     return RedirectResponse("/web/v1/users", status_code=302)
+
+@router.post("/users/{user_id}/update")
+def update_user(
+    user_id: int,
+    password: str = Form(None),
+    role: str = Form(...),
+    db: Session = Depends(get_db),
+    current_user=Depends(auth.get_current_user),
+):
+    # If current_user is a dict, fetch real user from DB
+    if isinstance(current_user, dict):
+        current_user = db.query(User).filter(User.id == current_user.get("id")).first()
+
+    if not current_user or current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    target_user = db.query(User).filter(User.id == user_id).first()
+    if not target_user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if password:
+        target_user.password_hash = bcrypt.hash(password)
+
+    target_user.role = role
+    db.commit()
+
+    return RedirectResponse("/web/v1/users", status_code=302)
+

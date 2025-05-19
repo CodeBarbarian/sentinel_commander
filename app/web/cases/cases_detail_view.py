@@ -78,6 +78,7 @@ def view_case(request: Request, case_id: int, db: Session = Depends(get_db), use
         raise HTTPException(status_code=404, detail="Case not found")
 
     customers = db.query(Customer).all()
+    print(customers)
     users = db.query(User).all()
 
     notes = db.query(CaseNote).filter(CaseNote.case_id == case_id).all()

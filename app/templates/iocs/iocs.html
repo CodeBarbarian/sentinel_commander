@@ -1,0 +1,72 @@
+{% extends "_design.html" %}
+{% block title %}Indicators of Compromise{% endblock %}
+
+{% block content %}
+<div class="card alert-card">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="mb-0">Indicators of Compromise</h5>
+    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addIOCModal">+ Add IOC</button>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-sm table-striped table-hover">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Value</th>
+          <th>Source</th>
+          <th>Description</th>
+          <th>Tags</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for ioc in iocs %}
+        <tr>
+          <td>{{ ioc.type }}</td>
+          <td><code>{{ ioc.value }}</code></td>
+          <td>{{ ioc.source or '' }}</td>
+          <td>{{ ioc.description or '' }}</td>
+          <td>
+            {% if ioc.tags %}
+              {% for tag in ioc.tags.split(',') %}
+                <span class="badge bg-secondary">{{ tag.strip() }}</span>
+              {% endfor %}
+            {% endif %}
+          </td>
+          <td class="text-end">
+            <form method="post" action="/web/v1/iocs/delete" onsubmit="return confirm('Are you sure?');">
+              <input type="hidden" name="ioc_id" value="{{ ioc.id }}">
+              <button class="btn btn-sm btn-outline-danger">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Add IOC Modal -->
+<div class="modal fade" id="addIOCModal" tabindex="-1">
+  <div class="modal-dialog">
+    <form method="post" action="/web/v1/iocs/create" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add IOC</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input class="form-control mb-2" name="type" placeholder="Type (e.g. ip, domain)" required>
+        <input class="form-control mb-2" name="value" placeholder="Value" required>
+        <input class="form-control mb-2" name="source" placeholder="Source">
+        <input class="form-control mb-2" name="tags" placeholder="Comma-separated tags">
+        <textarea class="form-control" name="description" placeholder="Description"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-success">Create</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

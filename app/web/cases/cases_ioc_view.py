@@ -27,6 +27,7 @@ from app.models.playbooks import Playbook
 from app.schemas.playbooks import PlaybookOut
 import markdown
 from app.utils import auth
+from app.models.iocs import IOC
 
 import shutil
 import os
@@ -61,124 +62,137 @@ def log_timeline_event(
     db.add(timeline_entry)
     db.commit()
 
-    @router.post("/cases/{case_id}/iocs")
-    def add_ioc_to_case(
-            case_id: int,
-            type: str = Form(...),
-            value: str = Form(...),
-            description: str = Form(""),
-            source: str = Form(""),
-            tags: str = Form(""),
-            db: Session = Depends(get_db),
-            user=Depends(auth.get_current_user)
-    ):
-        case = db.query(Case).filter(Case.id == case_id).first()
-        if not case:
-            raise HTTPException(status_code=404, detail="Case not found")
+@router.post("/cases/{case_id}/iocs")
+def add_ioc_to_case(
+        case_id: int,
+        type: str = Form(...),
+        value: str = Form(...),
+        description: str = Form(""),
+        source: str = Form(""),
+        tags: str = Form(""),
+        db: Session = Depends(get_db),
+        user=Depends(auth.get_current_user)
+):
+    case = db.query(Case).filter(Case.id == case_id).first()
+    if not case:
+        raise HTTPException(status_code=404, detail="Case not found")
 
-        ioc = CaseIOC(
-            case_id=case_id,
+    global_ioc = db.query(IOC).filter(IOC.value == value).first()
+    if not global_ioc:
+        global_ioc = IOC(
             type=type,
             value=value,
             description=description,
             source=source,
-            tags=tags,
+            tags=tags
         )
-        db.add(ioc)
-        db.commit()
+        db.add(global_ioc)
+        db.flush()
 
-        log_timeline_event(
-            db=db,
-            case_id=case_id,
-            event_type="ioc_added",
-            message=f"IOC added: [{type}] {value}",
-            actor_id=None,
-            details=description[:255] if description else None
-        )
+    ioc = CaseIOC(
+        case_id=case_id,
+        type=type,
+        value=value,
+        description=description,
+        source=source,
+        tags=tags,
+        global_ioc_id=global_ioc.id
+    )
+    db.add(ioc)
+    db.commit()
 
-        return RedirectResponse(url=f"/web/v1/cases/{case_id}#iocs", status_code=303)
+    log_timeline_event(
+        db=db,
+        case_id=case_id,
+        event_type="ioc_added",
+        message=f"IOC added: [{type}] {value}",
+        actor_id=None,
+        details=description[:255] if description else None
+    )
 
-    @router.post("/cases/{case_id}/iocs/{ioc_id}/edit")
-    def edit_ioc(
-            case_id: int,
-            ioc_id: int,
-            type: str = Form(...),
-            value: str = Form(...),
-            description: str = Form(""),
-            source: str = Form(""),
-            tags: str = Form(""),
-            db: Session = Depends(get_db),
-            user=Depends(auth.get_current_user)
-    ):
-        ioc = db.query(CaseIOC).filter(CaseIOC.id == ioc_id, CaseIOC.case_id == case_id).first()
-        if not ioc:
-            raise HTTPException(status_code=404, detail="IOC not found")
+    return RedirectResponse(url=f"/web/v1/cases/{case_id}#iocs", status_code=303)
 
-        previous_state = {
-            "type": ioc.type,
-            "value": ioc.value,
-            "description": ioc.description,
-            "source": ioc.source,
-            "tags": ioc.tags,
-        }
+@router.post("/cases/{case_id}/iocs/{ioc_id}/edit")
+def edit_ioc(
+        case_id: int,
+        ioc_id: int,
+        type: str = Form(...),
+        value: str = Form(...),
+        description: str = Form(""),
+        source: str = Form(""),
+        tags: str = Form(""),
+        db: Session = Depends(get_db),
+        user=Depends(auth.get_current_user)
+):
+    ioc = db.query(CaseIOC).filter(CaseIOC.id == ioc_id, CaseIOC.case_id == case_id).first()
+    if not ioc:
+        raise HTTPException(status_code=404, detail="IOC not found")
 
-        ioc.type = type
-        ioc.value = value
-        ioc.description = description
-        ioc.source = source
-        ioc.tags = tags
+    previous_state = {
+        "type": ioc.type,
+        "value": ioc.value,
+        "description": ioc.description,
+        "source": ioc.source,
+        "tags": ioc.tags,
+    }
 
-        db.commit()
+    ioc.type = type
+    ioc.value = value
+    ioc.description = description
+    ioc.source = source
+    ioc.tags = tags
 
-        # Build change summary
-        changes = []
-        if previous_state["type"] != type:
-            changes.append(f"Type: '{previous_state['type']}' → '{type}'")
-        if previous_state["value"] != value:
-            changes.append(f"Value updated")
-        if previous_state["description"] != description:
-            changes.append("Description updated")
-        if previous_state["source"] != source:
-            changes.append(f"Source: '{previous_state['source']}' → '{source}'")
-        if previous_state["tags"] != tags:
-            changes.append("Tags updated")
+    db.commit()
 
-        log_timeline_event(
-            db=db,
-            case_id=case_id,
-            event_type="ioc_edited",
-            message=f"IOC '{value}' was edited.",
-            actor_id=None,
-            details="; ".join(changes) if changes else "No changes detected"
-        )
+    # Build change summary
+    changes = []
+    if previous_state["type"] != type:
+        changes.append(f"Type: '{previous_state['type']}' → '{type}'")
+    if previous_state["value"] != value:
+        changes.append(f"Value updated")
+    if previous_state["description"] != description:
+        changes.append("Description updated")
+    if previous_state["source"] != source:
+        changes.append(f"Source: '{previous_state['source']}' → '{source}'")
+    if previous_state["tags"] != tags:
+        changes.append("Tags updated")
 
-        return RedirectResponse(url=f"/web/v1/cases/{case_id}#iocs", status_code=303)
+    log_timeline_event(
+        db=db,
+        case_id=case_id,
+        event_type="ioc_edited",
+        message=f"IOC '{value}' was edited.",
+        actor_id=None,
+        details="; ".join(changes) if changes else "No changes detected"
+    )
 
-    @router.post("/cases/{case_id}/iocs/{ioc_id}/delete")
-    def delete_ioc(
-            case_id: int,
-            ioc_id: int,
-            db: Session = Depends(get_db),
-            user=Depends(auth.get_current_user)
-    ):
-        ioc = db.query(CaseIOC).filter(CaseIOC.id == ioc_id, CaseIOC.case_id == case_id).first()
-        if not ioc:
-            raise HTTPException(status_code=404, detail="IOC not found")
+    return RedirectResponse(url=f"/web/v1/cases/{case_id}#iocs", status_code=303)
 
-        deleted_value = ioc.value
-        deleted_type = ioc.type
+@router.post("/cases/{case_id}/iocs/{ioc_id}/delete")
+def delete_ioc(
+        case_id: int,
+        ioc_id: int,
+        db: Session = Depends(get_db),
+        user=Depends(auth.get_current_user)
+):
+    ioc = db.query(CaseIOC).filter(CaseIOC.id == ioc_id, CaseIOC.case_id == case_id).first()
+    if not ioc:
+        raise HTTPException(status_code=404, detail="IOC not found")
 
-        db.delete(ioc)
-        db.commit()
+    deleted_value = ioc.value
+    deleted_type = ioc.type
 
-        log_timeline_event(
-            db=db,
-            case_id=case_id,
-            event_type="ioc_deleted",
-            message=f"IOC deleted: [{deleted_type}] {deleted_value}",
-            actor_id=None,
-            details=None
-        )
+    db.delete(ioc)
+    db.commit()
 
-        return RedirectResponse(url=f"/web/v1/cases/{case_id}#iocs", status_code=303)
+    log_timeline_event(
+        db=db,
+        case_id=case_id,
+        event_type="ioc_deleted",
+        message=f"IOC deleted: [{deleted_type}] {deleted_value}",
+        actor_id=None,
+        details=None
+    )
+
+    return RedirectResponse(url=f"/web/v1/cases/{case_id}#iocs", status_code=303)
 

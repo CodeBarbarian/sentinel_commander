@@ -40,6 +40,7 @@
             <form method="post" action="/web/v1/users/delete" onsubmit="return confirm('Are you sure?');">
               <input type="hidden" name="user_id" value="{{ user.id }}">
               <button class="btn btn-sm btn-outline-danger">Delete</button>
+              <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editUserModal-{{ user.id }}">Edit</button>
             </form>
           </td>
         </tr>
@@ -48,6 +49,34 @@
     </table>
   </div>
 </div>
+
+{% for user in users %}
+<!-- Edit User Modal -->
+<div class="modal fade" id="editUserModal-{{ user.id }}" tabindex="-1">
+  <div class="modal-dialog">
+    <form method="post" action="/web/v1/users/{{ user.id }}/update" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit User - {{ user.username }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <label class="form-label">New Password (leave blank to keep current)</label>
+        <input class="form-control mb-2" type="password" name="password" placeholder="New password">
+
+        <label class="form-label">Role</label>
+        <select class="form-control mb-2" name="role">
+          <option value="analyst" {% if user.role == "analyst" %}selected{% endif %}>Analyst</option>
+          <option value="admin" {% if user.role == "admin" %}selected{% endif %}>Admin</option>
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endfor %}
 
 <!-- Modal -->
 <div class="modal fade" id="addUserModal" tabindex="-1">

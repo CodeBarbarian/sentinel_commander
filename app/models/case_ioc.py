@@ -15,7 +15,9 @@ class CaseIOC(Base):
     description = Column(Text, nullable=True)
     source = Column(String(100), nullable=True)  # Analyst, MISP, External Tool, etc.
     tags = Column(String(255), nullable=True)  # Comma-separated or JSON string
+    global_ioc_id = Column(Integer, ForeignKey("iocs.id"), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     case = relationship("Case", back_populates="iocs")
+    global_ioc = relationship("IOC", backref="linked_case_iocs")

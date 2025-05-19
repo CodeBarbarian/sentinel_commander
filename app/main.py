@@ -40,10 +40,12 @@ from app.web.cases import cases_assets_view
 from app.web.cases import cases_evidence_view
 from app.web.cases import cases_playbooks_view
 
+
 from app.web.assets import assets_view
+from app.web.iocs import iocs_view
 from app.web.playbooks import playbooks_view
 from app.web.sentineliq import sentineliq_view
-
+from app.web.customers import customers_view
 from app.web.users import users_view
 from app.web.users import auth_view
 
@@ -77,6 +79,7 @@ app.include_router(users.router, prefix="/api/v1", tags=["Users API"])
 # Sentinel IQ
 app.include_router(sentineliq_view.router, prefix="/web/v1", tags=["SentinelIQ"])
 
+
 # Dashboard
 app.include_router(dashboard_view.router, prefix="/web/v1", tags=["Dashboard"])
 
@@ -90,6 +93,9 @@ app.include_router(sources_view.router, prefix="/web/v1", tags=["Sources"])
 # Assets
 app.include_router(assets_view.router, prefix="/web/v1", tags=["Assets"])
 
+# IOCs
+app.include_router(iocs_view.router, prefix="/web/v1", tags=["IOCs"])
+
 # Settings
 app.include_router(settings_view.router, prefix="/web/v1", tags=["Settings"])
 
@@ -99,11 +105,12 @@ app.include_router(auth_view.router, prefix="/web/v1", tags=["Users"])
 # Playbooks
 app.include_router(playbooks_view.router, prefix="/web/v1", tags=["Playbooks"])
 
-
+# Customers
+app.include_router(customers_view.router, prefix="/web/v1", tags=["Customers"])
 
 # Cases Routers
-app.include_router(cases_view.router, prefix="/web/v1", tags=["Cases"])
-app.include_router(cases_detail_view.router, prefix="/web/v1", tags=["Cases"])
+app.include_router(cases_view.router, prefix="/web/v1", tags=["Cases View"])
+app.include_router(cases_detail_view.router, prefix="/web/v1", tags=["Cases Detail View"])
 app.include_router(cases_note_view.router, prefix="/web/v1", tags=["Cases"])
 app.include_router(cases_task_view.router, prefix="/web/v1", tags=["Cases"])
 app.include_router(cases_ioc_view.router, prefix="/web/v1", tags=["Cases"])

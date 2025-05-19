@@ -52,53 +52,6 @@
 {% include "cases/cases_detail/modals/link_asset_modal.html" %}
 
 <script>
-  async function populateDropdowns() {
-    const customerSelect = document.getElementById("editCustomer");
-    const assignedToSelect = document.getElementById("editAssignedTo");
-    const stateSelect = document.getElementById("editState");
-
-    const [customersRes, usersRes] = await Promise.all([
-      fetch("/api/v1/customers"),
-      fetch("/api/v1/users")
-    ]);
-
-    const customers = await customersRes.json();
-    const users = await usersRes.json();
-
-    customerSelect.innerHTML = '<option value="">— Select Customer —</option>';
-    customers.forEach(c => {
-      const option = document.createElement("option");
-      option.value = c.id;
-      option.textContent = c.name;
-      if (c.id === {{ case.customer_id or "null" }}) option.selected = true;
-      customerSelect.appendChild(option);
-    });
-
-    assignedToSelect.innerHTML = '<option value="">— Unassigned —</option>';
-    users.forEach(u => {
-      const option = document.createElement("option");
-      option.value = u.id;
-      option.textContent = `${u.full_name || u.username}`;
-      if (u.id === {{ case.assigned_to or "null" }}) option.selected = true;
-      assignedToSelect.appendChild(option);
-    });
-
-    // Select current state
-    if (stateSelect) {
-      const currentState = "{{ case.state }}".toLowerCase();
-      for (let option of stateSelect.options) {
-        if (option.value.toLowerCase() === currentState) {
-          option.selected = true;
-          break;
-        }
-      }
-    }
-  }
-
-  // Load dropdowns each time modal is opened
-  document.getElementById("editCaseModal")
-    .addEventListener("show.bs.modal", populateDropdowns);
-
   // Save tab to localStorage & update URL hash
   document.querySelectorAll('a[data-bs-toggle="tab"]').forEach(function (tab) {
     tab.addEventListener("shown.bs.tab", function (event) {

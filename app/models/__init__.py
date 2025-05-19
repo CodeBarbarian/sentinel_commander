@@ -11,6 +11,7 @@ from .case_evidence import CaseEvidence
 from .case_timeline import CaseTimelineEvent
 from .case_playbooks import CasePlaybook
 from .playbooks import Playbook
+from .iocs import IOC
 
 __all__ = [
     "Case",
@@ -25,5 +26,6 @@ __all__ = [
     "CaseEvidence",
     "CaseTimelineEvent",
     "CasePlaybook",
-    "Playbook"
+    "Playbook",
+    "IOC"
 ]
