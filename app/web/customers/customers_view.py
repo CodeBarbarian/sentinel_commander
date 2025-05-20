@@ -28,3 +28,18 @@ def delete_customer(customer_id: int = Form(...), db: Session = Depends(get_db),
         db.delete(customer)
         db.commit()
     return RedirectResponse("/web/v1/customers", status_code=302)
+
+@router.post("/customers/edit")
+def edit_customer(
+    customer_id: int = Form(...),
+    name: str = Form(...),
+    description: str = Form(None),
+    db: Session = Depends(get_db),
+    user=Depends(auth.get_current_user)
+):
+    customer = db.query(Customer).filter(Customer.id == customer_id).first()
+    if customer:
+        customer.name = name.strip()
+        customer.description = description.strip() if description else None
+        db.commit()
+    return RedirectResponse("/web/v1/customers", status_code=302)

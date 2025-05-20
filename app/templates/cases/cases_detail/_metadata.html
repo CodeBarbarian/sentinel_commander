@@ -1,42 +1,46 @@
-<div class="d-flex justify-content-end mb-2">
-    <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editCaseModal">
-        Edit Case Details
-    </button>
-        {% if case.state != "done" %}
-    <button class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#closeCaseModal">
-        Close Case
-    </button>
-    {% endif %}
-</div>
-<div class="row mb-4">
-    <div class="col-md-6 mb-3">
-        <div class="card p-3">
-            <h6 class="text-muted">Customer</h6>
-            <p>{{ customer_name or "—" }}</p>
-
-            <h6 class="text-muted">Assigned To</h6>
-            <p>{{ assigned_to_username or "Unassigned" }}</p>
-
-            <h6 class="text-muted">State</h6>
-            <p>
-                <span class="badge status-{{ case.state|lower|replace(" ", "-") }}">
-                {{ case.state or "—" }}
-                </span>
-            </p>
-        </div>
-    </div>
-    <div class="col-md-6 mb-3">
-        <div class="card p-3">
-            <h6 class="text-muted">Classification</h6>
-            <p>{{ case.classification or "—" }}</p>
-
-            <h6 class="text-muted">Tags</h6>
-            <div class="d-flex flex-wrap gap-1">
-                {% for tag in case.tags %}
-                <span class="badge bg-secondary">{{ tag.tag }}</span>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
+<div class="d-flex justify-content-end gap-2 mb-3">
+  <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editCaseModal">
+    ✏️ Edit Case Details
+  </button>
+  {% if case.state != "done" %}
+  <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#closeCaseModal">
+    ✅ Close Case
+  </button>
+  {% endif %}
 </div>
 
+<div class="row g-4 mb-4">
+  <div class="col-md-6">
+    <div class="tactical-metadata-card">
+      <h6 class="tactical-muted">Customer</h6>
+      <p>{{ customer_name or "—" }}</p>
+
+      <h6 class="tactical-muted">Assigned To</h6>
+      <p>{{ assigned_to_username or "Unassigned" }}</p>
+
+      <h6 class="tactical-muted">State</h6>
+      <p>
+        <span class="badge status-badge status-{{ case.state|lower|replace(" ", "-") }}">
+          {{ case.state or "—" }}
+        </span>
+      </p>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="tactical-metadata-card">
+      <h6 class="tactical-muted">Classification</h6>
+      <p>{{ case.classification or "—" }}</p>
+
+      <h6 class="tactical-muted">Tags</h6>
+      <div class="d-flex flex-wrap gap-2">
+        {% for tag in case.tags %}
+        <span class="badge badge-secondary">{{ tag.tag }}</span>
+        {% endfor %}
+        {% if not case.tags %}
+        <span class="tactical-muted">—</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,23 +1,26 @@
 <div class="tab-pane fade" id="timeline" role="tabpanel">
-  <h5>📅 Case Timeline</h5>
-  {% if timeline %}
-    <ul class="list-group">
+  <div class="tactical-tab-inner">
+    <h5 class="tactical-heading">📅 Case Timeline</h5>
+
+    {% if timeline %}
+    <div class="d-flex flex-column gap-3">
       {% for event in timeline %}
-        <li class="list-group-item">
-          <small class="text-muted">
-            {{ event.timestamp.strftime('%Y-%m-%d %H:%M:%S') }} — {{ event.event_type }}
-          </small><br>
-          <strong>{{ event.message }}</strong><br>
-          {% if event.details %}
-            <small>{{ event.details }}</small><br>
-          {% endif %}
-          {% if event.actor_id %}
-            <span class="badge bg-secondary">Actor ID: {{ event.actor_id }}</span>
-          {% endif %}
-        </li>
+      <div class="tactical-timeline-item">
+        <div class="tactical-muted small mb-1">
+          {{ event.timestamp.strftime('%Y-%m-%d %H:%M:%S') }} — {{ event.event_type }}
+        </div>
+        <div class="fw-semibold">{{ event.message }}</div>
+        {% if event.details %}
+        <div class="tactical-muted mt-1">{{ event.details }}</div>
+        {% endif %}
+        {% if event.actor_id %}
+        <span class="timeline-actor-badge">Actor ID: {{ event.actor_id }}</span>
+        {% endif %}
+      </div>
       {% endfor %}
-    </ul>
-  {% else %}
-    <p class="text-muted">No timeline entries yet.</p>
-  {% endif %}
+    </div>
+    {% else %}
+    <p class="tactical-muted">No timeline entries yet.</p>
+    {% endif %}
+  </div>
 </div>

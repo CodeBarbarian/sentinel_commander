@@ -1,31 +1,31 @@
 {% extends "_design.html" %}
-{% block content %}
+{% block title %}Alerts - Sentinel Commander{% endblock %}
 
-<div class="container py-4">
+{% block content %}
+<div class="card alert-card px-4 py-4">
+
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3>Alerts</h3>
-        <div>
-            <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#filterModal"
-                    aria-label="Open filters">Filters
+        <h4 class="tactical-heading mb-0">🚨 Alert Center</h4>
+        <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#filterModal">🎯
+                Filters
             </button>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bulkModal">Bulk Actions</button>
-            <a href="/web/v1/alerts?{{ request.query_params }}" class="btn btn-outline-primary">Refresh</a>
+            <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#bulkModal">📦 Bulk
+                Actions
+            </button>
+            <a href="/web/v1/alerts?{{ request.query_params }}" class="btn btn-sm btn-outline-primary">🔁 Refresh</a>
         </div>
     </div>
 
-    <div class="mb-3 d-flex align-items-center">
-        <div class="form-check me-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="form-check">
             <input class="form-check-input" type="checkbox" id="select-all-visible">
             <label class="form-check-label" for="select-all-visible">Select All</label>
         </div>
-        <small class="text-muted" id="selected-count">0 alerts selected</small>
-    </div>
-
-    <div class="mb-3 d-flex justify-content-between align-items-center">
-        <small class="text-muted">{{ pagination.total_results }} results found</small>
+        <small class="tactical-muted" id="selected-count">0 alerts selected</small>
         <div>
             <label for="limitSelect" class="form-label me-2">Alerts per page:</label>
-            <select id="limitSelect" class="form-select d-inline-block w-auto">
+            <select id="limitSelect" class="form-select form-select-sm d-inline-block w-auto">
                 {% for option in [10, 20, 50, 100, 200, 500, 1000] %}
                 <option value="{{ option }}" {% if limit== option %}selected{% endif %}>{{ option }}</option>
                 {% endfor %}
@@ -34,59 +34,45 @@
     </div>
 
     {% if request.query_params %}
-    <div class="alert alert-light border d-flex align-items-center justify-content-between mb-3 shadow-sm"
-         style="background-color: var(--sc-card-bg); color: var(--sc-text); border-color: var(--sc-border);">
+    <div class="alert alert-dark d-flex justify-content-between align-items-center mb-4">
         <div>
-            <strong>Active Filters:</strong>
-            {% if request.query_params.get('alert_id') %}<span class="badge badge-secondary me-1" title="Alert ID">ID: {{ request.query_params.get('alert_id') }}</span>{%
-            endif %}
-            {% if request.query_params.get('status') %}<span class="badge badge-primary me-1" title="Status">Status: {{ request.query_params.get('status') }}</span>{%
-            endif %}
-            {% if request.query_params.get('severity') %}<span class="badge badge-danger me-1" title="Severity">Severity: {{ request.query_params.get('severity') }}</span>{%
-            endif %}
-            {% if request.query_params.get('tags') %}<span class="badge badge-info text-dark me-1" title="Tags">Tags: {{ request.query_params.get('tags') }}</span>{%
-            endif %}
-            {% if request.query_params.get('search') %}<span class="badge badge-dark me-1" title="Search">Search: {{ request.query_params.get('search') }}</span>{%
-            endif %}
+            <strong class="me-2">Filters:</strong>
+            {% for key in request.query_params %}
+            <span class="badge bg-secondary me-1">{{ key }}: {{ request.query_params[key] }}</span>
+            {% endfor %}
         </div>
         <div>
             <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#filterModal">Edit
-                Filters
             </button>
-            <a href="/web/v1/alerts" class="btn btn-sm btn-outline-danger">Clear</a>
+            <a id="clearFiltersBtn" class="btn btn-sm btn-outline-danger">Clear</a>
         </div>
     </div>
     {% endif %}
 
-    <div id="alerts-cards">
+    <div id="alert-scroll-wrapper" style="max-height: 80vh; overflow-y: auto; padding-right: 5px;">
         {% for alert in alerts %}
         <div class="card alert-card shadow-sm border mb-3" id="card-{{ alert.id }}">
-            <div class="card-body alert-body d-flex flex-wrap align-items-center justify-content-between"
+            <div class="card-body alert-body d-flex flex-wrap justify-content-between align-items-center"
                  onclick="toggleCollapse('{{ alert.id }}')">
                 <div class="form-check me-3">
                     <input class="form-check-input alert-checkbox" type="checkbox" value="{{ alert.id }}"
                            onclick="event.stopPropagation();">
                 </div>
-
-                <div class="flex-fill me-3">
+                <div class="flex-grow-1 me-3">
                     <h5 class="mb-1">{{ alert.parsed_fields.title if alert.parsed_fields and alert.parsed_fields.title
-                        else alert.message }}</h5>
-                    <small class="text-muted">ID: {{ alert.id }} | Created: {{ alert.created_at_formatted }}</small>
+                        else
+                        alert.message }}</h5>
+                    <small class="tactical-muted">ID: {{ alert.id }} • Created: {{ alert.created_at_formatted }}</small>
+                    <span class="badge bg-secondary">{{ alert.parsed_fields.agent or alert.parsed_fields.agent_name or "-"}}</span>
                 </div>
-
-                <div class="me-3">
-                    <label>Status:</label>
-                    <span class="status-badge status-{{ alert.status|lower|replace('_', '-') }}" title="Status: {{ alert.status }}">{{ alert.status.replace('_', ' ')|title }}</span>
+                <div>
+                    <span class="badge status-{{ alert.status|lower|replace('_', '-') }}">{{ alert.status.replace('_', ' ')|title }}</span>
                 </div>
-
                 {% if alert.severity_label %}
-                <div class="me-3">
-                    <label>Severity:</label>
-                    <span class="severity-badge severity-{{ alert.severity_label|lower }}"
-                          title="Severity: {{ alert.severity_label }}">{{ alert.severity_label }}</span>
+                <div>
+                    <span class="badge severity-{{ alert.severity_label|lower }}">{{ alert.severity_label }}</span>
                 </div>
                 {% endif %}
-
                 <div class="toggle-icon">
                     <i class="bi bi-chevron-down" id="toggle-icon-{{ alert.id }}"></i>
                 </div>
@@ -104,24 +90,23 @@
                 <div class="mt-2"><strong>Tags:</strong>
                     {% if alert.tags %}
                     {% for tag in alert.tags.split(',') %}
-                    <span class="badge bg-light text-dark me-1">{{ tag.strip() }}</span>
+                    <span class="badge bg-secondary me-1">{{ tag.strip() }}</span>
                     {% endfor %}
                     {% else %}—{% endif %}
                 </div>
                 <div class="mt-3 d-flex gap-2">
-                    <a href="/web/v1/alerts/{{ alert.id }}" class="btn btn-sm btn-outline-primary">View Full Alert</a>
-                    <button class="btn btn-sm btn-outline-primary"
-                            onclick="openEditModal('{{ alert.id }}'); event.stopPropagation();">Edit
+                    <a href="/web/v1/alerts/{{ alert.id }}" class="btn btn-sm btn-outline-primary">🔍 View Full</a>
+                    <button class="btn btn-sm btn-outline-info"
+                            onclick="openEditModal('{{ alert.id }}'); event.stopPropagation();">✏️ Edit
                     </button>
                 </div>
             </div>
         </div>
         {% endfor %}
     </div>
-
     {% if alerts %}
     <nav>
-        <ul class="pagination">
+        <ul class="pagination justify-content-center mt-4">
             {% if pagination.show_prev %}
             <li class="page-item">
                 <a class="page-link" href="?page={{ pagination.prev_page }}&{{ pagination.query_string }}">Previous</a>
@@ -140,10 +125,12 @@
         </ul>
     </nav>
     {% endif %}
+
 </div>
 
 {% include "alerts/_bulk_modal.html" %}
 {% include "alerts/_filter_modal.html" %}
+
 
 <script>
     /**

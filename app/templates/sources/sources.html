@@ -1,75 +1,79 @@
 {% extends "_design.html" %}
-
-{% block title %}Sources{% endblock %}
+{% block title %}Sources - Sentinel Commander{% endblock %}
 
 {% block content %}
-<!-- Create Source Button -->
-<div class="container my-4">
-    <!-- Create Source Button -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>Sources</h2>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createSourceModal">
-            + Create Source
-        </button>
-    </div>
-<p class="text-muted" id="source-count">Total sources: {{ sources|length }}</p>
-    <div class="table-responsive">
-        <table class="table table-striped align-middle">
-            <thead class="table-dark">
-            <tr>
-                <th>Display Name</th>
-                <th>Internal Name</th>
-                <th>GUID</th>
-                <th>API Key</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for source in sources %}
-            <tr>
-                <td>{{ source.display_name }}</td>
-                <td>{{ source.name }}</td>
-                <td><code>{{ source.guid }}</code></td>
-                <td>
-                    <code id="api-{{ source.guid }}" style="cursor: pointer;"
-                          onclick="copyToClipboard('api-{{ source.guid }}')">
-                        {{ source.api_key }}
-                    </code>
-                </td>
-                <td>
-                        <span class="badge {{ 'bg-success' if source.is_active else 'bg-secondary' }}">
-                            {{ 'Active' if source.is_active else 'Inactive' }}
-                        </span>
-                </td>
-                <td>
-                    <form method="post" action="/web/v1/sources/{{ source.guid }}/toggle" class="d-inline">
-                        <button class="btn btn-sm btn-outline-warning me-1" type="submit">Toggle</button>
-                    </form>
-                    <form method="post" action="/web/v1/sources/{{ source.guid }}/regenerate" class="d-inline">
-                        <button class="btn btn-sm btn-outline-info me-1" type="submit">New Key</button>
-                    </form>
-                    <form method="post" action="/web/v1/sources/{{ source.guid }}/delete" class="d-inline"
-                          onsubmit="return confirm('Are you sure?');">
-                        <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
-                    </form>
-                </td>
+<div class="card alert-card">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="tactical-heading mb-0">⚙️ Ingestion Sources</h5>
+    <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#createSourceModal">
+      <i class="bi bi-plus-circle"></i> New Source
+    </button>
+  </div>
 
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    </div>
+  <p class="tactical-muted small mb-3">Total sources: {{ sources|length }}</p>
+
+  <div class="table-responsive">
+    <table class="tactical-table">
+      <thead>
+        <tr class="tactical-table-header">
+          <th>Display Name</th>
+          <th>Internal Name</th>
+          <th>GUID</th>
+          <th>API Key</th>
+          <th>Status</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for source in sources %}
+        <tr class="{% if loop.index is even %}tactical-table-row{% else %}tactical-table-row-alt{% endif %} tactical-table-hover">
+          <td>{{ source.display_name }}</td>
+          <td>{{ source.name }}</td>
+          <td><code class="tactical-code">{{ source.guid }}</code></td>
+          <td>
+            <code class="tactical-code" style="cursor: pointer;" onclick="copyToClipboard('api-{{ source.guid }}')" id="api-{{ source.guid }}">
+              {{ source.api_key }}
+            </code>
+          </td>
+          <td>
+            <span class="badge {{ 'status-done' if source.is_active else 'status-new' }}">
+              {{ 'Active' if source.is_active else 'Inactive' }}
+            </span>
+          </td>
+          <td class="text-end">
+            <div class="d-flex justify-content-end gap-1">
+              <form method="post" action="/web/v1/sources/{{ source.guid }}/toggle">
+                <button class="btn btn-sm btn-outline-warning">Toggle</button>
+              </form>
+              <form method="post" action="/web/v1/sources/{{ source.guid }}/regenerate">
+                <button class="btn btn-sm btn-outline-info">New Key</button>
+              </form>
+              <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteSourceModal-{{ source.guid }}">
+                Delete
+              </button>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
-{% include "sources/_add_source_modal.html" %}
 
+{% include "sources/_add_source_modal.html" %}
+{% include "sources/_delete_source_modal.html" %}
 
 <script>
 function copyToClipboard(id) {
-    const text = document.getElementById(id).textContent;
-    navigator.clipboard.writeText(text).then(() => {
-        alert("API key copied!");
-    }).catch(err => alert("Copy failed."));
+  const el = document.getElementById(id);
+  navigator.clipboard.writeText(el.textContent).then(() => {
+    el.classList.add("text-success");
+    el.innerText = "Copied!";
+    setTimeout(() => {
+      el.innerText = el.dataset.original || el.textContent;
+      el.classList.remove("text-success");
+    }, 1200);
+  });
 }
 </script>
 {% endblock %}

@@ -2,11 +2,13 @@
   <div class="modal-dialog">
     <form method="post" action="/web/v1/cases/{{ case.id }}/assets/link" class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="linkAssetModalLabel">Link Existing Asset</h5>
+        <h5 class="modal-title" id="linkAssetModalLabel">🔗 Link Existing Asset</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
+
       <div class="modal-body">
-        <select name="asset_id" class="form-select" required>
+        <label for="assetSelect" class="form-label">Choose an asset to link</label>
+        <select name="asset_id" id="assetSelect" class="form-select" required>
           <option disabled selected>— Select Asset —</option>
           {% for asset in all_assets %}
             {% if asset.id not in assets|map(attribute="id") %}
@@ -15,8 +17,10 @@
           {% endfor %}
         </select>
       </div>
+
       <div class="modal-footer">
-        <button type="submit" class="btn btn-primary">Link Asset</button>
+        <button type="submit" class="btn btn-outline-success">Link Asset</button>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
       </div>
     </form>
   </div>

@@ -1,43 +1,44 @@
 <div class="tab-pane fade" id="playbooks" role="tabpanel">
-  <h5>🛠️ Linked Playbooks</h5>
-  {% if playbooks %}
-    <ul class="list-group mb-3">
+  <div class="tactical-tab-inner">
+    <h5 class="tactical-heading mb-3">🛠️ Linked Playbooks</h5>
+
+    {% if playbooks %}
+    <div class="d-flex flex-column gap-3 mb-4">
       {% for playbook in playbooks %}
-        <li class="list-group-item">
-          <div class="d-flex justify-content-between align-items-start">
-            <div>
-              <strong>{{ playbook.name }}</strong><br>
-              <small>{{ playbook.description }}</small><br>
-              <button class="btn btn-sm btn-outline-primary mt-2" data-bs-toggle="collapse" data-bs-target="#playbookSteps{{ playbook.id }}">
-                📖 View Steps
-              </button>
-            </div>
-            <form method="post" action="/web/v1/cases/{{ case.id }}/playbooks/{{ playbook.id }}/unlink">
-              <button type="submit" class="btn btn-sm btn-danger">Unlink</button>
-            </form>
+      <div class="tactical-playbook-card">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <strong>{{ playbook.name }}</strong><br>
+            <span class="tactical-muted small">{{ playbook.description }}</span><br>
+            <button class="btn btn-sm btn-outline-primary mt-2" data-bs-toggle="collapse" data-bs-target="#playbookSteps{{ playbook.id }}">
+              📖 View Steps
+            </button>
           </div>
+          <form method="post" action="/web/v1/cases/{{ case.id }}/playbooks/{{ playbook.id }}/unlink">
+            <button type="submit" class="btn btn-sm btn-outline-danger">Unlink</button>
+          </form>
+        </div>
 
-          <div class="collapse mt-3" id="playbookSteps{{ playbook.id }}">
-            <div class="border rounded p-3 bg-dark markdown-body">
-              {{ playbook.rendered_steps | safe }}
-            </div>
+        <div class="collapse mt-3" id="playbookSteps{{ playbook.id }}">
+          <div class="markdown-body tactical-markdown-block">
+            {{ playbook.rendered_steps | safe }}
           </div>
-        </li>
+        </div>
+      </div>
       {% endfor %}
-    </ul>
-  {% else %}
-    <p>No playbooks linked to this case.</p>
-  {% endif %}
+    </div>
+    {% else %}
+    <p class="tactical-muted">No playbooks linked to this case.</p>
+    {% endif %}
 
-  <h6>Add Playbook to Case</h6>
-  <form method="post" action="/web/v1/cases/{{ case.id }}/playbooks/link">
-    <div class="input-group">
-      <select name="playbook_id" class="form-select">
+    <h6 class="tactical-subheading mt-4 mb-2">Add Playbook to Case</h6>
+    <form method="post" action="/web/v1/cases/{{ case.id }}/playbooks/link" class="d-flex gap-2">
+      <select name="playbook_id" class="form-select form-select-sm" style="width: 250px;">
         {% for pb in all_playbooks %}
-          <option value="{{ pb.id }}">{{ pb.name }}</option>
+        <option value="{{ pb.id }}">{{ pb.name }}</option>
         {% endfor %}
       </select>
-      <button class="btn btn-primary" type="submit">Link</button>
-    </div>
-  </form>
+      <button class="btn btn-sm btn-outline-success" type="submit">Link</button>
+    </form>
+  </div>
 </div>

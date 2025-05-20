@@ -119,7 +119,7 @@ app.include_router(cases_ioc_view.router, prefix="/web/v1", tags=["Cases"])
 app.include_router(cases_alerts_view.router, prefix="/web/v1", tags=["Cases"])
 app.include_router(cases_assets_view.router, prefix="/web/v1", tags=["Cases"])
 app.include_router(cases_evidence_view.router, prefix="/web/v1", tags=["Cases"])
-app.include_router(playbooks_view.router, prefix="/web/v1", tags=["Cases"])
+app.include_router(cases_playbooks_view.router, prefix="/web/v1", tags=["Cases"])
 
 # (Optional)
 app.mount("/static", StaticFiles(directory="app/static"), name="static")

@@ -1,23 +1,27 @@
 <!-- Create Source Modal -->
 <div class="modal fade" id="createSourceModal" tabindex="-1" aria-labelledby="createSourceModalLabel" aria-hidden="true">
   <div class="modal-dialog">
-    <div class="modal-content">
-      <form method="post" action="/web/v1/sources/create">
-        <div class="modal-header">
-          <h5 class="modal-title" id="createSourceModalLabel">Add Source</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
+    <form method="post" action="/web/v1/sources/create" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="createSourceModalLabel">➕ Add New Source</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
 
-        <div class="modal-body">
-          <input type="text" class="form-control mb-2" name="name" placeholder="Internal Name" required>
-          <input type="text" class="form-control mb-2" name="display_name" placeholder="Display Name" required>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">Internal Name</label>
+          <input type="text" class="form-control" name="name" placeholder="e.g. wazuh-main" required>
         </div>
+        <div class="mb-3">
+          <label class="form-label">Display Name</label>
+          <input type="text" class="form-control" name="display_name" placeholder="e.g. Wazuh Manager Andøya" required>
+        </div>
+      </div>
 
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-success">Create</button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        </div>
-      </form>
-    </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-sm btn-outline-success">Create</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+    </form>
   </div>
 </div>

@@ -4,17 +4,15 @@ match:
   location: office365
 
 fields:
+  Agent Name: agent.name
   subject: data.office365.Subject
   sender: data.office365.P2Sender
   verdict: data.office365.Verdict
   threat_type: data.office365.DetectionMethod
   recipient: data.office365.Recipients[0]
   message_link: data.office365.EventDeepLink
-  SPF: data.office365.AuthDetails[0]
-  DKIM: data.office365.AuthDetails[1]
-  DMARC: data.office365.AuthDetails[2]
-  COMP: data.office365.AuthDetails[3]
   ip: data.office365.SenderIp
+  Delivery Action: data.office365.DeliveryAction
   tags:
     - office365
     - email
@@ -23,6 +21,10 @@ enrichment:
   - type: tag_if
     condition: "data.office365.Verdict == 'Spam'"
     tag: "Spam Mail"
+
+  - type: tag_if
+    condition: "data.office365.DeliveryAction == 'Blocked'"
+    tag: "Blocked Email"
 
   - type: tag_if
     condition: "'recipient1@company.no' in data.office365.Recipients"

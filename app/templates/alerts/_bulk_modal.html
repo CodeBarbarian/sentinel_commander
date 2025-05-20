@@ -1,50 +1,49 @@
 <div class="modal fade" id="bulkModal" tabindex="-1" aria-labelledby="bulkModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <form id="bulkActionForm" method="post" action="/web/v1/alerts/bulk_update">
-            <div class="modal-content" style="background-color: var(--sc-card-bg); color: var(--sc-text); border: 1px solid var(--sc-border);">
-                <div class="modal-header" style="border-bottom: 1px solid var(--sc-border);">
-                    <h5 class="modal-title" id="bulkModalLabel">Bulk Alert Action</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
+  <div class="modal-dialog modal-dialog-centered modal-md">
+    <form id="bulkActionForm" method="post" action="/web/v1/alerts/bulk_update" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">⚙️ Bulk Alert Action</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
 
-                <div class="modal-body">
-                    <!-- Place the hidden input here -->
-                    <input type="hidden" name="alert_ids" id="selectedAlertIds">
+      <div class="modal-body">
+        <!-- Hidden Alert ID Field -->
+        <input type="hidden" name="alert_ids" id="selectedAlertIds">
 
-                    <div class="mb-3">
-                        <label for="bulkStatus" class="form-label">Status</label>
-                        <select class="form-select" id="bulkStatus" name="status">
-                            <option value="">-- No Change --</option>
-                            <option value="new">New</option>
-                            <option value="in_progress">In Progress</option>
-                            <option value="done">Done</option>
-                        </select>
-                    </div>
+        <div class="mb-3">
+          <label for="bulkStatus" class="form-label">Set Status</label>
+          <select class="form-select form-select-sm" id="bulkStatus" name="status">
+            <option value="">— No Change —</option>
+            <option value="new">New</option>
+            <option value="in_progress">In Progress</option>
+            <option value="done">Done</option>
+          </select>
+        </div>
 
-                    <div class="mb-3">
-                        <label for="bulkResolution" class="form-label">Resolution</label>
-                        <select class="form-select" id="bulkResolution" name="resolution">
-                            <option value="">-- No Change --</option>
-                            <option value="not_applicable">Not Applicable</option>
-                            <option value="false_positive">False Positive</option>
-                            <option value="true_positive_without_impact">True Positive Without Impact</option>
-                            <option value="true_positive_with_impact">True Positive With Impact</option>
-                            <option value="legitimate">Legitimate</option>
-                            <option value="unknown">Unknown</option>
-                            <option value="under_investigation">Under Investigation</option>
-                        </select>
-                    </div>
+        <div class="mb-3">
+          <label for="bulkResolution" class="form-label">Set Resolution</label>
+          <select class="form-select form-select-sm" id="bulkResolution" name="resolution">
+            <option value="">— No Change —</option>
+            <option value="not_applicable">📎 Not Applicable</option>
+            <option value="false_positive">🚫 False Positive</option>
+            <option value="true_positive_without_impact">✅ TP (No Impact)</option>
+            <option value="true_positive_with_impact">⚠️ TP (With Impact)</option>
+            <option value="legitimate">✔️ Legitimate</option>
+            <option value="unknown">❓ Unknown</option>
+            <option value="under_investigation">🔍 Under Investigation</option>
+          </select>
+        </div>
 
-                    <div class="mb-3">
-                        <label for="bulkComment" class="form-label">Comment</label>
-                        <textarea class="form-control" id="bulkComment" name="comment" rows="3"></textarea>
-                    </div>
-                </div>
+        <div class="mb-3">
+          <label for="bulkComment" class="form-label">Resolution Comment</label>
+          <textarea class="form-control form-control-sm" id="bulkComment" name="comment" rows="3" placeholder="Optional comment to apply..."></textarea>
+        </div>
+      </div>
 
-                <div class="modal-footer" style="border-top: 1px solid var(--sc-border);">
-                    <button type="submit" class="btn btn-primary">Apply</button>
-                </div>
-            </div>
-        </form>
-    </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-sm btn-outline-success">✅ Apply Changes</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+    </form>
+  </div>
 </div>
