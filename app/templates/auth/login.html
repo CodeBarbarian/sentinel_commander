@@ -1,22 +1,26 @@
 {% extends "_design.html" %}
-{% block title %}Login{% endblock %}
+{% block title %}Login - Sentinel Commander{% endblock %}
 
 {% block content %}
-<div class="container mt-5" style="max-width: 400px;">
-  <h3 class="mb-4">🔐 Sign In</h3>
-  {% if error %}
-    <div class="alert alert-danger">{{ error }}</div>
-  {% endif %}
-  <form method="post">
-    <div class="mb-3">
-      <label class="form-label">Username</label>
-      <input type="text" class="form-control" name="username" required>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Password</label>
-      <input type="password" class="form-control" name="password" required>
-    </div>
-    <button type="submit" class="btn btn-primary w-100">Sign In</button>
-  </form>
+<div class="container d-flex align-items-center justify-content-center" style="min-height: 85vh;">
+  <div class="card p-4 shadow-sm" style="max-width: 400px; width: 100%;">
+    <h3 class="tactical-heading mb-4 text-center">🔐 Sign In</h3>
+
+    {% if error %}
+      <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+
+    <form method="post" class="d-grid gap-3">
+      <div>
+        <label class="form-label" for="username">Username</label>
+        <input type="text" id="username" name="username" class="form-control" placeholder="Enter your username" required>
+      </div>
+      <div>
+        <label class="form-label" for="password">Password</label>
+        <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="btn btn-outline-primary w-100">Login</button>
+    </form>
+  </div>
 </div>
 {% endblock %}
