@@ -1,0 +1,18 @@
+{% extends "_design.html" %}
+{% block title %}Alert Tags - Sentinel Commander{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-4">🔖 Tag Overview</h2>
+  <div class="tag-cloud">
+    {% for tag in tags %}
+      <a href="/web/v1/alerts?alert_id=&source=&status=&severity=&tags={{ tag.tag}}&start_event_time=&end_event_time=&start_time=&end_time=&search=" class="badge bg-primary m-1"
+         style="font-size: {{ 0.8 + (tag.count / tags[0].count) * 1.5 }}em;">
+        {{ tag.tag }} <span class="small text-light">({{ tag.count }})</span>
+      </a>
+    {% else %}
+      <p>No tags available.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

@@ -10,7 +10,7 @@
       {'label': 'Alerts Today', 'value': stats.alerts_today, 'color': 'danger', 'link': '/web/v1/alerts', 'text': 'View All'},
       {'label': 'Open Cases', 'value': stats.open_cases, 'color': 'warning', 'link': '/web/v1/cases', 'text': 'Investigate'},
       {'label': 'Sources Active', 'value': stats.sources, 'color': 'success', 'link': '/web/v1/sources', 'text': 'Manage'},
-      {'label': 'Unique Tags', 'value': stats.unique_tags, 'color': 'info', 'link': '/web/alerts?view=tags', 'text': 'Explore'}
+      {'label': 'Unique Tags', 'value': stats.unique_tags, 'color': 'info', 'link': '/web/v1/alerts/tags', 'text': 'Explore'}
     ] %}
     <div class="col-md-3">
       <div class="card stat-card border-start border-{{ card.color }} border-4 shadow-sm">

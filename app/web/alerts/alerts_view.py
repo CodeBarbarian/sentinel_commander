@@ -10,6 +10,7 @@ from urllib.parse import urlencode
 from app.utils.parser.compat_parser_runner import run_parser_for_type
 import json
 from app.utils import auth
+from collections import Counter
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
@@ -198,3 +199,23 @@ async def bulk_update_alerts(
 
     db.commit()
     return RedirectResponse("/web/v1/alerts", status_code=303)
+
+
+
+@router.get("/alerts/tags", response_class=HTMLResponse)
+def view_all_tags(request: Request, db: Session = Depends(get_db), user=Depends(auth.get_current_user)):
+    tag_query = db.query(Alert.tags).filter(Alert.tags.isnot(None)).all()
+    tag_list = []
+
+    for row in tag_query:
+        if row.tags:
+            tag_list.extend(tag.strip() for tag in row.tags.split(",") if tag.strip())
+
+    tag_counter = Counter(tag_list)
+    tags_data = [{"tag": tag, "count": count} for tag, count in tag_counter.items()]
+    tags_data.sort(key=lambda x: x["count"], reverse=True)
+
+    return templates.TemplateResponse("alerts/tags.html", {
+        "request": request,
+        "tags": tags_data
+    })
