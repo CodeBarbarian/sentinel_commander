@@ -38,3 +38,24 @@ def delete_ioc(ioc_id: int = Form(...), db: Session = Depends(get_db), user=Depe
         db.delete(ioc)
         db.commit()
     return RedirectResponse("/web/v1/iocs", status_code=302)
+
+@router.post("/iocs/edit")
+def edit_ioc(
+    ioc_id: int = Form(...),
+    type: str = Form(...),
+    value: str = Form(...),
+    description: str = Form(None),
+    source: str = Form(None),
+    tags: str = Form(None),
+    db: Session = Depends(get_db),
+    user=Depends(auth.get_current_user)
+):
+    ioc = db.query(IOC).filter(IOC.id == ioc_id).first()
+    if ioc:
+        ioc.type = type
+        ioc.value = value
+        ioc.description = description
+        ioc.source = source
+        ioc.tags = tags
+        db.commit()
+    return RedirectResponse("/web/v1/iocs", status_code=302)

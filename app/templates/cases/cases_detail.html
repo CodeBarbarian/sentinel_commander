@@ -1,12 +1,14 @@
 {% extends "_design.html" %}
-{% block title %}Case: {{ case.title }}{% endblock %}
+{% block title %}Case: {{ case.title }} - Sentinel Commander{% endblock %}
 
 {% block extrastyle %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown.min.css">
 <style>
 .markdown-body {
-  background-color: #f9f9f9;
+  background-color: #1c2128;
+  color: #e0e0e0;
   padding: 1rem;
+  border: 1px solid #3a3f45;
   border-radius: 8px;
   font-size: 0.9rem;
 }
@@ -14,54 +16,56 @@
 {% endblock %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="card alert-card p-4">
+
   {% if case.state == 'done' %}
-    <div class="alert alert-info mt-4">
-        <strong>📌 Closing Note:</strong><br>
-        {{ case.closing_note }}
-    </div>
-    {% endif %}
-{% include "cases/cases_detail/_header.html" %}
-{% include "cases/cases_detail/_metadata.html" %}
-{% include "cases/cases_detail/_tabs.html" %}
+  <div class="tactical-note mb-4">
+    <strong>📌 Closing Note:</strong><br>
+    {{ case.closing_note }}
+  </div>
+  {% endif %}
 
+  {% include "cases/cases_detail/_header.html" %}
+  {% include "cases/cases_detail/_metadata.html" %}
+  {% include "cases/cases_detail/_tabs.html" %}
 
-  <div class="tab-content border p-4 rounded" style="background-color: var(--sc-card-bg); border-color: var(--sc-border); color: var(--sc-text);">
-
-    <!-- Summary -->
+  <!-- Main Tab Content -->
+  <div class="tab-content tactical-tab-wrapper">
     {% include "cases/cases_detail/_summary.html" %}
-
-    <!-- Placeholder tabs -->
-    {% include "cases/cases_detail/_alerts.html"  %}
-    {% include "cases/cases_detail/_notes.html"  %}
+    {% include "cases/cases_detail/_alerts.html" %}
+    {% include "cases/cases_detail/_notes.html" %}
     {% include "cases/cases_detail/_timeline.html" %}
     {% include "cases/cases_detail/_tasks.html" %}
     {% include "cases/cases_detail/_assets.html" %}
     {% include "cases/cases_detail/_iocs.html" %}
     {% include "cases/cases_detail/_evidence.html" %}
     {% include "cases/cases_detail/_playbooks.html" %}
-
   </div>
 </div>
 
+<!-- Modals -->
 {% include "cases/cases_detail/modals/edit_case_modal.html" %}
 {% include "cases/cases_detail/modals/close_case_modal.html" %}
 {% include "cases/cases_detail/modals/add_note_modal.html" %}
 {% include "cases/cases_detail/modals/add_task_modal.html" %}
 {% include "cases/cases_detail/modals/create_asset_modal.html" %}
+{% include "cases/cases_detail/modals/delete_asset_modal.html" %}
 {% include "cases/cases_detail/modals/link_asset_modal.html" %}
+{% include "cases/cases_detail/modals/edit_note_modal.html" %}
+{% include "cases/cases_detail/modals/edit_task_modal.html" %}
+{% include "cases/cases_detail/modals/delete_ioc_modal.html" %}
+{% include "cases/cases_detail/modals/delete_evidence_modal.html" %}
 
+<!-- Tab logic -->
 <script>
-  // Save tab to localStorage & update URL hash
   document.querySelectorAll('a[data-bs-toggle="tab"]').forEach(function (tab) {
     tab.addEventListener("shown.bs.tab", function (event) {
       const href = event.target.getAttribute("href");
       localStorage.setItem("activeTab", href);
-      history.replaceState(null, null, href); // updates URL hash
+      history.replaceState(null, null, href);
     });
   });
 
-  // On page load, activate last active tab
   document.addEventListener('DOMContentLoaded', function () {
     const activeTab = localStorage.getItem('activeTab');
     if (activeTab) {
@@ -71,6 +75,7 @@
       }
     }
   });
+
   document.addEventListener("paste", function (event) {
     const clipboardItems = event.clipboardData.items;
     for (let i = 0; i < clipboardItems.length; i++) {
@@ -79,12 +84,10 @@
         const file = item.getAsFile();
         const input = document.getElementById("clipboard-file");
 
-        // Create a new DataTransfer to assign clipboard file to input
         const dt = new DataTransfer();
         dt.items.add(file);
         input.files = dt.files;
 
-        // Optional: auto-fill title/type
         const titleInput = document.querySelector("input[name='title']");
         if (titleInput && !titleInput.value) {
           titleInput.value = "Screenshot from clipboard";
@@ -100,8 +103,5 @@
       }
     }
   });
-
 </script>
-
-
 {% endblock %}

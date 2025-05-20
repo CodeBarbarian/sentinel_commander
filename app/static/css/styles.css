@@ -258,13 +258,6 @@ tr.selected-row {
     background-color: #20252b !important;
 }
 
-.tactical-heading {
-    color: #f0f0f0;
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-bottom: 0;
-}
-
 /* Badges */
 .severity-critical { background-color: #b91c1c; color: white; }
 .severity-high { background-color: #dc3545; color: white; }
@@ -292,4 +285,220 @@ tr.selected-row {
     font-size: 0.9rem;
     margin-bottom: 0.3rem;
     letter-spacing: 0.25px;
+}
+
+/* Case closing note */
+.tactical-note {
+  background-color: #1c1c1c;
+  color: #ccc;
+  border-left: 4px solid #0dcaf0;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+}
+
+/* Tab content box */
+.tactical-tab-content {
+  background-color: #1c2128;
+  border: 1px solid #3a3f45;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  margin-top: 1rem;
+}
+
+/* GLOBAL TEXT COLOR ENFORCEMENT */
+body.sc-body,
+body.sc-body {
+  color: #e0e0e0 !important;
+}
+
+/* Ensure border-based containers look correct */
+.card,
+.alert-card,
+.tactical-tab-content,
+.tab-pane,
+.nav-tabs .nav-link,
+.form-control,
+.form-select {
+  color: #e0e0e0 !important;
+  background-color: #1c2128 !important;
+  border-color: #3a3f45 !important;
+}
+
+/* Fix Bootstrap tab header active state */
+.nav-tabs .nav-link.active {
+  background-color: #1c2128 !important;
+  border-color: #3a3f45 #3a3f45 transparent !important;
+  color: #58a6ff !important;
+}
+
+/* Optional: lighten all <label> and <h*> globally */
+label, h1, h2, h3, h4, h5, h6 {
+  color: #f0f0f0 !important;
+}
+
+/* Tactical UI elements */
+.tactical-heading {
+  color: #f0f0f0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.tactical-subheading {
+  color: #ccc;
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-bottom: 0.3rem;
+}
+
+.tactical-muted {
+  color: #999;
+  font-size: 0.95rem;
+}
+
+.tactical-code {
+  background-color: #101417;
+  color: #58a6ff;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-family: "Fira Code", monospace;
+  font-size: 0.9rem;
+}
+
+.tactical-divider {
+  height: 1px;
+  background-color: #2a2f34;
+  border: none;
+  width: 100%;
+  margin: 1.5rem 0;
+}
+
+.gap-sm { gap: 0.25rem; }
+.gap-md { gap: 0.5rem; }
+.gap-lg { gap: 1rem; }
+
+.tactical-tab-section {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+}
+
+/* Ensures consistent outer tab padding area */
+.tactical-tab-wrapper {
+  background-color: #1c2128;
+  border: 1px solid #3a3f45;
+  border-radius: 0.5rem;
+  margin-top: 1rem;
+}
+
+/* Inner tab content layout */
+.tactical-tab-inner {
+  padding: 1.5rem;
+}
+
+.tactical-note-card {
+  background-color: #1c2128;
+  border: 1px solid #3a3f45;
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+
+.tactical-timeline-item {
+  background-color: #1c2128;
+  border: 1px solid #3a3f45;
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+
+.timeline-actor-badge {
+  background-color: #555;
+  color: white;
+  font-size: 0.75rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  display: inline-block;
+  margin-top: 0.5rem;
+}
+
+.tactical-task-card {
+  background-color: #1c2128;
+  border: 1px solid #3a3f45;
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+textarea.form-control-sm {
+  font-size: 0.85rem;
+  padding: 0.4rem;
+  line-height: 1.4;
+}
+
+.sc-body input::placeholder,
+.sc-body textarea::placeholder {
+  color: #bbb !important;
+}
+
+.tactical-playbook-card {
+  background-color: #1c2128;
+  border: 1px solid #3a3f45;
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.tactical-markdown-block {
+  background-color: #101417 !important;
+  color: #e0e0e0 !important;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 1rem;
+}
+
+.tactical-heading-xl {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #f0f0f0;
+}
+
+.tactical-metadata-card {
+  background-color: #1c2128;
+  border: 1px solid #3a3f45;
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+
+.badge.status-* {
+  text-transform: capitalize;
+}
+
+.modern-tabs .nav-link {
+  padding: 0.5rem 1rem;
+  border-radius: 0;
+  transition: color 0.2s ease, border-bottom 0.2s ease;
+}
+
+.modern-tabs .nav-link:hover {
+  color: #58a6ff;
+}
+
+.modern-tabs .nav-item {
+  margin-right: 0.5rem;
+}
+
+.modal-body {
+  padding: 1.25rem;
+}
+.modal-footer {
+  padding: 1rem 1.25rem;
+}
+
+.modal.fade .modal-dialog {
+  transition: transform 0.3s ease-out;
+}
+
+.form-label {
+  color: #e0e0e0 !important;
+}
+textarea.form-control {
+  background-color: #0e1116;
 }

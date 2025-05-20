@@ -1,90 +1,89 @@
 <!-- Edit Case Modal -->
 <div class="modal fade" id="editCaseModal" tabindex="-1" aria-labelledby="editCaseModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editCaseModalLabel">Edit Case Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editCaseModalLabel">🛠️ Edit Case Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
 
-            <form id="edit-case-form" method="post" action="/web/v1/cases/{{ case.id }}/update">
-                <div class="modal-body" style="max-height: 65vh; overflow-y: auto;">
-                    <div class="mb-3">
-                        <label for="editTitle" class="form-label">Title</label>
-                        <input type="text" class="form-control" id="editTitle" name="title" value="{{ case.title }}">
-                    </div>
+      <form id="edit-case-form" method="post" action="/web/v1/cases/{{ case.id }}/update">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="editTitle" class="form-label">Title</label>
+            <input type="text" class="form-control" id="editTitle" name="title" value="{{ case.title }}" placeholder="Case title...">
+          </div>
 
-                    <div class="mb-3">
-                        <label for="editDescription" class="form-label">Description</label>
-                        <textarea class="form-control" id="editDescription" name="description" rows="3">{{ case.description }}</textarea>
-                    </div>
+          <div class="mb-3">
+            <label for="editDescription" class="form-label">Description</label>
+            <textarea class="form-control" id="editDescription" name="description" rows="3" placeholder="Brief summary or context...">{{ case.description }}</textarea>
+          </div>
 
-                    <div class="mb-3">
-                        <label for="editState" class="form-label">State</label>
-                        <select id="editState" name="state" class="form-select">
-                            {% for state_option in ["new", "in_progress", "investigating", "escalated"] %}
-                            <option value="{{ state_option }}" {% if case.state== state_option %}selected{% endif %}>
-                                {{ state_option|capitalize }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </div>
+          <div class="mb-3">
+            <label for="editState" class="form-label">State</label>
+            <select id="editState" name="state" class="form-select">
+              {% for state_option in ["new", "in_progress", "investigating", "escalated"] %}
+              <option value="{{ state_option }}" {% if case.state == state_option %}selected{% endif %}>
+                {{ state_option|capitalize }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
 
-                    <div class="mb-3">
-                        <label for="editCustomer" class="form-label">Customer</label>
-                        <select id="editCustomer" name="customer_id" class="form-select" required>
-                            <option value="" disabled {% if not case.customer_id %}selected{% endif %}>— Select Customer
-                                —
-                            </option>
-                            {% for customer in customers %}
-                            <option value="{{ customer.id }}" {% if case.customer_id== customer.id %}selected{% endif
-                                    %}>
-                                {{ customer.name }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </div>
+          <div class="mb-3">
+            <label for="editCustomer" class="form-label">Customer</label>
+            <select id="editCustomer" name="customer_id" class="form-select" required>
+              <option value="" disabled {% if not case.customer_id %}selected{% endif %}>— Select Customer —</option>
+              {% for customer in customers %}
+              <option value="{{ customer.id }}" {% if case.customer_id == customer.id %}selected{% endif %}>
+                {{ customer.name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
 
-                    <div class="mb-3">
-                        <label for="editAssignedTo" class="form-label">Assigned To</label>
-                        <select id="editAssignedTo" name="assigned_to_raw" class="form-select" required>
-                            <option value="" disabled {% if not case.assigned_to %}selected{% endif %}>— Unassigned —
-                            </option>
-                            {% for user in users %}
-                            <option value="{{ user.id }}" {% if case.assigned_to== user.id %}selected{% endif %}>
-                                {{ user.username }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </div>
+          <div class="mb-3">
+            <label for="editAssignedTo" class="form-label">Assigned To</label>
+            <select id="editAssignedTo" name="assigned_to_raw" class="form-select">
+              <option value="" {% if not case.assigned_to %}selected{% endif %}>— Unassigned —</option>
+              {% for user in users %}
+              <option value="{{ user.id }}" {% if case.assigned_to == user.id %}selected{% endif %}>
+                {{ user.username }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
 
-                    <div class="mb-3">
-                        <label for="editClassification" class="form-label">Classification</label>
-                        <input type="text" class="form-control" id="editClassification" name="classification"
-                               value="{{ case.classification }}">
-                    </div>
-                    <div class="mb-3">
-                        <label for="editSeverity" class="form-label">Severity</label>
-                        <select id="editSeverity" name="severity" class="form-select" required>
-                            {% for sev in range(1, 16) %}
-                            <option value="{{ sev }}" {% if case.severity== sev %}selected{% endif %}>
-                                {{ sev|capitalize }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="editTags" class="form-label">Tags (comma-separated)</label>
-                        <input type="text" class="form-control" id="editTags" name="tags"
-                               value="{% for tag in case.tags %}{{ tag.tag }}{% if not loop.last %}, {% endif %}{% endfor %}">
-                    </div>
-                </div>
+          <div class="mb-3">
+            <label for="editClassification" class="form-label">Classification</label>
+            <input type="text" class="form-control" id="editClassification" name="classification"
+                   value="{{ case.classification }}" placeholder="e.g. Phishing, Malware, Insider Threat">
+          </div>
 
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                </div>
-            </form>
+          <div class="mb-3">
+            <label for="editSeverity" class="form-label">Severity</label>
+            <select id="editSeverity" name="severity" class="form-select" required>
+              {% for sev in range(1, 16) %}
+              <option value="{{ sev }}" {% if case.severity == sev %}selected{% endif %}>
+                {{ sev }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
 
+          <div class="mb-3">
+            <label for="editTags" class="form-label">Tags (comma-separated)</label>
+            <input type="text" class="form-control" id="editTags" name="tags"
+                   value="{% for tag in case.tags %}{{ tag.tag }}{% if not loop.last %}, {% endif %}{% endfor %}"
+                   placeholder="e.g. urgent,external,APT">
+          </div>
         </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-outline-success">💾 Save Changes</button>
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        </div>
+      </form>
     </div>
+  </div>
 </div>
