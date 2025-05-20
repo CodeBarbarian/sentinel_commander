@@ -9,6 +9,7 @@ fields:
   groups: rule.groups
   message: data.win.system.message
   agent: agent.name
+  eventID: data.win.system.eventID
   tags:
     - Event Channel
     - Windows
@@ -17,3 +18,4 @@ enrichment:
   - type: tag_if
     condition: "rule.level == 3"
     tag: "Not Important"
+

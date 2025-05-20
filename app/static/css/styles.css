@@ -254,10 +254,6 @@ tr.selected-row {
     background-color: #1a1f24;
 }
 
-.tactical-table-hover:hover {
-    background-color: #20252b !important;
-}
-
 /* Badges */
 .severity-critical { background-color: #b91c1c; color: white; }
 .severity-high { background-color: #dc3545; color: white; }
@@ -530,4 +526,18 @@ textarea.form-control-sm {
 }
 .tab-pane:not(.active) {
   display: none !important;
+}
+
+/* Fix hover behavior for SentinelIQ card */
+.alert-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transform: none; /* Remove zoom effect */
+}
+
+/* Fix table row hover from expanding too far */
+.tactical-table-hover:hover {
+  background-color: #20252b !important;
+  z-index: auto !important;
+  transform: none !important;
+  box-shadow: none !important;
 }

@@ -50,6 +50,34 @@ def create_asset(
     db.commit()
     return RedirectResponse(url="/web/v1/assets", status_code=303)
 
+def serialize_asset(asset):
+    return {
+        "id": asset.id,
+        "name": asset.name,
+        "ip_address": asset.ip_address,
+        "hostname": asset.hostname,
+        "type": asset.type,
+        "owner": asset.owner,
+        "tags": asset.tags,
+        "notes": asset.notes
+    }
+
+@router.get("/assets/{asset_id}", response_class=HTMLResponse)
+def asset_detail_view(
+    request: Request,
+    asset_id: int,
+    db: Session = Depends(get_db),
+    user=Depends(auth.get_current_user)
+):
+    asset = db.query(Asset).filter(Asset.id == asset_id).first()
+    if not asset:
+        raise HTTPException(status_code=404, detail="Asset not found")
+
+    return templates.TemplateResponse("assets/assets_detail.html", {
+        "request": request,
+        "asset": asset,
+        "asset_json": serialize_asset(asset)
+    })
 
 @router.get("/assets/{asset_id}/edit", response_class=HTMLResponse)
 def edit_asset_form(asset_id: int, request: Request, db: Session = Depends(get_db), user=Depends(auth.get_current_user)):
@@ -85,7 +113,7 @@ def update_asset(
     asset.notes = notes
 
     db.commit()
-    return RedirectResponse(url="/web/v1/assets", status_code=303)
+    return RedirectResponse(url=f"/web/v1/assets", status_code=303)
 
 
 @router.post("/assets/{asset_id}/delete")
@@ -97,3 +125,31 @@ def delete_asset(asset_id: int, db: Session = Depends(get_db), user=Depends(auth
     db.delete(asset)
     db.commit()
     return RedirectResponse(url="/web/v1/assets", status_code=303)
+
+@router.post("/assets/edit")
+def update_asset_modal(
+    asset_id: int = Form(...),
+    name: str = Form(...),
+    ip_address: Optional[str] = Form(None),
+    hostname: Optional[str] = Form(None),
+    type: Optional[str] = Form(None),
+    owner: Optional[str] = Form(None),
+    tags: Optional[str] = Form(None),
+    notes: Optional[str] = Form(None),
+    db: Session = Depends(get_db),
+    user=Depends(auth.get_current_user)
+):
+    asset = db.query(Asset).filter(Asset.id == asset_id).first()
+    if not asset:
+        raise HTTPException(status_code=404, detail="Asset not found")
+
+    asset.name = name.strip()
+    asset.ip_address = ip_address
+    asset.hostname = hostname
+    asset.type = type
+    asset.owner = owner
+    asset.tags = tags
+    asset.notes = notes
+
+    db.commit()
+    return RedirectResponse(url=f"/web/v1/assets/{asset_id}", status_code=303)

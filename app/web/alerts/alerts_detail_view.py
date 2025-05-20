@@ -116,30 +116,3 @@ def quick_triage_action(alert_id: int, action: str, db: Session = Depends(get_db
     db.commit()
     return RedirectResponse(f"/web/v1/sentineliq/triage", status_code=303)
 
-@router.get("/alerts/{alert_id}/quick/apply")
-def quick_apply_recommendation(alert_id: int, db: Session = Depends(get_db), user=Depends(auth.get_current_user)):
-    alert = db.query(Alert).filter(Alert.id == alert_id).first()
-    if not alert:
-        raise HTTPException(status_code=404, detail="Alert not found")
-
-    import json
-    from app.utils.parser.general_parser_engine import run_parser_for_type
-
-    print("inside statement")
-    payload = json.loads(alert.source_payload) if alert.source_payload else {}
-    triage_result = run_parser_for_type("triage", payload)
-    fields = triage_result.get("mapped_fields", {})
-
-    status = fields.get("recommended_status")
-    resolution = fields.get("recommended_resolution")
-    comment = fields.get("recommended_action")
-
-    if status:
-        alert.status = status
-    if resolution:
-        alert.resolution = resolution
-    if comment:
-        alert.resolution_comment = f"Auto-applied: {comment}"
-
-    db.commit()
-    return RedirectResponse(f"/web/v1/sentineliq/triage", status_code=303)

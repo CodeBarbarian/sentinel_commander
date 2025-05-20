@@ -5,71 +5,92 @@
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div class="collapse navbar-collapse" id="navMenu">
-      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+      <div class="collapse navbar-collapse" id="navMenu">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 
-        <!-- Dashboard -->
-        <li class="nav-item">
-          <a class="nav-link {% if request.url.path.startswith('/web/v1/dashboard') %}active{% endif %}"
-             href="/web/v1/dashboard">Dashboard</a>
-        </li>
+              <!-- Dashboard -->
+              <li class="nav-item">
+                  <a class="nav-link {% if request.url.path.startswith('/web/v1/dashboard') %}active{% endif %}"
+                     href="/web/v1/dashboard">Dashboard</a>
+              </li>
 
-        <!-- Customers -->
-        <li class="nav-item">
-          <a class="nav-link {% if request.url.path.startswith('/web/v1/customers') %}active{% endif %}"
-             href="/web/v1/customers">Customers</a>
-        </li>
+              <!-- Customers -->
+              <li class="nav-item">
+                  <a class="nav-link {% if request.url.path.startswith('/web/v1/customers') %}active{% endif %}"
+                     href="/web/v1/customers">Customers</a>
+              </li>
 
-        <!-- Cases -->
-        <li class="nav-item">
-          <a class="nav-link {% if request.url.path.startswith('/web/v1/cases') %}active{% endif %}"
-             href="/web/v1/cases">Cases</a>
-        </li>
+              <!-- Cases -->
+              <li class="nav-item">
+                  <a class="nav-link {% if request.url.path.startswith('/web/v1/cases') %}active{% endif %}"
+                     href="/web/v1/cases">Cases</a>
+              </li>
 
-        <!-- Alerts Dropdown -->
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle {% if request.url.path.startswith('/web/v1/alerts') %}active{% endif %}"
-             href="#" role="button" data-bs-toggle="dropdown">
-            Alerts
-          </a>
-          <ul class="dropdown-menu dropdown-menu-dark">
-            <li><a class="dropdown-item" href="/web/v1/alerts">View Alerts</a></li>
-            <li><a class="dropdown-item" href="/web/v1/sentineliq/triage">🧠 Sentinel IQ</a></li>
+              <!-- Alerts Dropdown -->
+              <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle {% if request.url.path.startswith('/web/v1/alerts') %}active{% endif %}"
+                     href="#" role="button" data-bs-toggle="dropdown">
+                      Alerts
+                  </a>
+                  <ul class="dropdown-menu dropdown-menu-dark">
+                      <li><a class="dropdown-item" href="/web/v1/alerts">View Alerts</a></li>
+                      <li><a class="dropdown-item" href="/web/v1/sentineliq/triage">Sentinel IQ</a></li>
+                  </ul>
+              </li>
+
+              <!-- IRDB Dropdown -->
+              <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle {% if request.url.path.startswith('/web/v1/assets') or request.url.path.startswith('/web/v1/iocs') or request.url.path.startswith('/web/v1/playbooks') %}active{% endif %}"
+                     href="#" role="button" data-bs-toggle="dropdown">
+                      IRDB
+                  </a>
+                  <ul class="dropdown-menu dropdown-menu-dark">
+                      <li><a class="dropdown-item" href="/web/v1/assets">Assets</a></li>
+                      <li><a class="dropdown-item" href="/web/v1/iocs">Indicators of Compromise</a></li>
+                      <li><a class="dropdown-item" href="/web/v1/playbooks">Playbooks</a></li>
+                  </ul>
+              </li>
+
+              <!-- Settings Dropdown -->
+              <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle {% if 'settings' in request.url.path %}active{% endif %}"
+                     href="#" role="button" data-bs-toggle="dropdown">
+                      Settings
+                  </a>
+                  <ul class="dropdown-menu dropdown-menu-dark">
+                      <li><a class="dropdown-item" href="/web/v1/sources">Sources</a></li>
+                      <li><a class="dropdown-item" href="/web/v1/users">Users</a></li>
+                  </ul>
+              </li>
           </ul>
-        </li>
 
-        <!-- IRDB Dropdown -->
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle {% if request.url.path.startswith('/web/v1/assets') or request.url.path.startswith('/web/v1/iocs') or request.url.path.startswith('/web/v1/playbooks') %}active{% endif %}"
-             href="#" role="button" data-bs-toggle="dropdown">
-            IRDB
-          </a>
-          <ul class="dropdown-menu dropdown-menu-dark">
-            <li><a class="dropdown-item" href="/web/v1/assets">Assets</a></li>
-            <li><a class="dropdown-item" href="/web/v1/iocs">Indicators of Compromise</a></li>
-            <li><a class="dropdown-item" href="/web/v1/playbooks">Playbooks</a></li>
-          </ul>
-        </li>
+          <!-- Global Search Bar -->
+          <form class="d-flex align-items-center flex-grow-1 mx-3" method="get" action="/web/v1/sentineliq/search">
+              <input class="form-control form-control-sm bg-dark text-light border-secondary me-2 w-100"
+                     type="search" name="q" placeholder="🔎 Search everything..." aria-label="Search"
+                     style="max-width: 400px;">
+              <button class="btn btn-sm btn-outline-primary" type="submit">Search</button>
+          </form>
 
-        <!-- Settings Dropdown -->
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle {% if 'settings' in request.url.path %}active{% endif %}"
-             href="#" role="button" data-bs-toggle="dropdown">
-            Settings
-          </a>
-          <ul class="dropdown-menu dropdown-menu-dark">
-            <li><a class="dropdown-item" href="/web/v1/sources">Sources</a></li>
-            <li><a class="dropdown-item" href="/web/v1/users">Users</a></li>
-          </ul>
-        </li>
-      </ul>
-      {% if request.session.user %}
-  <div class="text-end small text-muted">
-    Logged in as {{ request.session.user.username }} |
-    <a href="/web/v1/logout">Logout</a>
-  </div>
-{% endif %}
 
-    </div>
+          <!-- User Profile Dropdown -->
+          {% if request.session.user %}
+          <div class="dropdown">
+              <a href="#" class="d-flex align-items-center text-light text-decoration-none dropdown-toggle"
+                 id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                  <span class="me-2 small text-muted">👤 {{ request.session.user.username }}</span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark text-small shadow"
+                  aria-labelledby="userDropdown">
+                  <li><a class="dropdown-item" href="/web/v1/profile">Profile Settings</a></li>
+                  <li>
+                      <hr class="dropdown-divider">
+                  </li>
+                  <li><a class="dropdown-item text-danger" href="/web/v1/logout">Logout</a></li>
+              </ul>
+          </div>
+          {% endif %}
+      </div>
+
   </div>
 </nav>

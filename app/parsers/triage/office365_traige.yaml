@@ -11,10 +11,12 @@ fields:
   sender: data.office365.P2Sender
   recipient: data.office365.Recipients[0]
   verdict: data.office365.Verdict
+  detection_method: data.office365.DetectionMethod
 
 enrichment:
+# Tags and more Tags
   - type: tag_if
-    condition: "rule.level >= 10"
+    condition: "rule.level >= 12"
     tag: "High Risk"
 
   - type: tag_if
@@ -26,48 +28,57 @@ enrichment:
     tag: "Email Classified as Spam"
 
   - type: tag_if
+    condition: "'Phish' == data.office365.Verdict"
+    tag: "Phishing"
+
+  - type: tag_if
     condition: "'ThreatIntelligence' in rule.groups"
     tag: "Threat Intel Trigger"
 
-  - type: tag_if
-    condition: "'@malicious.org' in data.office365.P2Sender"
-    tag: "Known Malicious Sender"
-
-  - type: tag_if
-    condition: "'employee3@company.no' in data.office365.Recipients"
-    tag: "Targeted Employee"
-
-  - type: set_field_if
-    field: resolution
-    condition: "data.office365.Verdict == 'Clean'"
-    value: "not_applicable"
-
-  - type: set_field_if
-    field: recommended_status
-    condition: "rule.level <= 5"
-    value: "done"
-
+  # data.office365.DeliveryAction == 'Blocked'
   - type: set_field_if
     field: recommended_status
     condition: "data.office365.DeliveryAction == 'Blocked'"
     value: "done"
 
   - type: set_field_if
-    field: resolution
+    field: recommended_resolution
     condition: "data.office365.DeliveryAction == 'Blocked'"
-    value: "unknown"
-
-  - type: set_field_if
-    field: playbook
-    condition: "data.office365.DeliveryAction == 'Blocked'"
-    value: "Office 365 - Blocked"
+    value: "true_positive_no_impact"
 
   - type: set_field_if
     field: recommended_action
-    condition: "rule.level >= 13"
-    value: "Escalate to Incident Response"
+    condition: "data.office365.DeliveryAction == 'Blocked'"
+    value: "Auto Triage"
+
+# data.office365.DeliveryAction == 'DeliveredAsSpam'
+  - type: set_field_if
+    field: recommended_status
+    condition: "data.office365.DeliveryAction == 'DeliveredAsSpam'"
+    value: "in_progress"
 
   - type: set_field_if
-    field: recommended_playbook
-    condition: "rule.level >= 12"
-    value: "Office 365 - Blocked"
+    field: recommended_resolution
+    condition: "data.office365.DeliveryAction == 'DeliveredAsSpam'"
+    value: "under_investigation"
+
+  - type: set_field_if
+    field: recommended_action
+    condition: "data.office365.DeliveryAction == 'DeliveredAsSpam'"
+    value: "Manual Analysis"
+
+# data.office365.DetectionMethod == 'Spoof intra-org'
+  - type: set_field_if
+    field: recommended_status
+    condition: "data.office365.DetectionMethod == 'Spoof intra-org'"
+    value: "in_progress"
+
+  - type: set_field_if
+    field: recommended_resolution
+    condition: "data.office365.DetectionMethod == 'Spoof intra-org'"
+    value: "under_investigation"
+
+  - type: set_field_if
+    field: recommended_action
+    condition: "data.office365.DetectionMethod == 'Spoof intra-org'"
+    value: "Manual Analysis"

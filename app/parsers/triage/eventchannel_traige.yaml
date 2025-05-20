@@ -7,23 +7,73 @@ match:
 fields:
   risk_score: rule.level
   description: rule.description
+  eventid: data.win.system.eventID
 
 enrichment:
   - type: tag_if
-    condition: "rule.level >= 10"
+    condition: "rule.level >= 12"
     tag: "High Risk"
 
+# rule.level <= 7
   - type: set_field_if
     field: recommended_status
-    condition: "rule.level <= 5"
+    condition: "rule.level <= 7"
     value: "done"
 
   - type: set_field_if
     field: recommended_resolution
-    condition: "rule.level == 3"
+    condition: "rule.level <= 7"
     value: "not_applicable"
 
   - type: set_field_if
     field: recommended_action
-    condition: "rule.level >= 12"
-    value: "Escalate to Incident Response"
+    condition: "rule.level <= 7"
+    value: "Auto Triage"
+
+# Application Compatibility Database Launched
+  - type: set_field_if
+    field: recommended_status
+    condition: "'sdbinst.exe' in data.win.eventdata.originalFileName"
+    value: "done"
+
+  - type: set_field_if
+    field: recommended_resolution
+    condition: "'sdbinst.exe' in data.win.eventdata.originalFileName"
+    value: "not_applicable"
+
+  - type: set_field_if
+    field: recommended_action
+    condition: "'sdbinst.exe' in data.win.eventdata.originalFileName"
+    value: "Auto Triage"
+
+# Administrators Group Changed - Member Added
+  - type: set_field_if
+    field: recommended_status
+    condition: "data.win.system.eventID == '4732'"
+    value: "in_progress"
+
+  - type: set_field_if
+    field: recommended_resolution
+    condition: "data.win.system.eventID == '4732'"
+    value: "under_investigation"
+
+  - type: set_field_if
+    field: recommended_action
+    condition: "data.win.system.eventID == '4732'"
+    value: "Manual Analysis"
+
+# Administrators Group Changed - Member Removed
+  - type: set_field_if
+    field: recommended_status
+    condition: "data.win.system.eventID == '4733'"
+    value: "in_progress"
+
+  - type: set_field_if
+    field: recommended_resolution
+    condition: "data.win.system.eventID == '4733'"
+    value: "under_investigation"
+
+  - type: set_field_if
+    field: recommended_action
+    condition: "data.win.system.eventID == '4733'"
+    value: "Manual Analysis"
