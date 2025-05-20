@@ -28,21 +28,29 @@ def alert_detail_view(alert_id: int, request: Request, db: Session = Depends(get
     if not alert:
         return templates.TemplateResponse("404.html", {"request": request}, status_code=404)
 
+    # Load raw JSON from alert
     try:
         source_payload_json = json.loads(alert.source_payload) if alert.source_payload else {}
     except Exception as e:
         source_payload_json = {"error": f"Invalid JSON: {str(e)}"}
 
+    # Parser Execution
     try:
-        parsed = run_parser_for_type("alert", source_payload_json)  # ✅ Use new parser engine
+        parsed = run_parser_for_type("alert", source_payload_json)
         parsed_fields = parsed.get("mapped_fields", {})
         parsed_tags = parsed.get("tags", [])
         parsed_enrichment = parsed.get("enrichment", {})
+        parser_metadata = {
+            "parser_name": parsed.get("parser_name"),
+            "matched": parsed.get("matched", False)
+        }
     except Exception as e:
         parsed_fields = {"error": f"Parser failed: {str(e)}"}
         parsed_tags = []
         parsed_enrichment = {}
+        parser_metadata = {"parser_name": "unknown", "matched": False}
 
+    # Optional: if needed for legacy rendering or fallback accordion layout
     rendered_sections = render_alert_detail_fields(
         alert.__dict__,
         parsed_fields,
@@ -57,12 +65,13 @@ def alert_detail_view(alert_id: int, request: Request, db: Session = Depends(get
     return templates.TemplateResponse("alerts/alert_detail.html", {
         "request": request,
         "alert": alert,
-        "rendered_sections": rendered_sections,
-        "source_payload_json": source_payload_json,
+        "parsed_fields": parsed_fields,
         "parsed_tags": parsed_tags,
-        "parsed_enrichment": parsed_enrichment
+        "parsed_enrichment": parsed_enrichment,
+        "parser_metadata": parser_metadata,
+        "source_payload_json": source_payload_json,
+        "rendered_sections": rendered_sections  # still passed in case fallback needed
     })
-
 @router.post("/alerts/{alert_id}/update")
 def update_alert_form(
     alert_id: int,

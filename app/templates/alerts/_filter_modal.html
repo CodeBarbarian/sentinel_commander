@@ -1,107 +1,95 @@
-<!-- Advanced Filter Modal -->
 <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <form method="get" class="modal-content" style="background-color: var(--sc-card-bg); color: var(--sc-text); border: 1px solid var(--sc-border);">
-            <div class="modal-header" style="border-bottom: 1px solid var(--sc-border);">
-                <h5 class="modal-title" id="filterModalLabel">Advanced Alert Filters</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <form method="get" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="filterModalLabel">🎯 Advanced Alert Filters</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
 
-            <div class="modal-body row g-3">
-                <!-- 🧭 General Filters -->
-                <div class="col-md-12"><h6 class="border-bottom pb-1">🧭 General Filters</h6></div>
+      <div class="modal-body row g-3">
+        <!-- 🧭 General Filters -->
+        <div class="col-12"><h6 class="tactical-subheading border-bottom pb-1">🧭 General Filters</h6></div>
 
-                <div class="col-md-3">
-                    <label class="form-label">Alert ID</label>
-                    <input type="text" name="alert_id" class="form-control" placeholder="e.g. 913"
-                        value="{{ request.query_params.get('alert_id', '') }}"
-                        style="background-color: var(--sc-light); color: var(--sc-text); border: 1px solid var(--sc-border);">
-                </div>
+        <div class="col-md-3">
+          <label class="form-label">Alert ID</label>
+          <input type="text" name="alert_id" class="form-control form-control-sm"
+            value="{{ request.query_params.get('alert_id', '') }}" placeholder="e.g. 913">
+        </div>
 
-                <div class="col-md-3">
-                    <label class="form-label">Source</label>
-                    <input type="text" name="source" class="form-control" placeholder="Source name"
-                        value="{{ request.query_params.get('source', '') }}"
-                        style="background-color: var(--sc-light); color: var(--sc-text); border: 1px solid var(--sc-border);">
-                </div>
+        <div class="col-md-3">
+          <label class="form-label">Source</label>
+          <input type="text" name="source" class="form-control form-control-sm"
+            value="{{ request.query_params.get('source', '') }}" placeholder="Source name">
+        </div>
 
-                <div class="col-md-3">
-                    <label class="form-label">Status</label>
-                    <select name="status" class="form-select"
-                        style="background-color: var(--sc-light); color: var(--sc-text); border: 1px solid var(--sc-border);">
-                        <option value="" {% if not request.query_params.get('status') %}selected{% endif %}>Any</option>
-                        <option value="new" {% if request.query_params.get('status') == 'new' %}selected{% endif %}>New</option>
-                        <option value="in_progress" {% if request.query_params.get('status') == 'in_progress' %}selected{% endif %}>In Progress</option>
-                        <option value="done" {% if request.query_params.get('status') == 'done' %}selected{% endif %}>Done</option>
-                    </select>
-                </div>
+        <div class="col-md-3">
+          <label class="form-label">Status</label>
+          <select name="status" class="form-select form-select-sm">
+            <option value="">Any</option>
+            <option value="new" {% if request.query_params.get('status') == 'new' %}selected{% endif %}>New</option>
+            <option value="in_progress" {% if request.query_params.get('status') == 'in_progress' %}selected{% endif %}>In Progress</option>
+            <option value="done" {% if request.query_params.get('status') == 'done' %}selected{% endif %}>Done</option>
+          </select>
+        </div>
 
-                <div class="col-md-3">
-                    <label class="form-label">Severity</label>
-                    <select name="severity" class="form-select"
-                        style="background-color: var(--sc-light); color: var(--sc-text); border: 1px solid var(--sc-border);">
-                        <option value="" {% if not request.query_params.get('severity') %}selected{% endif %}>Any</option>
-                        <option value="informational" {% if request.query_params.get('severity') == 'informational' %}selected{% endif %}>Informational</option>
-                        <option value="low" {% if request.query_params.get('severity') == 'low' %}selected{% endif %}>Low</option>
-                        <option value="medium" {% if request.query_params.get('severity') == 'medium' %}selected{% endif %}>Medium</option>
-                        <option value="high" {% if request.query_params.get('severity') == 'high' %}selected{% endif %}>High</option>
-                        <option value="critical" {% if request.query_params.get('severity') == 'critical' %}selected{% endif %}>Critical</option>
-                    </select>
-                </div>
+        <div class="col-md-3">
+          <label class="form-label">Severity</label>
+          <select name="severity" class="form-select form-select-sm">
+            <option value="">Any</option>
+            <option value="informational" {% if request.query_params.get('severity') == 'informational' %}selected{% endif %}>Informational</option>
+            <option value="low" {% if request.query_params.get('severity') == 'low' %}selected{% endif %}>Low</option>
+            <option value="medium" {% if request.query_params.get('severity') == 'medium' %}selected{% endif %}>Medium</option>
+            <option value="high" {% if request.query_params.get('severity') == 'high' %}selected{% endif %}>High</option>
+            <option value="critical" {% if request.query_params.get('severity') == 'critical' %}selected{% endif %}>Critical</option>
+          </select>
+        </div>
 
-                <div class="col-md-3">
-                    <label class="form-label">Tags</label>
-                    <input type="text" name="tags" class="form-control" placeholder="Comma separated"
-                        value="{{ request.query_params.get('tags', '') }}"
-                        style="background-color: var(--sc-light); color: var(--sc-text); border: 1px solid var(--sc-border);">
-                </div>
+        <div class="col-md-3">
+          <label class="form-label">Tags</label>
+          <input type="text" name="tags" class="form-control form-control-sm"
+            value="{{ request.query_params.get('tags', '') }}" placeholder="Comma-separated tags">
+        </div>
 
-                <!-- ⏰ Time Filters -->
-                <div class="col-md-12 pt-3"><h6 class="border-bottom pb-1">⏰ Time Filters</h6></div>
+        <!-- ⏰ Time Filters -->
+        <div class="col-12 pt-3"><h6 class="tactical-subheading border-bottom pb-1">⏰ Time Filters</h6></div>
 
-                <div class="col-md-3">
-                    <label class="form-label">Start Event Time</label>
-                    <input type="datetime-local" name="start_event_time" class="form-control"
-                        value="{{ request.query_params.get('start_event_time', '') }}"
-                        style="background-color: var(--sc-light); color: var(--sc-text); border: 1px solid var(--sc-border);">
-                </div>
+        <div class="col-md-3">
+          <label class="form-label">Start Event Time</label>
+          <input type="datetime-local" name="start_event_time" class="form-control form-control-sm"
+            value="{{ request.query_params.get('start_event_time', '') }}">
+        </div>
 
-                <div class="col-md-3">
-                    <label class="form-label">End Event Time</label>
-                    <input type="datetime-local" name="end_event_time" class="form-control"
-                        value="{{ request.query_params.get('end_event_time', '') }}"
-                        style="background-color: var(--sc-light); color: var(--sc-text); border: 1px solid var(--sc-border);">
-                </div>
+        <div class="col-md-3">
+          <label class="form-label">End Event Time</label>
+          <input type="datetime-local" name="end_event_time" class="form-control form-control-sm"
+            value="{{ request.query_params.get('end_event_time', '') }}">
+        </div>
 
-                <div class="col-md-3">
-                    <label class="form-label">Created After</label>
-                    <input type="datetime-local" name="start_time" class="form-control"
-                        value="{{ request.query_params.get('start_time', '') }}"
-                        style="background-color: var(--sc-light); color: var(--sc-text); border: 1px solid var(--sc-border);">
-                </div>
+        <div class="col-md-3">
+          <label class="form-label">Created After</label>
+          <input type="datetime-local" name="start_time" class="form-control form-control-sm"
+            value="{{ request.query_params.get('start_time', '') }}">
+        </div>
 
-                <div class="col-md-3">
-                    <label class="form-label">Created Before</label>
-                    <input type="datetime-local" name="end_time" class="form-control"
-                        value="{{ request.query_params.get('end_time', '') }}"
-                        style="background-color: var(--sc-light); color: var(--sc-text); border: 1px solid var(--sc-border);">
-                </div>
+        <div class="col-md-3">
+          <label class="form-label">Created Before</label>
+          <input type="datetime-local" name="end_time" class="form-control form-control-sm"
+            value="{{ request.query_params.get('end_time', '') }}">
+        </div>
 
-                <!-- 🔍 Search -->
-                <div class="col-md-12 pt-3"><h6 class="border-bottom pb-1">🔍 Message Content</h6></div>
+        <!-- 🔍 Search -->
+        <div class="col-12 pt-3"><h6 class="tactical-subheading border-bottom pb-1">🔍 Message Search</h6></div>
+        <div class="col-md-12">
+          <label class="form-label">Search Content</label>
+          <input type="text" name="search" class="form-control form-control-sm"
+            placeholder="Message contains..." value="{{ request.query_params.get('search', '') }}">
+        </div>
+      </div>
 
-                <div class="col-md-12">
-                    <label class="form-label">Search</label>
-                    <input type="text" name="search" class="form-control" placeholder="Message contains..."
-                        value="{{ request.query_params.get('search', '') }}"
-                        style="background-color: var(--sc-light); color: var(--sc-text); border: 1px solid var(--sc-border);">
-                </div>
-            </div>
-
-            <div class="modal-footer" style="border-top: 1px solid var(--sc-border);">
-                <button type="submit" class="btn btn-primary">Apply Filters</button>
-                <button type="button" class="btn btn-secondary" id="clearFiltersBtn">Clear Filters</button>
-            </div>
-        </form>
-    </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-sm btn-outline-success">Apply Filters</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" id="clearFiltersBtn">Clear Filters</button>
+      </div>
+    </form>
+  </div>
 </div>

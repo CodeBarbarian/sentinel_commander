@@ -7,6 +7,7 @@ from starlette.responses import RedirectResponse
 from app.core.database import SessionLocal
 from app.models.alert import Alert
 from urllib.parse import urlencode
+from app.utils.parser.compat_parser_runner import run_parser_for_type
 import json
 from app.utils import auth
 router = APIRouter()
@@ -116,6 +117,13 @@ def list_alerts_view(
 
     total = query.count()
     alerts = query.order_by(Alert.created_at.desc()).offset(offset).limit(limit).all()
+    for alert in alerts:
+        try:
+            payload = json.loads(alert.source_payload or "{}")
+            parsed = run_parser_for_type("alert", payload)
+            alert.parsed_fields = parsed.get("mapped_fields", {})
+        except Exception:
+            alert.parsed_fields = {}
 
     for alert in alerts:
         alert.created_at_formatted = alert.created_at.strftime("%Y-%m-%d %H:%M:%S") if alert.created_at else "-"

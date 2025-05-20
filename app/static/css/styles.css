@@ -431,6 +431,7 @@ textarea.form-control-sm {
   font-size: 0.85rem;
   padding: 0.4rem;
   line-height: 1.4;
+    height: 32px;
 }
 
 .sc-body input::placeholder,
@@ -501,4 +502,32 @@ textarea.form-control-sm {
 }
 textarea.form-control {
   background-color: #0e1116;
+}
+
+canvas {
+  height: 160px !important;
+  width: 100% !important;
+}
+
+.alert-scroll-wrapper::-webkit-scrollbar {
+  width: 6px;
+}
+.alert-scroll-wrapper::-webkit-scrollbar-thumb {
+  background-color: #444;
+  border-radius: 3px;
+}
+
+.alert-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  transform: scale(1.01);
+}
+
+
+textarea.form-control-sm {
+  height: 32px !important;
+  resize: none;
+  overflow: hidden;
+}
+.tab-pane:not(.active) {
+  display: none !important;
 }

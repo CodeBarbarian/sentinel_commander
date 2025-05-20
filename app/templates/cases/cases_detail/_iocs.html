@@ -4,7 +4,7 @@
 
         <!-- Add New IOC -->
         <form method="post" action="/web/v1/cases/{{ case.id }}/iocs" class="mb-4">
-            <div class="d-flex flex-wrap gap-2">
+            <div class="d-flex flex-wrap align-items-center gap-2">
                 <input type="text" name="type" class="form-control form-control-sm" placeholder="Type (e.g. ip)"
                        required style="width: 150px;">
                 <input type="text" name="value" class="form-control form-control-sm" placeholder="Value" required
@@ -13,8 +13,11 @@
                        style="width: 200px;">
                 <input type="text" name="tags" class="form-control form-control-sm" placeholder="Tags (comma-separated)"
                        style="width: 200px;">
-                <textarea name="description" class="form-control form-control-sm" placeholder="Description (optional)"
-                          rows="1" style="min-width: 100%; max-width: 100%;"></textarea>
+                <textarea name="description"
+                          class="form-control form-control-sm"
+                          placeholder="Description (optional)"
+                          rows="1"
+                          style="width: 300px;"></textarea>
                 <button type="submit" class="btn btn-sm btn-outline-success">Add IOC</button>
             </div>
         </form>

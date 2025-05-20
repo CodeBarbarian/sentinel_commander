@@ -6,51 +6,31 @@
 
   <!-- Top Grid: Status Overview -->
   <div class="row g-3 mb-4">
+    {% for card in [
+      {'label': 'Alerts Today', 'value': stats.alerts_today, 'color': 'danger', 'link': '/web/v1/alerts', 'text': 'View All'},
+      {'label': 'Open Cases', 'value': stats.open_cases, 'color': 'warning', 'link': '/web/v1/cases', 'text': 'Investigate'},
+      {'label': 'Sources Active', 'value': stats.sources, 'color': 'success', 'link': '/web/v1/sources', 'text': 'Manage'},
+      {'label': 'Unique Tags', 'value': stats.unique_tags, 'color': 'info', 'link': '/web/alerts?view=tags', 'text': 'Explore'}
+    ] %}
     <div class="col-md-3">
-      <div class="card stat-card border-start border-danger border-4 shadow-sm">
+      <div class="card stat-card border-start border-{{ card.color }} border-4 shadow-sm">
         <div class="card-body text-center">
-          <h6 class="text-uppercase text-muted">Alerts Today</h6>
-          <h2 class="display-5 fw-bold text-danger">{{ stats.alerts_today }}</h2>
-          <div><a href="/web/v1/alerts" class="small tactical-link">View All</a></div>
+          <h6 class="text-uppercase text-muted">{{ card.label }}</h6>
+          <h2 class="display-5 fw-bold text-{{ card.color }}">{{ card.value }}</h2>
+          <div><a href="{{ card.link }}" class="small tactical-link">{{ card.text }}</a></div>
         </div>
       </div>
     </div>
-    <div class="col-md-3">
-      <div class="card stat-card border-start border-warning border-4 shadow-sm">
-        <div class="card-body text-center">
-          <h6 class="text-uppercase text-muted">Open Cases</h6>
-          <h2 class="display-5 fw-bold text-warning">{{ stats.open_cases }}</h2>
-          <div><a href="/web/v1/cases" class="small tactical-link">Investigate</a></div>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="card stat-card border-start border-success border-4 shadow-sm">
-        <div class="card-body text-center">
-          <h6 class="text-uppercase text-muted">Sources Active</h6>
-          <h2 class="display-5 fw-bold text-success">{{ stats.sources }}</h2>
-          <div><a href="/web/v1/sources" class="small tactical-link">Manage</a></div>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="card stat-card border-start border-info border-4 shadow-sm">
-        <div class="card-body text-center">
-          <h6 class="text-uppercase text-muted">Unique Tags</h6>
-          <h2 class="display-5 fw-bold text-info">{{ stats.unique_tags }}</h2>
-          <div><a href="/web/alerts?view=tags" class="small tactical-link">Explore</a></div>
-        </div>
-      </div>
-    </div>
+    {% endfor %}
   </div>
 
-  <!-- Middle Row: Alert Trends -->
-  <div class="row mb-4">
+  <!-- Chart Grid -->
+  <div class="row g-4 mb-4">
     <div class="col-lg-6">
       <div class="card h-100">
         <div class="card-body">
           <h5 class="card-title">Severity Distribution</h5>
-          <canvas id="severityChart"></canvas>
+          <canvas id="severityChart" height="160"></canvas>
         </div>
       </div>
     </div>
@@ -58,20 +38,19 @@
       <div class="card h-100">
         <div class="card-body">
           <h5 class="card-title">Alerts Over Time</h5>
-          <canvas id="timelineChart"></canvas>
+          <canvas id="timelineChart" height="160"></canvas>
         </div>
       </div>
     </div>
-  </div>
 
   <!-- Recent Alerts Table -->
-  <div class="card">
-    <div class="card-body">
-      <h5 class="card-title">Recent Alerts</h5>
-      <table class="table table-hover align-middle">
+<div class="tactical-note-card">
+  <h5 class="tactical-heading mb-3">Recent Alerts</h5>
+  <div class="table-responsive">
+    <table class="tactical-table">
         <thead class="table-dark">
           <tr>
-            <th scope="col">#</th>
+            <th>#</th>
             <th>Source</th>
             <th>Severity</th>
             <th>Status</th>
@@ -81,20 +60,14 @@
         </thead>
         <tbody>
           {% for alert in recent_alerts %}
-            <tr>
-              <td><a href="/web/v1/alerts/{{ alert.id }}" class="tactical-link">{{ alert.id }}</a></td>
-              <td>{{ alert.source_display_name or "Unknown" }}</td>
-              <td>
-                <span class="badge severity-badge severity-{{ severity_class(alert.severity) }}">
-                  {{ severity_label(alert.severity) }}
-                </span>
-              </td>
-              <td>
-                <span class="badge status-badge status-{{ alert.status }}">{{ alert.status }}</span>
-              </td>
-              <td>{{ alert.message | default("N/A") | truncate(40) }}</td>
-              <td>{{ alert.created_at.strftime('%Y-%m-%d %H:%M:%S') if alert.created_at else "Unknown" }}</td>
-            </tr>
+          <tr class="{{ 'tactical-table-row' if loop.index is even else 'tactical-table-row-alt' }} tactical-table-hover">
+            <td><a href="/web/v1/alerts/{{ alert.id }}" class="tactical-link">{{ alert.id }}</a></td>
+            <td>{{ alert.source_display_name or "Unknown" }}</td>
+            <td><span class="badge severity-badge severity-{{ alert.severity }}">{{ alert.severity }}</span></td>
+            <td><span class="badge status-badge status-{{ alert.status }}">{{ alert.status }}</span></td>
+            <td>{{ alert.message | default("N/A") | truncate(40) }}</td>
+            <td>{{ alert.created_at.strftime('%Y-%m-%d %H:%M:%S') if alert.created_at else "Unknown" }}</td>
+          </tr>
           {% endfor %}
         </tbody>
       </table>
@@ -102,4 +75,57 @@
   </div>
 
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  new Chart(document.getElementById('severityChart'), {
+    type: 'bar',
+    data: {
+      labels: {{ charts.severity_labels | tojson }},
+      datasets: [{
+        data: {{ charts.severity_values | tojson }},
+        backgroundColor: ['#6c757d', '#198754', '#fd7e14', '#dc3545', '#b91c1c'],
+        borderRadius: 5
+      }]
+    },
+options: {
+  maintainAspectRatio: false,
+  responsive: true,
+  plugins: {
+    legend: { display: false }
+  },
+  scales: {
+    y: {
+      beginAtZero: true,
+      ticks: { stepSize: 1 }
+    }
+  }
+}
+  });
+
+  new Chart(document.getElementById('timelineChart'), {
+    type: 'line',
+    data: {
+      labels: {{ charts.timeline_labels | tojson }},
+      datasets: [{
+        data: {{ charts.timeline_values | tojson }},
+        borderColor: '#58a6ff',
+        tension: 0.2
+      }]
+    },
+options: {
+  maintainAspectRatio: false,
+  responsive: true,
+  plugins: {
+    legend: { display: false }
+  },
+  scales: {
+    y: {
+      beginAtZero: true,
+      ticks: { stepSize: 1 }
+    }
+  }
+}
+  });
+</script>
 {% endblock %}

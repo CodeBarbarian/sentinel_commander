@@ -1,64 +1,57 @@
 {% extends "_design.html" %}
-{% block title %}Sentinel IQ{% endblock %}
+{% block title %}Sentinel IQ - Sentinel Commander{% endblock %}
 
 {% block content %}
-<div class="py-4">
-
-  <div class="d-flex justify-content-between align-items-center mb-4 px-4">
-    <h3 class="mb-0">🧠 Sentinel IQ</h3>
+<div class="card alert-card px-4 py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="tactical-heading mb-0">🧠 Sentinel IQ</h4>
     <span class="badge bg-secondary">Beta</span>
   </div>
 
-  <div class="px-4 mb-3">
-    <p class="lead mb-1">Welcome to Sentinel IQ — your automated triage engine.</p>
-    <p>This module intelligently sorts, tags, and enriches alerts to reduce fatigue and prioritize action.</p>
+  <p class="lead">Automated triage for incoming alerts. Group, suppress, tag, and escalate intelligently.</p>
+
+  <ul class="list-group list-group-horizontal-md mb-4 flex-wrap">
+    <li class="list-group-item flex-fill bg-dark text-white border-secondary">✅ Alert grouping by tags or fields</li>
+    <li class="list-group-item flex-fill bg-dark text-white border-secondary">✅ False positive suppression</li>
+    <li class="list-group-item flex-fill bg-dark text-white border-secondary">✅ Auto-tagging via intel</li>
+    <li class="list-group-item flex-fill bg-dark text-white border-secondary">✅ Quick triage with suggestions</li>
+  </ul>
+
+  <div class="alert alert-info mb-4">
+    Sentinel IQ adapts over time. Trust, but verify. Manual override always available.
   </div>
 
-  <div class="px-4">
-    <ul class="list-group list-group-horizontal-md mb-4 flex-wrap">
-      <li class="list-group-item flex-fill">✅ Alert grouping by tags, source, or fields</li>
-      <li class="list-group-item flex-fill">✅ Suppression of known false positives</li>
-      <li class="list-group-item flex-fill">✅ Auto-tagging via threat intel</li>
-      <li class="list-group-item flex-fill">✅ Quick triage with smart suggestions</li>
-    </ul>
-  </div>
+  <h5 class="tactical-heading mb-3">🧪 Triage Candidates</h5>
 
-  <div class="alert alert-info mx-4">
-    This interface evolves with your ruleset. Trust the logic, but verify the edge cases.
-  </div>
-
-  <div class="px-4">
-    <h5 class="mt-5 mb-3">🧪 Triage Candidates</h5>
-
-    <table class="table table-bordered table-hover align-middle w-100">
-      <thead class="table-light">
-        <tr>
+  <div class="table-responsive">
+    <table class="tactical-table">
+      <thead>
+        <tr class="tactical-table-header">
           <th style="width: 4%">#</th>
-          <th style="width: 28%">Alert</th>
-          <th style="width: 28%">Triage</th>
-          <th style="width: 10%">Status</th>
-          <th style="width: 20%">Actions</th>
+          <th>Alert</th>
+          <th>Triage Suggestions</th>
+          <th>Status</th>
+          <th class="text-end">Actions</th>
         </tr>
       </thead>
       <tbody>
         {% for alert in alerts %}
         {% set triage = alert.triage_result.mapped_fields %}
-        <tr>
+        <tr class="{% if loop.index is even %}tactical-table-row{% else %}tactical-table-row-alt{% endif %} tactical-table-hover">
           <td class="text-muted">#{{ alert.id }}</td>
 
           <td>
             <div><strong>Source:</strong> {{ alert.source_display_name or "—" }}</div>
             <div><strong>Title:</strong> {{ alert.title or alert.message[:60] }}</div>
-            <div class="my-1">
-              <strong>Severity:</strong>
-              <span class="badge bg-warning text-dark">{{ alert.severity }}</span>
-            </div>
+            <div><strong>Severity:</strong> <span class="badge severity-{{ 'critical' if alert.severity >= 12 else 'high' if alert.severity >= 8 else 'medium' if alert.severity >= 4 else 'low' }}">{{ alert.severity }}</span></div>
             <div><strong>Timestamp:</strong> {{ alert.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
-            <div class="mt-1">
-              {% for tag in alert.triage_result.tags or [] %}
-                <span class="badge bg-secondary me-1">{{ tag }}</span>
-              {% endfor %}
-            </div>
+            {% if alert.triage_result.tags %}
+              <div class="mt-2">
+                {% for tag in alert.triage_result.tags %}
+                  <span class="badge bg-secondary me-1">{{ tag }}</span>
+                {% endfor %}
+              </div>
+            {% endif %}
           </td>
 
           <td>
@@ -66,9 +59,10 @@
               <div><strong>Risk Score:</strong>
                 {% if triage.risk_score %}
                   <span class="badge
-                    {% if triage.risk_score >= 13 %}bg-danger
-                    {% elif triage.risk_score >= 9 %}bg-warning text-dark
-                    {% else %}bg-success{% endif %}">
+                    {% if triage.risk_score >= 13 %}severity-critical
+                    {% elif triage.risk_score >= 9 %}severity-high
+                    {% elif triage.risk_score >= 5 %}severity-medium
+                    {% else %}severity-low{% endif %}">
                     {{ triage.risk_score }}
                   </span>
                 {% else %} — {% endif %}
@@ -82,51 +76,47 @@
             {% endif %}
           </td>
 
-          <td><span class="badge bg-outline-primary">{{ alert.status }}</span></td>
+          <td>
+            <span class="badge status-{{ alert.status|replace('_','-') }}">{{ alert.status.replace('_',' ').capitalize() }}</span>
+          </td>
 
-<td>
-  <div class="d-grid gap-1">
-    <a href="/web/v1/alerts/{{ alert.id }}" class="btn btn-sm btn-outline-primary">🔍 View</a>
+          <td class="text-end">
+            <div class="d-grid gap-1">
+              <a href="/web/v1/alerts/{{ alert.id }}" class="btn btn-sm btn-outline-primary">🔍 View</a>
 
-     {% if triage.recommended_status or triage.recommended_resolution or triage.recommended_action %}
-      <a href="/web/v1/alerts/{{ alert.id }}/quick/apply" class="btn btn-sm btn-outline-info">💡 Apply Recommendation</a>
-    {% endif %}
+              {% if triage.recommended_status or triage.recommended_resolution or triage.recommended_action %}
+              <a href="/web/v1/alerts/{{ alert.id }}/quick/apply" class="btn btn-sm btn-outline-info">💡 Apply Recommendation</a>
+              {% endif %}
 
-    {% set res = triage.recommended_resolution %}
-    {% if res == "legitimate" %}
-      <a href="/web/v1/alerts/{{ alert.id }}/quick/legit" class="btn btn-sm btn-success">✅ Mark Legit</a>
-
-    {% elif res == "false_positive" %}
-      <a href="/web/v1/alerts/{{ alert.id }}/quick/fp" class="btn btn-sm btn-warning">🚫 False Positive</a>
-
-    {% elif res == "true_positive_with_impact" %}
-      <a href="/web/v1/alerts/{{ alert.id }}/quick/escalate" class="btn btn-sm btn-danger">⚠️ Escalate</a>
-
-    {% else %}
-      <div class="btn-group">
-        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
-          Set Resolution
-        </button>
-        <ul class="dropdown-menu">
-          <li><a class="dropdown-item" href="/web/v1/alerts/{{ alert.id }}/quick/res/unknown">❓ Unknown</a></li>
-          <li><a class="dropdown-item" href="/web/v1/alerts/{{ alert.id }}/quick/res/under_investigation">🔍 Under Investigation</a></li>
-          <li><a class="dropdown-item" href="/web/v1/alerts/{{ alert.id }}/quick/res/false_positive">🚫 False Positive</a></li>
-          <li><a class="dropdown-item" href="/web/v1/alerts/{{ alert.id }}/quick/res/true_positive_no_impact">✅ TP (No Impact)</a></li>
-          <li><a class="dropdown-item" href="/web/v1/alerts/{{ alert.id }}/quick/res/true_positive_with_impact">⚠️ TP (Impact)</a></li>
-          <li><a class="dropdown-item" href="/web/v1/alerts/{{ alert.id }}/quick/res/not_applicable">📎 Not Applicable</a></li>
-          <li><a class="dropdown-item" href="/web/v1/alerts/{{ alert.id }}/quick/res/legitimate">✅ Legitimate</a></li>
-        </ul>
-      </div>
-    {% endif %}
-  </div>
-</td>
-
-
+              {% set res = triage.recommended_resolution %}
+              {% if res == "legitimate" %}
+              <a href="/web/v1/alerts/{{ alert.id }}/quick/legit" class="btn btn-sm btn-success">✅ Mark Legit</a>
+              {% elif res == "false_positive" %}
+              <a href="/web/v1/alerts/{{ alert.id }}/quick/fp" class="btn btn-sm btn-warning">🚫 False Positive</a>
+              {% elif res == "true_positive_with_impact" %}
+              <a href="/web/v1/alerts/{{ alert.id }}/quick/escalate" class="btn btn-sm btn-danger">⚠️ Escalate</a>
+              {% else %}
+              <div class="btn-group">
+                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                  Set Resolution
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="/web/v1/alerts/{{ alert.id }}/quick/res/unknown">❓ Unknown</a></li>
+                  <li><a class="dropdown-item" href="/web/v1/alerts/{{ alert.id }}/quick/res/under_investigation">🔍 Under Investigation</a></li>
+                  <li><a class="dropdown-item" href="/web/v1/alerts/{{ alert.id }}/quick/res/false_positive">🚫 False Positive</a></li>
+                  <li><a class="dropdown-item" href="/web/v1/alerts/{{ alert.id }}/quick/res/true_positive_no_impact">✅ TP (No Impact)</a></li>
+                  <li><a class="dropdown-item" href="/web/v1/alerts/{{ alert.id }}/quick/res/true_positive_with_impact">⚠️ TP (Impact)</a></li>
+                  <li><a class="dropdown-item" href="/web/v1/alerts/{{ alert.id }}/quick/res/not_applicable">📎 Not Applicable</a></li>
+                  <li><a class="dropdown-item" href="/web/v1/alerts/{{ alert.id }}/quick/res/legitimate">✅ Legitimate</a></li>
+                </ul>
+              </div>
+              {% endif %}
+            </div>
+          </td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
-
 </div>
 {% endblock %}

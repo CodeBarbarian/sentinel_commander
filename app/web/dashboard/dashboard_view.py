@@ -10,6 +10,9 @@ from app.models.alert import Alert
 from app.models.source import Source
 from app.models.case import Case
 from app.utils import auth
+import json
+from app.utils.parser.compat_parser_runner import run_parser_for_type
+from app.utils.severity import SEVERITY_LABELS, SEVERITY_CSS_CLASSES, SEVERITY_MAP
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -41,11 +44,12 @@ def dashboard_view(request: Request, user=Depends(auth.get_current_user), db: Se
     unique_tags = len(tag_set)
 
     # Severity breakdown
-    severity_levels = ["Critical", "High", "Medium", "Low", "Info"]
-    severity_counts = [
-        db.query(func.count(Alert.id)).filter(Alert.severity == level).scalar()
-        for level in severity_levels
-    ]
+    severity_levels = ["Informational", "Low", "Medium", "High", "Critical"]
+    severity_counts = []
+    for label in severity_levels:
+        values = SEVERITY_MAP[label]
+        count = db.query(func.count(Alert.id)).filter(Alert.severity.in_(values)).scalar()
+        severity_counts.append(count)
 
     # Alerts per day for last 7 days
     timeline_labels = []
@@ -69,7 +73,28 @@ def dashboard_view(request: Request, user=Depends(auth.get_current_user), db: Se
     for alert, display_name in alerts_raw:
         alert_dict = alert.__dict__.copy()
         alert_dict["source_display_name"] = display_name
+
+        # Parse source_payload
+        try:
+            payload = json.loads(alert.source_payload or "{}")
+            parsed = run_parser_for_type("alert", payload)
+            parsed_fields = parsed.get("mapped_fields", {})
+            alert_dict["parsed_fields"] = parsed_fields
+            alert_dict["parsed_tags"] = parsed.get("tags", [])
+        except Exception:
+            alert_dict["parsed_fields"] = {}
+            alert_dict["parsed_tags"] = []
+
+        # Tactical defaults
+        alert_dict["agent_name"] = alert_dict["parsed_fields"].get("agent_name", "—")
+        alert_dict["severity_label"] = SEVERITY_LABELS.get(alert.severity, "Unknown")
+        alert_dict["severity_class"] = SEVERITY_CSS_CLASSES.get(alert_dict["severity_label"], "severity-unknown")
+
         recent_alerts.append(alert_dict)
+
+    status_counts = db.query(Alert.status, func.count(Alert.id)).group_by(Alert.status).all()
+    status_labels = [row[0] for row in status_counts]
+    status_values = [row[1] for row in status_counts]
 
     return templates.TemplateResponse("dashboard/dashboard.html", {
         "request": request,
@@ -85,5 +110,7 @@ def dashboard_view(request: Request, user=Depends(auth.get_current_user), db: Se
             "timeline_labels": timeline_labels,
             "timeline_values": timeline_values
         },
-        "recent_alerts": recent_alerts
+        "recent_alerts": recent_alerts,
+        "status_labels": status_labels,
+        "status_values": status_values,
     })
