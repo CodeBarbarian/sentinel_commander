@@ -11,46 +11,29 @@
         </a>
     </div>
 
-    <!-- Summary Stats -->
-    {% set status_counts = {'new': 0, 'in_progress': 0, 'escalated': 0, 'done': 0} %}
-    {% for case in cases %}
-    {% set _ = status_counts.__setitem__(case.state, status_counts.get(case.state, 0) + 1) %}
-    {% endfor %}
-    {% set total = cases | length %}
-
     <div class="row g-3 mb-4">
+        {% set status_counts = {'new': 0, 'in_progress': 0, 'escalated': 0, 'done': 0} %}
+        {% for case in cases %}
+        {% set _ = status_counts.__setitem__(case.state, status_counts.get(case.state, 0) + 1) %}
+        {% endfor %}
+        {% set total = cases | length %}
+
+        {% for card in [
+        {'label': 'Total Cases', 'value': total, 'color': 'info'},
+        {'label': 'Escalated', 'value': status_counts['escalated'], 'color': 'danger'},
+        {'label': 'In Progress', 'value': status_counts['in_progress'], 'color': 'warning'},
+        {'label': 'New Cases', 'value': status_counts['new'], 'color': 'success'}
+        ] %}
         <div class="col-md-3">
-            <div class="card stat-card border-start border-info border-4 shadow-sm">
+            <div class="card stat-card border-start border-{{ card.color }} border-4 shadow-sm">
                 <div class="card-body text-center">
-                    <h6 class="text-muted">Total</h6>
-                    <h2>{{ total }}</h2>
+                    <h6 class="text-uppercase text-muted">{{ card.label }}</h6>
+                    <h2 class="display-5 fw-bold text-{{ card.color }}">{{ card.value }}</h2>
+                    <div><a href="{{ card.link }}" class="small tactical-link">{{ card.text }}</a></div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card stat-card border-start border-danger border-4 shadow-sm">
-                <div class="card-body text-center">
-                    <h6 class="text-muted">Escalated</h6>
-                    <h2>{{ status_counts['escalated'] }}</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card stat-card border-start border-warning border-4 shadow-sm">
-                <div class="card-body text-center">
-                    <h6 class="text-muted">In Progress</h6>
-                    <h2>{{ status_counts['in_progress'] }}</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card stat-card border-start border-success border-4 shadow-sm">
-                <div class="card-body text-center">
-                    <h6 class="text-muted">New</h6>
-                    <h2>{{ status_counts['new'] }}</h2>
-                </div>
-            </div>
-        </div>
+        {% endfor %}
     </div>
 
     <!-- Macro for Case Table -->
@@ -84,8 +67,8 @@
               </span>
                 </td>
                 <td><span class="badge severity-informational">{{ case.classification }}</span></td>
-<td>{{ customers.get(case.customer_id, "Unknown") }}</td>
-<td>{{ users.get(case.assigned_to, "Unassigned") }}</td>
+                <td>{{ customers.get(case.customer_id, "Unknown") }}</td>
+                <td>{{ users.get(case.assigned_to, "Unassigned") }}</td>
                 <td>{{ case.created_at.strftime('%Y-%m-%d') }}</td>
                 <td>
               <span class="badge
@@ -120,8 +103,8 @@
     {% endif %}
 
     {% set in_investigation_cases = cases | selectattr("state", "equalto", "investigating") | list %}
-    {% if in_investigation_cases  %}
-    {{ render_case_table("🛠️ Under Investigation", in_investigation_cases) }}
+    {% if in_investigation_cases %}
+    {{ render_case_table("🔍 Under Investigation", in_investigation_cases) }}
     {% endif %}
 
     {% set new_cases = cases | selectattr("state", "equalto", "new") | list %}

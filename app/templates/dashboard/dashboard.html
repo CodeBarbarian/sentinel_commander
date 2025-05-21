@@ -30,7 +30,7 @@
       <div class="card h-100">
         <div class="card-body">
           <h5 class="card-title">Severity Distribution</h5>
-          <canvas id="severityChart" height="160"></canvas>
+          <div id="severityChart"></div>
         </div>
       </div>
     </div>
@@ -38,7 +38,7 @@
       <div class="card h-100">
         <div class="card-body">
           <h5 class="card-title">Alerts Over Time</h5>
-          <canvas id="timelineChart" height="160"></canvas>
+          <div id="timelineChart"></div>
         </div>
       </div>
     </div>
@@ -75,57 +75,83 @@
   </div>
 
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script>
-  new Chart(document.getElementById('severityChart'), {
-    type: 'bar',
-    data: {
-      labels: {{ charts.severity_labels | tojson }},
-      datasets: [{
-        data: {{ charts.severity_values | tojson }},
-        backgroundColor: ['#6c757d', '#198754', '#fd7e14', '#dc3545', '#b91c1c'],
-        borderRadius: 5
-      }]
+  // Severity Chart (Bar)
+  const severityChart = new ApexCharts(document.querySelector("#severityChart"), {
+    chart: {
+      type: 'bar',
+      height: 300,
+      toolbar: { show: false }
     },
-options: {
-  maintainAspectRatio: false,
-  responsive: true,
-  plugins: {
-    legend: { display: false }
-  },
-  scales: {
-    y: {
-      beginAtZero: true,
-      ticks: { stepSize: 1 }
-    }
-  }
-}
+    series: [{
+      name: "Alerts",
+      data: {{ charts.severity_values | tojson }}
+    }],
+    xaxis: {
+      categories: {{ charts.severity_labels | tojson }},
+      labels: { style: { colors: '#ccc' } }
+    },
+    dataLabels: {
+      enabled: true,
+      style: {
+        fontSize: '14px',
+        colors: ['#fff']
+      }
+    },
+    plotOptions: {
+      bar: {
+        borderRadius: 4,
+        columnWidth: '50%'
+      }
+    },
+    colors: ['#6c757d', '#198754', '#fd7e14', '#dc3545', '#b91c1c'],
+    tooltip: {
+      theme: 'dark'
+    },
+    theme: { mode: 'dark' }
   });
+  severityChart.render();
 
-  new Chart(document.getElementById('timelineChart'), {
-    type: 'line',
-    data: {
-      labels: {{ charts.timeline_labels | tojson }},
-      datasets: [{
-        data: {{ charts.timeline_values | tojson }},
-        borderColor: '#58a6ff',
-        tension: 0.2
-      }]
+  // Timeline Chart (Line)
+  const timelineChart = new ApexCharts(document.querySelector("#timelineChart"), {
+    chart: {
+      type: 'line',
+      height: 300,
+      toolbar: { show: false }
     },
-options: {
-  maintainAspectRatio: false,
-  responsive: true,
-  plugins: {
-    legend: { display: false }
-  },
-  scales: {
-    y: {
-      beginAtZero: true,
-      ticks: { stepSize: 1 }
-    }
-  }
-}
+    series: [{
+      name: "Alerts",
+      data: {{ charts.timeline_values | tojson }}
+    }],
+    xaxis: {
+      categories: {{ charts.timeline_labels | tojson }},
+      labels: { style: { colors: '#ccc' } }
+    },
+    stroke: {
+      curve: 'smooth',
+      width: 3
+    },
+    markers: {
+      size: 5,
+      colors: ['#58a6ff'],
+      strokeColors: '#fff',
+      hover: { size: 7 }
+    },
+    dataLabels: {
+      enabled: true,
+      style: {
+        fontSize: '13px',
+        colors: ['#58a6ff']
+      }
+    },
+    colors: ['#58a6ff'],
+    tooltip: {
+      theme: 'dark'
+    },
+    theme: { mode: 'dark' }
   });
+  timelineChart.render();
 </script>
+
 {% endblock %}
