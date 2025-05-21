@@ -40,6 +40,9 @@
                     {% endif %}
                 </td>
                 <td class="text-end">
+                    <a href="/web/v1/iocs/{{ ioc.id }}" class="btn btn-sm btn-outline-light me-1">
+                        👁 View
+                    </a>
                     <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
                             data-bs-target="#editIocModal-{{ ioc.id }}">
                         ✏️ Edit
@@ -63,26 +66,27 @@
 
 {% for ioc in iocs %}
 <div class="modal fade" id="editIocModal-{{ ioc.id }}" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <form method="post" action="/web/v1/iocs/edit" class="modal-content">
-      <input type="hidden" name="ioc_id" value="{{ ioc.id }}">
-      <div class="modal-header">
-        <h5 class="modal-title">✏️ Edit IOC</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <input class="form-control mb-2" name="type" placeholder="Type" value="{{ ioc.type }}" required>
-        <input class="form-control mb-2" name="value" placeholder="Value" value="{{ ioc.value }}" required>
-        <input class="form-control mb-2" name="source" placeholder="Source" value="{{ ioc.source }}">
-        <input class="form-control mb-2" name="tags" placeholder="Comma-separated tags" value="{{ ioc.tags }}">
-        <textarea class="form-control" name="description" placeholder="Description">{{ ioc.description }}</textarea>
-      </div>
-      <div class="modal-footer">
-        <button type="submit" class="btn btn-sm btn-outline-success">Save Changes</button>
-        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-      </div>
-    </form>
-  </div>
+    <div class="modal-dialog">
+        <form method="post" action="/web/v1/iocs/edit" class="modal-content">
+            <input type="hidden" name="ioc_id" value="{{ ioc.id }}">
+            <div class="modal-header">
+                <h5 class="modal-title">✏️ Edit IOC</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input class="form-control mb-2" name="type" placeholder="Type" value="{{ ioc.type }}" required>
+                <input class="form-control mb-2" name="value" placeholder="Value" value="{{ ioc.value }}" required>
+                <input class="form-control mb-2" name="source" placeholder="Source" value="{{ ioc.source }}">
+                <input class="form-control mb-2" name="tags" placeholder="Comma-separated tags" value="{{ ioc.tags }}">
+                <textarea class="form-control" name="description"
+                          placeholder="Description">{{ ioc.description }}</textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-sm btn-outline-success">Save Changes</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </form>
+    </div>
 </div>
 {% endfor %}
 
