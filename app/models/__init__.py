@@ -12,6 +12,7 @@ from .case_timeline import CaseTimelineEvent
 from .case_playbooks import CasePlaybook
 from .playbooks import Playbook
 from .iocs import IOC
+from .publisher import PublisherList, PublisherEntry
 
 __all__ = [
     "Case",
@@ -27,5 +28,8 @@ __all__ = [
     "CaseTimelineEvent",
     "CasePlaybook",
     "Playbook",
-    "IOC"
+    "IOC",
+    "publisher",
+    "PublisherList",
+
 ]

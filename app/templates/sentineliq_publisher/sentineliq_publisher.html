@@ -1,0 +1,110 @@
+{% extends "_design.html" %}
+{% block title %}SentinelIQ Publisher - Sentinel Commander{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="tactical-heading mb-0">📢 SentinelIQ Publisher</h4>
+    <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#createListModal">
+      ➕ Create List
+    </button>
+  </div>
+
+  <div class="tactical-note-card">
+    {% if lists %}
+    <div class="table-responsive">
+      <table class="tactical-table table-hover">
+        <thead class="tactical-table-header">
+          <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>GUID</th>
+            <th>Created</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for l in lists %}
+          <tr class="{{ 'tactical-table-row' if loop.index is even else 'tactical-table-row-alt' }} tactical-table-hover">
+            <td>{{ l.name }}</td>
+            <td><span class="badge severity-low text-uppercase">{{ l.list_type }}</span></td>
+            <td class="font-monospace tactical-muted small">{{ l.guid }}</td>
+            <td>{{ l.created_at.strftime('%Y-%m-%d') }}</td>
+            <td class="d-flex flex-wrap gap-1">
+              <a href="/web/v1/sentineliq/publisher/{{ l.id }}" class="btn btn-sm btn-outline-primary">🔍 View</a>
+              <a href="/web/v1/sentineliq/publisher/{{ l.id }}/edit" class="btn btn-sm btn-outline-warning">✏️ Edit</a>
+              <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteListModal-{{ l.id }}">🗑 Delete</button>
+              <a href="/web/v1/sentineliq/publisher/{{ l.guid }}" class="btn btn-sm btn-outline-light" target="_blank">🌍 Public</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="tactical-muted">No publisher lists created yet.</p>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Delete Modals -->
+{% for l in lists %}
+<div class="modal fade" id="deleteListModal-{{ l.id }}" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="get" action="/web/v1/sentineliq/publisher/{{ l.id }}/delete">
+        <div class="modal-header">
+          <h5 class="modal-title text-danger">Confirm Deletion</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to delete the list "<strong>{{ l.name }}</strong>"?<br>
+          This action <strong>cannot be undone</strong> and will remove all entries.
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-danger">Yes, Delete</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+<!-- Create List Modal -->
+<div class="modal fade" id="createListModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-md modal-dialog-centered">
+    <div class="modal-content">
+      <form method="post" action="/web/v1/sentineliq/publisher/create">
+        <div class="modal-header">
+          <h5 class="modal-title">➕ Create New List</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">List Name *</label>
+            <input type="text" class="form-control" name="name" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">List Type *</label>
+            <select class="form-select" name="list_type" required>
+              <option value="ip">IP Addresses</option>
+              <option value="hash">Hashes</option>
+              <option value="domain">Domains</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" name="description" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-sm btn-success">Create</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

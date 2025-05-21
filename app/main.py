@@ -40,11 +40,13 @@ from app.web.cases import cases_evidence_view
 from app.web.cases import cases_playbooks_view
 
 
+from app.web.sentineliq import sentineliq_view
+from app.web.sentineliq import sentineliq_search_view
+from app.web.sentineliq import sentineliq_publisher_view
+
 from app.web.assets import assets_view
 from app.web.iocs import iocs_view
 from app.web.playbooks import playbooks_view
-from app.web.sentineliq import sentineliq_view
-from app.web.sentineliq import sentineliq_search_view
 from app.web.customers import customers_view
 from app.web.users import users_view
 from app.web.users import auth_view
@@ -83,7 +85,7 @@ app.include_router(users.router, prefix="/api/v1", tags=["Users API"])
 # Sentinel IQ
 app.include_router(sentineliq_view.router, prefix="/web/v1", tags=["SentinelIQ"])
 app.include_router(sentineliq_search_view.router, prefix="/web/v1", tags=["SentinelIQ"])
-
+app.include_router(sentineliq_publisher_view.router, prefix="/web/v1", tags=["SentinelIQ"])
 # Dashboard
 app.include_router(dashboard_view.router, prefix="/web/v1", tags=["Dashboard"])
 
