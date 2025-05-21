@@ -78,7 +78,7 @@ enrichment:
     condition: "data.win.system.eventID == '4733'"
     value: "Manual Analysis"
 
-# Executable file dropped in folder commonly used by malware
+# Executable file dropped in folder commonly used by malware - DismHost.exe
   - type: set_field_if
     field: recommended_status
     condition: "'DismHost.exe' in data.win.eventdata.targetFilename"
@@ -92,4 +92,20 @@ enrichment:
   - type: set_field_if
     field: recommended_action
     condition: "'DismHost.exe' in data.win.eventdata.targetFilename"
+    value: "Auto Triage"
+
+# Executable file dropped in folder commonly used by malware - powershell.exe
+  - type: set_field_if
+    field: recommended_status
+    condition: "'PSScriptPolicyTest' in data.win.eventdata.targetFilename"
+    value: "done"
+
+  - type: set_field_if
+    field: recommended_resolution
+    condition: "'PSScriptPolicyTest' in data.win.eventdata.targetFilename"
+    value: "not_applicable"
+
+  - type: set_field_if
+    field: recommended_action
+    condition: "'PSScriptPolicyTest' in data.win.eventdata.targetFilename"
     value: "Auto Triage"
