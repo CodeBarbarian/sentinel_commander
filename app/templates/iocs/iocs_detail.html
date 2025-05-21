@@ -1,0 +1,103 @@
+{% extends "_design.html" %}
+{% block title %}IOC #{{ ioc.id }} - Sentinel Commander{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h3 class="tactical-heading mb-3">🧪 IOC #{{ ioc.id }} - {{ ioc.value or "—" }}</h3>
+
+  <div class="d-flex justify-content-end mb-3">
+    <button class="btn btn-sm btn-outline-warning"
+            data-bs-toggle="modal"
+            data-bs-target="#editIocModal"
+            onclick="loadIocFromScriptTag()">
+      ✏️ Edit IOC
+    </button>
+  </div>
+
+  <div class="tactical-metadata-card">
+    <div class="row">
+      <div class="col-md-6">
+        <p><strong>Type:</strong> {{ ioc.type or "—" }}</p>
+        <p><strong>Value:</strong> {{ ioc.value or "—" }}</p>
+        <p><strong>Source:</strong> {{ ioc.source or "—" }}</p>
+      </div>
+      <div class="col-md-6">
+        <p><strong>Tags:</strong>
+          {% if ioc.tags %}
+            {% for tag in ioc.tags.split(",") %}
+              <span class="badge bg-secondary me-1">{{ tag.strip() }}</span>
+            {% endfor %}
+          {% else %}
+            <span class="text-muted">None</span>
+          {% endif %}
+        </p>
+        <p><strong>Description:</strong><br>
+          <span class="text-muted">{{ ioc.description or "No description available." }}</span>
+        </p>
+        <p><strong>Created At:</strong> {{ ioc.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editIocModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <form method="post" action="/web/v1/iocs/{{ ioc.id }}/edit">
+        <div class="modal-header">
+          <h5 class="modal-title">✏️ Edit IOC</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="ioc_id" id="editIocId">
+          <div class="mb-3">
+            <label class="form-label">Type</label>
+            <input type="text" class="form-control" name="type" id="editType">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Value</label>
+            <input type="text" class="form-control" name="value" id="editValue">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Source</label>
+            <input type="text" class="form-control" name="source" id="editSource">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Tags</label>
+            <input type="text" class="form-control" name="tags" id="editTags">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" name="description" id="editDescription" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer d-flex justify-content-between">
+          <a href="/web/v1/iocs/{{ ioc.id }}/edit" class="small text-muted">Full edit page</a>
+          <div>
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-sm btn-outline-success">Update IOC</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- IOC JSON for JavaScript -->
+<script id="ioc-json" type="application/json">
+  {{ ioc_json | tojson }}
+</script>
+
+<script>
+  function loadIocFromScriptTag() {
+    const ioc = JSON.parse(document.getElementById("ioc-json").textContent);
+    document.getElementById('editIocId').value = ioc.id;
+    document.getElementById('editType').value = ioc.type || '';
+    document.getElementById('editValue').value = ioc.value || '';
+    document.getElementById('editSource').value = ioc.source || '';
+    document.getElementById('editTags').value = ioc.tags || '';
+    document.getElementById('editDescription').value = ioc.description || '';
+  }
+</script>
+{% endblock %}

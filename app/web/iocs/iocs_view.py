@@ -1,6 +1,7 @@
 # app/web/iocs/iocs_view.py
+from typing import Optional
 
-from fastapi import APIRouter, Request, Form, Depends
+from fastapi import APIRouter, Request, Form, Depends, HTTPException
 from fastapi.responses import RedirectResponse, HTMLResponse
 from sqlalchemy.orm import Session
 from app.core.database import get_db
@@ -59,3 +60,54 @@ def edit_ioc(
         ioc.tags = tags
         db.commit()
     return RedirectResponse("/web/v1/iocs", status_code=302)
+
+@router.get("/iocs/{ioc_id}", response_class=HTMLResponse)
+def ioc_detail_view(
+    request: Request,
+    ioc_id: int,
+    db: Session = Depends(get_db),
+    user=Depends(auth.get_current_user)
+):
+    ioc = db.query(IOC).filter(IOC.id == ioc_id).first()
+    if not ioc:
+        raise HTTPException(status_code=404, detail="IOC not found")
+
+    def serialize_ioc(i):
+        return {
+            "id": i.id,
+            "type": i.type,
+            "value": i.value,
+            "description": i.description,
+            "source": i.source,
+            "tags": i.tags,
+        }
+
+    return templates.TemplateResponse("iocs/iocs_detail.html", {
+        "request": request,
+        "ioc": ioc,
+        "ioc_json": serialize_ioc(ioc)
+    })
+
+@router.post("/iocs/{ioc_id}/edit")
+def update_ioc(
+    ioc_id: int,
+    type: str = Form(...),
+    value: str = Form(...),
+    source: Optional[str] = Form(None),
+    tags: Optional[str] = Form(None),
+    description: Optional[str] = Form(None),
+    db: Session = Depends(get_db),
+    user=Depends(auth.get_current_user)
+):
+    ioc = db.query(IOC).filter(IOC.id == ioc_id).first()
+    if not ioc:
+        raise HTTPException(status_code=404, detail="IOC not found")
+
+    ioc.type = type.strip()
+    ioc.value = value.strip()
+    ioc.source = source
+    ioc.tags = tags
+    ioc.description = description
+
+    db.commit()
+    return RedirectResponse(url=f"/web/v1/iocs/{ioc_id}", status_code=303)
