@@ -263,6 +263,7 @@ tr.selected-row {
 
 .status-new { background-color: #6c757d; color: white; }
 .status-in-progress { background-color: #0dcaf0; color: black; }
+.status-investigating { background-color: #f0c30d; color: black; }
 .status-critical { background-color: #b91c1c; color: white; }
 .status-done { background-color: #20c997; color: black; }
 

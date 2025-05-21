@@ -10,7 +10,7 @@ from app.schemas.case import CaseCreate, CaseUpdate, CaseResponse
 from app.schemas.case_tag import CaseTagCreate, CaseTagOut
 
 from app.core.security import require_admin_api_key
-router = APIRouter(dependencies=[Depends(require_admin_api_key)])
+router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
 @router.get("/cases", response_model=List[CaseResponse])
