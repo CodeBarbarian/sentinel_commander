@@ -1,0 +1,1 @@
+parser_name: wazuh_parserparser_type: alertmatch: {}fields:  description: rule.description  groups: rule.groups  id: rule.id  timestamp: timestamp  location: location  severity: rule.level  source_name: manager.name  agent_id: agent.id  agent_name: agent.name  asset_tags: agent.name  # Used in alert_settings.yaml to match asset tagsenrichment: []

@@ -15,11 +15,19 @@ from app.utils import auth
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
+
 @router.get("/cases", response_class=HTMLResponse)
 def list_cases(request: Request, db: Session = Depends(get_db), user=Depends(auth.get_current_user)):
     cases = db.query(Case).order_by(Case.created_at.desc()).all()
-    return templates.TemplateResponse("cases/cases.html", {"request": request, "cases": cases})
+    customers = {c.id: c.name for c in db.query(Customer).all()}
+    users = {u.id: u.full_name for u in db.query(User).all()}
 
+    return templates.TemplateResponse("cases/cases.html", {
+        "request": request,
+        "cases": cases,
+        "customers": customers,
+        "users": users
+    })
 @router.get("/cases/new", response_class=HTMLResponse)
 def new_case_page(request: Request, db: Session = Depends(get_db), user=Depends(auth.get_current_user)):
     customers = db.query(Customer).all()

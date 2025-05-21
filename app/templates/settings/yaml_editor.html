@@ -1,0 +1,132 @@
+{% extends "_design.html" %}
+{% block title %}YAML Editor - Sentinel Commander{% endblock %}
+
+{% block extrastyle %}
+<!-- CodeMirror CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.13/lib/codemirror.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.13/theme/dracula.css">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="tactical-heading mb-0">🧬 YAML Editor</h4>
+        <a href="/web/v1/settings" class="btn btn-sm btn-outline-secondary">← Back to Settings</a>
+    </div>
+
+    <div class="row">
+        <!-- Sidebar: File List -->
+        <div class="col-md-3">
+            <h6 class="tactical-heading mb-2">📁 Triage Files</h6>
+            <div class="d-grid gap-2 mb-4">
+                {% for file in files.triage %}
+                <button type="button" class="btn btn-outline-light btn-sm text-start"
+                        onclick="loadFile('triage', '{{ file }}')">{{ file }}
+                </button>
+                {% endfor %}
+            </div>
+            <h6 class="tactical-heading mb-2">📁 Alert Files</h6>
+            <div class="d-grid gap-2">
+                {% for file in files.alert %}
+                <button type="button" class="btn btn-outline-light btn-sm text-start"
+                        onclick="loadFile('alert', '{{ file }}')">{{ file }}
+                </button>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Main: Editor -->
+        <div class="col-md-9">
+            <form id="yamlForm" method="post" action="/web/v1/settings/yaml/save">
+                <div class="d-flex align-items-center mb-2">
+                    <input type="text" class="form-control me-2" name="filename" id="filenameInput"
+                           placeholder="example_alert.yaml" required>
+                    <select class="form-select w-auto me-2" name="file_type" id="fileTypeSelect">
+                        <option value="alert">Alert</option>
+                        <option value="triage">Triage</option>
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-outline-success">💾 Save</button>
+                    <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="deleteFile()">🗑 Delete
+                    </button>
+                </div>
+
+                <textarea id="editor" name="content"></textarea>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- CodeMirror JS -->
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.13/lib/codemirror.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.13/mode/yaml/yaml.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.13/addon/edit/matchbrackets.js"></script>
+
+<script>
+    let cmEditor;
+
+    window.addEventListener("load", () => {
+        const textarea = document.getElementById("editor");
+        cmEditor = CodeMirror.fromTextArea(textarea, {
+            lineNumbers: true,
+            mode: "yaml",
+            theme: "dracula",
+            matchBrackets: true,
+            indentWithTabs: false,
+            indentUnit: 2,
+            lineWrapping: true
+        });
+        cmEditor.setSize("100%", "70vh");
+
+        const form = document.getElementById("yamlForm");
+        if (form) {
+            form.addEventListener("submit", function (e) {
+                e.preventDefault(); // stop immediate form submission
+
+                textarea.value = cmEditor.getValue();
+
+                setTimeout(() => {
+                    form.submit();
+                }, 0); // allow browser to apply value change before submit
+            });
+        }
+    });
+
+    function loadFile(type, filename) {
+        fetch(`/web/v1/settings/yaml/load?file_type=${type}&filename=${filename}`)
+            .then(res => res.json())
+            .then(data => {
+                cmEditor.setValue(data.content);
+                document.getElementById("filenameInput").value = filename;
+                document.getElementById("fileTypeSelect").value = type;
+            });
+    }
+
+    function deleteFile() {
+        const file_type = document.getElementById("fileTypeSelect").value;
+        const filename = document.getElementById("filenameInput").value;
+        if (!filename) return alert("No file selected.");
+        if (!confirm(`Are you sure you want to delete ${filename}?`)) return;
+
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = "/web/v1/settings/yaml/delete";
+
+        form.appendChild(newHidden("file_type", file_type));
+        form.appendChild(newHidden("filename", filename));
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+
+    function newHidden(name, value) {
+        const i = document.createElement("input");
+        i.type = "hidden";
+        i.name = name;
+        i.value = value;
+        return i;
+    }
+</script>
+
+
+{% endblock %}

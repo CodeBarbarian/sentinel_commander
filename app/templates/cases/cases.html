@@ -84,8 +84,8 @@
               </span>
                 </td>
                 <td><span class="badge severity-informational">{{ case.classification }}</span></td>
-                <td>{{ case.customer_id }}</td>
-                <td>{{ case.assigned_to or "Unassigned" }}</td>
+<td>{{ customers.get(case.customer_id, "Unknown") }}</td>
+<td>{{ users.get(case.assigned_to, "Unassigned") }}</td>
                 <td>{{ case.created_at.strftime('%Y-%m-%d') }}</td>
                 <td>
               <span class="badge

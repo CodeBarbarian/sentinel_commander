@@ -5,7 +5,7 @@ from app.models.user import User
 from app.schemas.user import UserCreate, UserUpdate, UserResponse
 from passlib.hash import bcrypt
 from app.core.security import require_admin_api_key
-router = APIRouter(dependencies=[Depends(require_admin_api_key)])
+router = APIRouter()
 
 @router.post("/users", response_model=UserResponse)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
