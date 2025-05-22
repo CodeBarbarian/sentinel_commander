@@ -32,9 +32,19 @@
             <td>{{ l.created_at.strftime('%Y-%m-%d') }}</td>
             <td class="d-flex flex-wrap gap-1">
               <a href="/web/v1/sentineliq/publisher/{{ l.id }}" class="btn btn-sm btn-outline-primary">🔍 View</a>
-              <a href="/web/v1/sentineliq/publisher/{{ l.id }}/edit" class="btn btn-sm btn-outline-warning">✏️ Edit</a>
+<button
+  class="btn btn-sm btn-outline-warning"
+  data-bs-toggle="modal"
+  data-bs-target="#editListModal"
+  data-id="{{ l.id }}"
+  data-name="{{ l.name }}"
+  data-type="{{ l.list_type }}"
+  data-description="{{ l.description | default('') }}"
+>
+  ✏️ Edit
+</button>
               <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteListModal-{{ l.id }}">🗑 Delete</button>
-              <a href="/web/v1/sentineliq/publisher/{{ l.guid }}" class="btn btn-sm btn-outline-light" target="_blank">🌍 Public</a>
+              <a href="/web/v1/publisher/{{ l.guid }}" class="btn btn-sm btn-outline-light" target="_blank">🌍 Public</a>
             </td>
           </tr>
           {% endfor %}
@@ -107,4 +117,59 @@
     </div>
   </div>
 </div>
+
+<div class="modal fade" id="editListModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-md modal-dialog-centered">
+    <div class="modal-content">
+      <form id="editListForm" method="post">
+        <div class="modal-header">
+          <h5 class="modal-title">✏️ Edit List</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">List Name *</label>
+            <input type="text" class="form-control" name="name" id="editListName" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">List Type *</label>
+            <select class="form-select" name="list_type" id="editListType" required>
+              <option value="ip">IP Addresses</option>
+              <option value="hash">Hashes</option>
+              <option value="domain">Domains</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" name="description" id="editListDescription" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-sm btn-warning">Update</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const editModal = document.getElementById("editListModal");
+
+  editModal.addEventListener("show.bs.modal", function (event) {
+    const button = event.relatedTarget;
+    const id = button.getAttribute("data-id");
+    const name = button.getAttribute("data-name");
+    const type = button.getAttribute("data-type");
+    const description = button.getAttribute("data-description");
+
+    document.getElementById("editListName").value = name;
+    document.getElementById("editListType").value = type;
+    document.getElementById("editListDescription").value = description;
+
+    document.getElementById("editListForm").action = `/web/v1/sentineliq/publisher/${id}/update`;
+  });
+});
+</script>
 {% endblock %}

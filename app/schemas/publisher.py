@@ -12,8 +12,7 @@ class PublisherEntryOut(PublisherEntryCreate):
     id: int
     created_at: datetime
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 class PublisherListCreate(BaseModel):
     name: str
@@ -26,3 +25,12 @@ class PublisherListOut(PublisherListCreate):
     entries: List[PublisherEntryOut] = []
 
     model_config = ConfigDict(from_attributes=True)
+
+class PublisherEntryAPIAdd(BaseModel):
+    guid: str
+    value: str
+    comment: Optional[str] = None
+
+class PublisherEntryAPIDelete(BaseModel):
+    guid: str
+    value: str

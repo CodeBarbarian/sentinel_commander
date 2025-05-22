@@ -14,8 +14,6 @@ enrichment:
     condition: "rule.level >= 12"
     tag: "High Risk"
 
-    
-
   - type: tag_if
     condition: "rule.level >= 15"
     tag: "PRIORITY ISSUE"

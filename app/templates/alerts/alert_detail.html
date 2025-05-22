@@ -3,199 +3,203 @@
 
 {% block content %}
 <div class="container-fluid my-4">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h4 class="tactical-heading-xl mb-0">🚨 Alert #{{ alert.id }} - {{ alert.message or "—" }}</h4>
-    <a href="/web/v1/alerts" class="btn btn-sm btn-outline-secondary">
-      <i class="bi bi-arrow-left"></i> Back to Alerts
-    </a>
-  </div>
-
-  <!-- Tab Navigation -->
-  <ul class="nav nav-tabs modern-tabs mb-3" id="alertTabs" role="tablist">
-    <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#details">Details</a></li>
-    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#parsed">Parsed</a></li>
-    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#enrichment">Enrichment</a></li>
-    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#raw">Raw</a></li>
-  </ul>
-
-  <!-- Tab Content -->
-  <div class="tab-content tactical-tab-content">
-    <!-- Details Tab -->
-    <div class="tab-pane fade show active" id="details">
-      <div class="row g-4">
-        <div class="col-md-4"><strong>Status</strong><br>
-          <span class="badge status-{{ alert.status|replace('_', '-') }}">{{ alert.status.replace('_', ' ')|capitalize }}</span>
-        </div>
-        <div class="col-md-4"><strong>Severity</strong><br>
-          <span class="badge severity-{{ alert.severity_label|lower }}">{{ alert.severity }}</span>
-        </div>
-        <div class="col-md-4"><strong>Resolution</strong><br>
-          {{ alert.resolution.replace('_', ' ')|capitalize if alert.resolution else '—' }}
-        </div>
-        <div class="col-md-4"><strong>Source</strong><br>{{ alert.source or "—" }}</div>
-        <div class="col-md-4"><strong>Agent</strong><br>{{ parsed_fields.get("agent", "—") }}</div>
-        <div class="col-md-4"><strong>Created</strong><br>{{ alert.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
-        <div class="col-md-12">
-          <strong>Message</strong>
-          <div class="mt-2 tactical-note-card">{{ alert.message or "—" }}</div>
-        </div>
-        <div class="col-md-12">
-          <strong>Tags</strong><br>
-          {% for tag in parsed_tags %}
-            <span class="badge bg-secondary me-1">{{ tag }}</span>
-          {% else %}
-            <span class="text-muted">No tags</span>
-          {% endfor %}
-        </div>
-        <div class="col-md-12">
-          <strong>Resolution Comment</strong>
-          <div class="mt-2 tactical-note-card">{{ alert.resolution_comment or "—" }}</div>
-        </div>
-      </div>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="tactical-heading-xl mb-0">🚨 Alert #{{ alert.id }} - {{ alert.message or "—" }}</h4>
+        <a href="/web/v1/alerts" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Alerts
+        </a>
     </div>
+    <!-- Edit Modal Trigger -->
+    <div class="d-flex justify-content-end mt-4">
+        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editAlertModal">✏️ Edit
+            Alert
+        </button>
+    </div>
+    <!-- Tab Navigation -->
+    <ul class="nav nav-tabs modern-tabs mb-3" id="alertTabs" role="tablist">
+        <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#details">Details</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#parsed">Parsed</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#enrichment">Enrichment</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#raw">Raw</a></li>
+    </ul>
 
-    <!-- Parsed Tab -->
-    <div class="tab-pane fade" id="parsed">
-      {% if parsed_fields %}
-        <div class="row g-3">
-          {% for key, value in parsed_fields.items() %}
-          <div class="col-md-6">
-            <div class="tactical-note-card">
-              <small class="text-muted">{{ key }}</small>
-              <pre class="tactical-markdown-block mb-0"><code>{{ value }}</code></pre>
+    <!-- Tab Content -->
+    <div class="tab-content tactical-tab-content">
+        <!-- Details Tab -->
+        <div class="tab-pane fade show active" id="details">
+            <div class="row g-4">
+                <div class="col-md-4"><strong>Status</strong><br>
+                    <span class="badge status-{{ alert.status|replace('_', '-') }}">{{ alert.status.replace('_', ' ')|capitalize }}</span>
+                </div>
+                <div class="col-md-4"><strong>Severity</strong><br>
+                    <span class="badge severity-{{ alert.severity_label|lower }}">{{ alert.severity }}</span>
+                </div>
+                <div class="col-md-4"><strong>Resolution</strong><br>
+                    {{ alert.resolution.replace('_', ' ')|capitalize if alert.resolution else '—' }}
+                </div>
+                <div class="col-md-4"><strong>Source</strong><br>{{ alert.source or "—" }}</div>
+                <div class="col-md-4"><strong>Agent</strong><br>{{ parsed_fields.get("agent", "—") }}</div>
+                <div class="col-md-4"><strong>Created</strong><br>{{ alert.created_at.strftime('%Y-%m-%d %H:%M') }}
+                </div>
+                <div class="col-md-12">
+                    <strong>Message</strong>
+                    <div class="mt-2 tactical-note-card">{{ alert.message or "—" }}</div>
+                </div>
+                <div class="col-md-12">
+                    <strong>Tags</strong><br>
+                    {% for tag in parsed_tags %}
+                    <span class="badge bg-secondary me-1">{{ tag }}</span>
+                    {% else %}
+                    <span class="text-muted">No tags</span>
+                    {% endfor %}
+                </div>
+                <div class="col-md-12">
+                    <strong>Resolution Comment</strong>
+                    <div class="mt-2 tactical-note-card">{{ alert.resolution_comment or "—" }}</div>
+                </div>
             </div>
-          </div>
-          {% endfor %}
         </div>
-      {% else %}
-        <p class="tactical-muted">No parsed fields available.</p>
-      {% endif %}
-    </div>
 
-    <!-- Enrichment Tab -->
-    <div class="tab-pane fade" id="enrichment">
-      {% if parsed_enrichment %}
-        <div class="row g-3">
-          {% for key, value in parsed_enrichment.items() %}
-          <div class="col-md-6">
-            <div class="tactical-note-card">
-              <small class="text-muted">{{ key }}</small>
-              <pre class="tactical-markdown-block"><code>{{ value | tojson(indent=2) }}</code></pre>
+        <!-- Parsed Tab -->
+        <div class="tab-pane fade" id="parsed">
+            {% if parsed_fields %}
+            <div class="row g-3">
+                {% for key, value in parsed_fields.items() %}
+                <div class="col-md-6">
+                    <div class="tactical-note-card">
+                        <small class="text-muted">{{ key }}</small>
+                        <pre class="tactical-markdown-block mb-0"><code>{{ value }}</code></pre>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
-          </div>
-          {% endfor %}
+            {% else %}
+            <p class="tactical-muted">No parsed fields available.</p>
+            {% endif %}
         </div>
-      {% else %}
-        <p class="tactical-muted">No enrichment data for this alert.</p>
-      {% endif %}
+
+        <!-- Enrichment Tab -->
+        <div class="tab-pane fade" id="enrichment">
+            {% if parsed_enrichment %}
+            <div class="row g-3">
+                {% for key, value in parsed_enrichment.items() %}
+                <div class="col-md-6">
+                    <div class="tactical-note-card">
+                        <small class="text-muted">{{ key }}</small>
+                        <pre class="tactical-markdown-block"><code>{{ value | tojson(indent=2) }}</code></pre>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="tactical-muted">No enrichment data for this alert.</p>
+            {% endif %}
+        </div>
+
+        <!-- Raw Payload Tab -->
+        <div class="tab-pane fade" id="raw">
+            <pre class="tactical-markdown-block"><code>{{ source_payload_json | tojson(indent=2) }}</code></pre>
+        </div>
     </div>
 
-    <!-- Raw Payload Tab -->
-    <div class="tab-pane fade" id="raw">
-      <pre class="tactical-markdown-block"><code>{{ source_payload_json | tojson(indent=2) }}</code></pre>
-    </div>
-  </div>
 
-  <!-- Edit Modal Trigger -->
-  <div class="d-flex justify-content-end mt-4">
-    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editAlertModal">✏️ Edit Alert</button>
-  </div>
 </div>
 
 <!-- Edit Alert Modal -->
 <div class="modal fade" id="editAlertModal" tabindex="-1" aria-labelledby="editAlertModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <form method="post" action="/web/v1/alerts/{{ alert.id }}/update" class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Edit Alert #{{ alert.id }}</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <div class="mb-3">
-          <label for="status" class="form-label">Status</label>
-          <select class="form-select" name="status" id="status">
-            <option value="">-- No Change --</option>
-            <option value="new">New</option>
-            <option value="in_progress">In Progress</option>
-            <option value="done">Done</option>
-          </select>
-        </div>
-        <div class="mb-3">
-          <label for="resolution" class="form-label">Resolution</label>
-          <select class="form-select" name="resolution" id="resolution">
-            <option value="">-- No Change --</option>
-            <option value="under_investigation">Under Investigation</option>
-            <option value="false_positive">False Positive</option>
-            <option value="true_positive_no_impact">TP (No Impact)</option>
-            <option value="true_positive_with_impact">TP (Impact)</option>
-            <option value="not_applicable">Not Applicable</option>
-            <option value="legitimate">Legitimate</option>
-            <option value="unknown">Unknown</option>
-          </select>
-        </div>
-        <div class="mb-3">
-          <label for="resolution_comment" class="form-label">Resolution Comment</label>
-          <textarea class="form-control" name="resolution_comment" rows="3">{{ alert.resolution_comment or '' }}</textarea>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="submit" class="btn btn-sm btn-success">Save Changes</button>
-        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
-      </div>
-    </form>
-  </div>
+    <div class="modal-dialog">
+        <form method="post" action="/web/v1/alerts/{{ alert.id }}/update" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Alert #{{ alert.id }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="status" class="form-label">Status</label>
+                    <select class="form-select" name="status" id="status">
+                        <option value="">-- No Change --</option>
+                        <option value="new">New</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="done">Done</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="resolution" class="form-label">Resolution</label>
+                    <select class="form-select" name="resolution" id="resolution">
+                        <option value="">-- No Change --</option>
+                        <option value="under_investigation">Under Investigation</option>
+                        <option value="false_positive">False Positive</option>
+                        <option value="true_positive_no_impact">TP (No Impact)</option>
+                        <option value="true_positive_with_impact">TP (Impact)</option>
+                        <option value="not_applicable">Not Applicable</option>
+                        <option value="legitimate">Legitimate</option>
+                        <option value="unknown">Unknown</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="resolution_comment" class="form-label">Resolution Comment</label>
+                    <textarea class="form-control" name="resolution_comment" rows="3">{{ alert.resolution_comment or '' }}</textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-sm btn-success">Save Changes</button>
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </form>
+    </div>
 </div>
 
 <script>
-  function expandAll() {
-    document.querySelectorAll('.accordion-collapse').forEach(el => el.classList.add('show'));
-  }
-  function collapseAll() {
-    document.querySelectorAll('.accordion-collapse').forEach(el => el.classList.remove('show'));
-  }
+    function expandAll() {
+        document.querySelectorAll('.accordion-collapse').forEach(el => el.classList.add('show'));
+    }
 
-  function highlightMatch(text, term) {
-    const regex = new RegExp(`(${term})`, 'gi');
-    return text.replace(regex, '<mark>$1</mark>');
-  }
+    function collapseAll() {
+        document.querySelectorAll('.accordion-collapse').forEach(el => el.classList.remove('show'));
+    }
 
-  function runSearch() {
-    const filter = document.getElementById("alertSearch").value.toLowerCase().trim();
-    if (filter.length < 2) return;
+    function highlightMatch(text, term) {
+        const regex = new RegExp(`(${term})`, 'gi');
+        return text.replace(regex, '<mark>$1</mark>');
+    }
 
-    const results = [];
-    document.querySelectorAll(".accordion-item").forEach(section => {
-      const title = section.querySelector(".accordion-button")?.innerText.trim();
-      const contentElement = section.querySelector(".accordion-body");
-      const content = contentElement?.innerText.trim();
+    function runSearch() {
+        const filter = document.getElementById("alertSearch").value.toLowerCase().trim();
+        if (filter.length < 2) return;
 
-      if (content.toLowerCase().includes(filter)) {
-        section.querySelector(".accordion-collapse")?.classList.add("show");
-        results.push(`<div class="mb-3">
+        const results = [];
+        document.querySelectorAll(".accordion-item").forEach(section => {
+            const title = section.querySelector(".accordion-button")?.innerText.trim();
+            const contentElement = section.querySelector(".accordion-body");
+            const content = contentElement?.innerText.trim();
+
+            if (content.toLowerCase().includes(filter)) {
+                section.querySelector(".accordion-collapse")?.classList.add("show");
+                results.push(`<div class="mb-3">
           <h6>${title}</h6>
           <pre class="tactical-markdown-block"><code>${highlightMatch(content, filter)}</code></pre>
         </div>`);
-      }
+            }
+        });
+
+        document.getElementById("searchResultsContent").innerHTML = results.length
+            ? results.join("")
+            : "<p class='tactical-muted'>No matches found.</p>";
+
+        new bootstrap.Modal(document.getElementById("searchResultModal")).show();
+    }
+
+    document.getElementById("alertSearchButton").addEventListener("click", runSearch);
+    document.getElementById("alertSearch").addEventListener("keypress", e => {
+        if (e.key === "Enter") runSearch();
     });
 
-    document.getElementById("searchResultsContent").innerHTML = results.length
-      ? results.join("")
-      : "<p class='tactical-muted'>No matches found.</p>";
-
-    new bootstrap.Modal(document.getElementById("searchResultModal")).show();
-  }
-
-  document.getElementById("alertSearchButton").addEventListener("click", runSearch);
-  document.getElementById("alertSearch").addEventListener("keypress", e => {
-    if (e.key === "Enter") runSearch();
-  });
-
-  document.addEventListener("click", e => {
-    if (e.target.classList.contains("copyable-json")) {
-      navigator.clipboard.writeText(e.target.innerText).then(() => {
-        new bootstrap.Toast(document.getElementById('copyToast')).show();
-      });
-    }
-  });
+    document.addEventListener("click", e => {
+        if (e.target.classList.contains("copyable-json")) {
+            navigator.clipboard.writeText(e.target.innerText).then(() => {
+                new bootstrap.Toast(document.getElementById('copyToast')).show();
+            });
+        }
+    });
 </script>
 {% endblock %}

@@ -14,6 +14,7 @@ from app.api import parsers
 from app.api import cases
 from app.api import customers
 from app.api import users
+from app.api import publisher
 
 # Alerts View
 from app.web.alerts import alerts_view, alerts_detail_view
@@ -81,6 +82,7 @@ app.include_router(parsers.router, prefix="/api/v1", tags=["Parsers API"])
 app.include_router(cases.router, prefix="/api/v1", tags=["Cases API"])
 app.include_router(customers.router, prefix="/api/v1", tags=["Customers API"])
 app.include_router(users.router, prefix="/api/v1", tags=["Users API"])
+app.include_router(publisher.router, prefix="/api/v1", tags=["Publisher API"])
 
 # Sentinel IQ
 app.include_router(sentineliq_view.router, prefix="/web/v1", tags=["SentinelIQ"])

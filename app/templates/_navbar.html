@@ -57,22 +57,6 @@
                         <li><a class="dropdown-item" href="/web/v1/sentineliq/publisher">SentinelIQ - Publisher</a></li>
                     </ul>
                 </li>
-
-                <!-- Settings Dropdown -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle {% if 'settings' in request.url.path %}active{% endif %}"
-                       href="#" role="button" data-bs-toggle="dropdown">
-                        Settings
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-dark">
-                        <li><a class="dropdown-item" href="/web/v1/sources">Sources</a></li>
-                        <li><a class="dropdown-item" href="/web/v1/users">Users</a></li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-                        <li><a class="dropdown-item" href="/web/v1/settings/yaml">YAML Editor</a></li>
-                    </ul>
-                </li>
             </ul>
 
             <!-- Global Search Bar -->
@@ -88,22 +72,32 @@
                 🕒 --
             </div>
 
-            <!-- User Profile Dropdown -->
-            {% if request.session.user %}
-            <div class="dropdown">
-                <a href="#" class="d-flex align-items-center text-light text-decoration-none dropdown-toggle"
-                   id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    <span class="me-2 small text-muted">👤 {{ request.session.user.username }}</span>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark text-small shadow"
-                    aria-labelledby="userDropdown">
-                    <li><a class="dropdown-item" href="/web/v1/profile">Profile Settings</a></li>
-                    <li>
-                        <hr class="dropdown-divider">
-                    </li>
-                    <li><a class="dropdown-item text-danger" href="/web/v1/logout">Logout</a></li>
-                </ul>
-            </div>
+        </div>
+        <!-- User Profile Dropdown -->
+        {% if request.session.user %}
+        <div class="dropdown">
+            <a href="#" class="d-flex align-items-center text-light text-decoration-none dropdown-toggle"
+               id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <span class="me-2 small text-muted">👤 {{ request.session.user.username }}</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark text-small shadow"
+                aria-labelledby="userDropdown">
+                <li><a class="dropdown-item" href="/web/v1/profile">Profile</a></li>
+                <li>
+                    <hr class="dropdown-divider">
+                </li>
+                <li><a class="dropdown-item" href="/web/v1/settings">System Settings</a></li>
+                <li><a class="dropdown-item" href="/web/v1/sources">Sources</a></li>
+                <li><a class="dropdown-item" href="/web/v1/users">Users</a></li>
+                <li>
+                    <hr class="dropdown-divider">
+                </li>
+                <li><a class="dropdown-item" href="/web/v1/settings/yaml">YAML Editor</a></li>
+                <li>
+                    <hr class="dropdown-divider">
+                </li>
+                <li><a class="dropdown-item text-danger" href="/web/v1/logout">Logout</a></li>
+            </ul>
             {% endif %}
         </div>
 
