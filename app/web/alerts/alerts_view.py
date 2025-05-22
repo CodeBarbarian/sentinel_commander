@@ -97,9 +97,9 @@ def list_alerts_view(
     if end_time:
         query = query.filter(Alert.created_at <= end_time)
     if start_event_time:
-        query = query.filter(Alert.source_timestamp >= start_event_time)
+        query = query.filter(Alert.source_event_time >= start_event_time)
     if end_event_time:
-        query = query.filter(Alert.source_timestamp <= end_event_time)
+        query = query.filter(Alert.source_event_time <= end_event_time)
 
     severity__in = None
     try:
