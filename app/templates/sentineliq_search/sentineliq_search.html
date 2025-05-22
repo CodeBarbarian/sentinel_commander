@@ -3,27 +3,31 @@
 
 {% block content %}
 <div class="container mt-4">
-  <h3 class="tactical-heading mb-3">🔎 SentinelIQ Search</h3>
-  <p class="text-muted">Search results for: <code class="tactical-code">{{ query }}</code></p>
+    <h3 class="tactical-heading mb-3">🔎 SentinelIQ Search</h3>
+    <p class="text-muted">Search results for: <code class="tactical-code">{{ query }}</code></p>
 
-  {% if results %}
-    {% for group in ['alert', 'case', 'customer', 'asset', 'ioc'] %}
-      {% set group_results = results | selectattr("type", "equalto", group) | list %}
-      {% if group_results %}
-        <div class="tactical-divider"></div>
-        <h5 class="tactical-subheading text-uppercase">{{ group }}s</h5>
-        <div class="list-group mb-4">
-          {% for item in group_results %}
-            <a href="/web/v1/{{ item.type }}s/{{ item.id }}" class="list-group-item list-group-item-action bg-dark text-light border-secondary">
-              <strong>#{{ item.id }}</strong> — {{ item.title }}
-              <div class="small text-muted mt-1">{{ item.match }}</div>
-            </a>
-          {% endfor %}
-        </div>
-      {% endif %}
+    {% if results %}
+    {% for group in ['alert', 'case', 'customer', 'asset', 'ioc', 'publisher_list', 'publisher_entry'] %}
+    {% set group_results = results | selectattr("type", "equalto", group) | list %}
+    {% if group_results %}
+    <div class="tactical-divider"></div>
+    <h5 class="tactical-subheading text-uppercase">{{ group }}s</h5>
+    <div class="list-group mb-4">
+        {% for item in group_results %}
+        <a href="{% if item.type == 'publisher_entry' %}/web/v1/sentineliq/publisher/{{ item.list_id }}
+          {% elif item.type == 'publisher_list' %}/web/v1/sentineliq/publisher/{{ item.id }}
+          {% else %}/web/v1/{{ item.type }}s/{{ item.id }}
+          {% endif %}"
+           class="list-group-item list-group-item-action bg-dark text-light border-secondary">
+            <strong>#{{ item.id }}</strong> — {{ item.title }}
+            <div class="small text-muted mt-1">{{ item.match }}</div>
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
     {% endfor %}
-  {% else %}
+    {% else %}
     <div class="alert alert-warning mt-4">No results found.</div>
-  {% endif %}
+    {% endif %}
 </div>
 {% endblock %}

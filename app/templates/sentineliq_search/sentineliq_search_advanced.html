@@ -1,0 +1,59 @@
+{% extends "_design.html" %}
+{% block title %}Advanced Search - SentinelIQ{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h3 class="tactical-heading mb-3">🔬 Advanced Search</h3>
+  <form method="get" action="/web/v1/sentineliq/search" class="bg-dark p-4 rounded border border-secondary">
+
+    <!-- Keyword -->
+    <div class="mb-3">
+      <label for="q" class="form-label">Keyword</label>
+      <input type="text" class="form-control" id="q" name="q" placeholder="Enter keyword..." required>
+    </div>
+
+    <!-- Type Selector -->
+    <div class="mb-3">
+      <label for="type" class="form-label">Search Type</label>
+      <select class="form-select" id="type" name="type">
+        <option value="">All</option>
+        <option value="alert">Alerts</option>
+        <option value="case">Cases</option>
+        <option value="customer">Customers</option>
+        <option value="asset">Assets</option>
+        <option value="ioc">IOCs</option>
+        <option value="publisher_list">Publisher Lists</option>
+        <option value="publisher_entry">Publisher Entries</option>
+      </select>
+    </div>
+
+    <!-- Tags -->
+    <div class="mb-3">
+      <label for="tags" class="form-label">Tags</label>
+      <input type="text" class="form-control" id="tags" name="tags" placeholder="comma-separated tags">
+    </div>
+
+    <!-- Date Range -->
+    <div class="mb-3">
+      <label class="form-label">Created Between</label>
+      <div class="d-flex gap-2">
+        <input type="date" class="form-control" name="start">
+        <input type="date" class="form-control" name="end">
+      </div>
+    </div>
+
+    <!-- Result Limit -->
+    <div class="mb-3">
+      <label for="limit" class="form-label">Result Limit</label>
+      <select class="form-select" id="limit" name="limit">
+        <option value="20" selected>20</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+        <option value="200">200</option>
+      </select>
+    </div>
+
+    <button type="submit" class="btn btn-outline-success">🔍 Search</button>
+  </form>
+</div>
+{% endblock %}
