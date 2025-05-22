@@ -1,0 +1,36 @@
+{% extends "_design.html" %}
+{% block title %}Your Profile{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+  <h2 class="mb-4">👤 Your Profile</h2>
+
+  <div class="card bg-dark border border-secondary mb-4">
+    <div class="card-body">
+      <h5 class="card-title">{{ user.full_name }}</h5>
+      <p class="card-text"><strong>Email:</strong> {{ user.email or "N/A" }}</p>
+      <p class="card-text"><strong>Role:</strong> {{ user.role }}</p>
+      <p class="card-text"><strong>Active:</strong> {{ "Yes" if user.is_active else "No" }}</p>
+      <p class="card-text"><strong>Superuser:</strong> {{ "Yes" if user.is_superuser else "No" }}</p>
+      <p class="card-text"><small class="text-muted">Created: {{ user.created_at }} | Updated: {{ user.updated_at }}</small></p>
+    </div>
+  </div>
+
+  <h4 class="mb-3">✏️ Update Your Info</h4>
+  <form method="post" action="/web/v1/profile/update" class="bg-dark p-4 rounded border border-secondary">
+    <div class="mb-3">
+      <label class="form-label">Full Name</label>
+      <input type="text" name="full_name" class="form-control" value="{{ user.full_name or '' }}">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Email</label>
+      <input type="email" name="email" class="form-control" value="{{ user.email or '' }}">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">New Password</label>
+      <input type="password" name="password" class="form-control" placeholder="Leave blank to keep current password">
+    </div>
+    <button class="btn btn-outline-success">💾 Save Changes</button>
+  </form>
+</div>
+{% endblock %}

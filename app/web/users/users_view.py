@@ -101,3 +101,41 @@ def update_user(
 
     return RedirectResponse("/web/v1/users", status_code=302)
 
+@router.get("/profile", response_class=HTMLResponse)
+def user_profile(
+    request: Request,
+    db: Session = Depends(get_db),
+    user=Depends(auth.get_current_user)
+):
+    db_user = db.query(User).filter(User.id == user["id"]).first()
+
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return templates.TemplateResponse("users/profile.html", {
+        "request": request,
+        "user": db_user
+    })
+
+@router.post("/profile/update", response_class=HTMLResponse)
+def update_profile(
+    request: Request,
+    full_name: str = Form(None),
+    email: str = Form(None),
+    password: str = Form(None),
+    db: Session = Depends(get_db),
+    current_user=Depends(auth.get_current_user)
+):
+    db_user = db.query(User).filter(User.id == current_user["id"]).first()
+
+    if full_name is not None:
+        db_user.full_name = full_name
+    if email is not None:
+        db_user.email = email
+    if password:
+        db_user.password_hash = bcrypt.hash(password)
+
+    db.commit()
+    db.refresh(db_user)
+
+    return RedirectResponse("/web/v1/profile", status_code=302)
