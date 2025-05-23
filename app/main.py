@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-
+from app.core.log_config import setup_logging
 from app.core.database import Base, engine
 
 # API's
@@ -53,10 +53,12 @@ from app.web.users import users_view
 from app.web.users import auth_view
 
 from datetime import datetime
-import app.models
+
 # Bootstrap:
 from app.core.bootstrap import ensure_internal_source, init_data
 from starlette.middleware.sessions import SessionMiddleware
+
+setup_logging()
 
 # Create all tables in the DB
 Base.metadata.create_all(bind=engine)
