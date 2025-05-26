@@ -82,7 +82,7 @@ def list_alerts_view(
         status_values = [s.strip() for s in status.split(",") if s.strip()]
         query = query.filter(Alert.status.in_(status_values))
     else:
-        query = query.filter(Alert.status.in_(["new", "in_progress"]))
+        query = query.filter(Alert.status.in_(["new", "in_progress", "done"]))
 
     if tags:
         tag_values = [tag.strip() for tag in tags.split(",") if tag.strip()]
