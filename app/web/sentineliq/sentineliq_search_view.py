@@ -14,18 +14,37 @@ from app.utils.parser.compat_parser_runner import run_parser_for_type
 from fastapi.templating import Jinja2Templates
 import json
 from datetime import datetime
+import re
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
+def parse_query_terms(q: str):
+    kv_pattern = re.compile(r'(\w+):"([^"]+)"|(\w+):([^\s]+)')
+    kv_matches = kv_pattern.findall(q)
+
+    kv_terms = []
+    for m in kv_matches:
+        key = m[0] or m[2]
+        value = m[1] or m[3]
+        kv_terms.append((key.lower(), value.lower()))
+
+    # Remove matched patterns from original query to extract free terms
+    q_clean = kv_pattern.sub('', q)
+    free_terms = [t.strip().lower() for t in q_clean.strip().split() if t.strip()]
+
+    return kv_terms, free_terms
 
 def flatten_json(y, prefix=''):
-    """Flatten a nested JSON structure for keyword matching."""
+    """Flatten nested JSON, returning (key_path, value) pairs."""
     out = []
     for k, v in y.items():
         new_key = f"{prefix}.{k}" if prefix else k
         if isinstance(v, dict):
             out.extend(flatten_json(v, new_key))
+        elif isinstance(v, list):
+            for idx, item in enumerate(v):
+                out.append((f"{new_key}[{idx}]", item))
         else:
             out.append((new_key, v))
     return out
@@ -44,6 +63,7 @@ def sentineliq_search(
 ):
     results = []
     query = q.lower()
+    kv_terms, free_terms = parse_query_terms(q)
 
     # Convert date filters if present
     start_dt = None
@@ -75,30 +95,46 @@ def sentineliq_search(
             except Exception:
                 parsed_fields = {}
 
-            match_field = next(
-                (f"[mapped] {k}: {v}" for k, v in parsed_fields.items() if query in str(v).lower()),
-                None
+            # Combine mapped + flattened fields
+            combined_fields = {str(k).lower(): str(v).lower() for k, v in parsed_fields.items()}
+            for k, v in flat_fields:
+                combined_fields[str(k).lower()] = str(v).lower()
+
+            # Match logic: ALL key:value pairs must match
+            kv_matches = all(
+                any(kv_key in field_k and kv_val in field_v for field_k, field_v in combined_fields.items())
+                for kv_key, kv_val in kv_terms
             )
 
-            if not match_field:
+            # If no kv_terms, allow
+            if not kv_terms:
+                kv_matches = True
+
+            # Free-term match (if any)
+            free_matches = True
+            if free_terms:
+                free_matches = any(
+                    term in field_k or term in field_v
+                    for term in free_terms
+                    for field_k, field_v in combined_fields.items()
+                )
+
+            if kv_matches and free_matches:
                 match_field = next(
-                    (f"[payload] {k}: {v}" for k, v in flat_fields if query in str(v).lower()),
+                    (f"{k}: {v}" for k, v in combined_fields.items()
+                     if any(kv[0] in k and kv[1] in v for kv in kv_terms) or
+                     any(t in k or t in v for t in free_terms)),
                     None
                 )
 
-            if (
-                match_field or
-                query in (alert.message or "").lower() or
-                query in (alert.tags or "").lower() or
-                query in (alert.source or "").lower()
-            ):
                 if tags_list and not any(tag in (alert.tags or "").lower() for tag in tags_list):
                     continue
+
                 results.append({
                     "type": "alert",
                     "id": alert.id,
                     "title": alert.message[:60] or "Alert",
-                    "match": match_field or f"message: {alert.message[:60]}"
+                    "match": f"[payload] {match_field or 'Matched'}"
                 })
 
     # === CASES ===
