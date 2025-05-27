@@ -104,6 +104,75 @@
 
 
 </div>
+<div class="container-fluid my-5">
+    {% if parsed_fields.agent %}
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h4 class="tactical-heading">🧩 Related Alerts</h4>
+        <a href="/web/v1/sentineliq/search?q=agent:{{ parsed_fields.agent | urlencode }}"
+           class="btn btn-sm btn-outline-info">
+            🔎 View All From {{ parsed_fields.agent }}
+        </a>
+    </div>
+    {% else %}
+    <h4 class="tactical-heading mb-2">🧩 Related Alerts</h4>
+    {% endif %}
+
+    <h4 class="tactical-heading mb-3">Related Alerts</h4>
+    {% if related_alerts %}
+    <div class="card border border-secondary bg-dark">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-dark table-hover table-sm tactical-table mb-0">
+                    <thead class="tactical-table-header">
+                    <tr>
+                        <th>ID</th>
+                        <th>Created</th>
+                        <th>Message</th>
+                        <th>Status</th>
+                        <th>Severity</th>
+                        <th>Resolution</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for r in related_alerts %}
+                    <tr>
+                        <td>#{{ r.id }}</td>
+                        <td>{{ r.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
+                        <td>
+                            <div class="fw-bold">{{ r.message[:60] or "—" }}</div>
+                            <small class="text-muted">Agent: {{ r.parsed_agent }}</small>
+                        </td>
+                        <td><span class="badge status-{{ r.status|replace('_', '-') }}">{{ r.status.replace('_', ' ')|capitalize }}</span>
+                        </td>
+                        <td><span class="badge severity-{{ r.severity_label|lower }}">{{ r.severity }}</span></td>
+                        <td>{{ r.resolution.replace('_', ' ')|capitalize if r.resolution else "—" }}</td>
+                        <td>
+                            <a href="/web/v1/alerts/{{ r.id }}" class="btn btn-sm btn-outline-primary">View</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% if related_pages > 1 %}
+                <nav class="mt-3">
+                    <ul class="pagination pagination-sm">
+                        {% for p in range(1, related_pages + 1) %}
+                        <li class="page-item {% if p == related_page %}active{% endif %}">
+                            <a class="page-link" href="/web/v1/alerts/{{ alert.id }}?page={{ p }}">{{ p }}</a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </nav>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <p class="text-muted">No related alerts found.</p>
+    {% endif %}
+</div>
+
 
 <!-- Edit Alert Modal -->
 <div class="modal fade" id="editAlertModal" tabindex="-1" aria-labelledby="editAlertModalLabel" aria-hidden="true">

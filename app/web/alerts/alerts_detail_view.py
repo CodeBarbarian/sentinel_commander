@@ -1,8 +1,10 @@
 from typing import Optional
-from fastapi import APIRouter, Request, Form, Depends, HTTPException
+from fastapi import APIRouter, Request, Form, Depends, HTTPException, Query
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
+from sqlalchemy import case
+
 from starlette.responses import RedirectResponse
 
 from app.core.database import SessionLocal
@@ -22,8 +24,36 @@ def get_db():
     finally:
         db.close()
 
+from sqlalchemy import case
+from fastapi import APIRouter, Request, Depends, Query, HTTPException
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+from sqlalchemy.orm import Session
+from app.core.database import SessionLocal
+from app.models.alert import Alert
+from app.utils import auth
+from app.utils.parser.general_parser_engine import run_parser_for_type
+from app.utils.parser.renderer import render_alert_detail_fields
+import json
+
+router = APIRouter()
+templates = Jinja2Templates(directory="app/templates")
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
 @router.get("/alerts/{alert_id}", response_class=HTMLResponse)
-def alert_detail_view(alert_id: int, request: Request, db: Session = Depends(get_db), user=Depends(auth.get_current_user)):
+def alert_detail_view(
+    alert_id: int,
+    request: Request,
+    page: int = Query(1, ge=1),
+    db: Session = Depends(get_db),
+    user=Depends(auth.get_current_user)
+):
     alert = db.query(Alert).filter(Alert.id == alert_id).first()
     if not alert:
         return templates.TemplateResponse("404.html", {"request": request}, status_code=404)
@@ -62,6 +92,40 @@ def alert_detail_view(alert_id: int, request: Request, db: Session = Depends(get
         }
     )
 
+    # === Related Alerts (Paginated, based on agent.name) ===
+    page_size = 10
+    offset = (page - 1) * page_size
+
+    # Ensure we have an agent to match on
+    agent_name = parsed_fields.get("agent") if isinstance(parsed_fields.get("agent"), str) else None
+
+    related_alerts = []
+    total_related = 0
+    total_pages = 1
+
+    if agent_name:
+        related_query = db.query(Alert).filter(
+            Alert.id != alert.id,
+            Alert.source_payload.contains(agent_name)
+        )
+        # Inject parsed_fields.agent into each related alert manually
+        for r in related_alerts:
+            try:
+                payload = json.loads(r.source_payload or "{}")
+                parsed = run_parser_for_type("alert", payload)
+                r.parsed_agent = parsed.get("mapped_fields", {}).get("agent", "—")
+            except Exception:
+                r.parsed_agent = "—"
+
+        total_related = related_query.count()
+
+        related_alerts = related_query.order_by(
+            case((Alert.status == "done", 1), else_=0),
+            Alert.created_at.desc()
+        ).offset(offset).limit(page_size).all()
+
+        total_pages = max((total_related + page_size - 1) // page_size, 1)
+
     return templates.TemplateResponse("alerts/alert_detail.html", {
         "request": request,
         "alert": alert,
@@ -70,8 +134,13 @@ def alert_detail_view(alert_id: int, request: Request, db: Session = Depends(get
         "parsed_enrichment": parsed_enrichment,
         "parser_metadata": parser_metadata,
         "source_payload_json": source_payload_json,
-        "rendered_sections": rendered_sections  # still passed in case fallback needed
+        "rendered_sections": rendered_sections,
+        "related_alerts": related_alerts,
+        "related_total": total_related,
+        "related_page": page,
+        "related_pages": total_pages,
     })
+
 @router.post("/alerts/{alert_id}/update")
 def update_alert_form(
     alert_id: int,
