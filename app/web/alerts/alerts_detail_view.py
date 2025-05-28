@@ -125,7 +125,11 @@ def alert_detail_view(
             try:
                 payload = json.loads(r.source_payload or "{}")
                 parsed = run_parser_for_type("alert", payload)
-                r.parsed_agent = parsed.get("mapped_fields", {}).get("agent_name", "—")
+                r.parsed_agent = (
+                        parsed.get("mapped_fields", {}).get("agent_name")
+                        or parsed.get("mapped_fields", {}).get("agent")
+                        or "—"
+                )
             except Exception:
                 r.parsed_agent = "—"
 
