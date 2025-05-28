@@ -106,8 +106,16 @@ def alert_detail_view(
     if agent_name:
         related_query = db.query(Alert).filter(
             Alert.id != alert.id,
-            Alert.source_payload.contains(agent_name)
+            Alert.source_payload.ilike(f'%{agent_name}%')
         )
+
+        total_related = related_query.count()
+
+        related_alerts = related_query.order_by(
+            case((Alert.status == "done", 1), else_=0),
+            Alert.created_at.desc()
+        ).offset(offset).limit(page_size).all()
+
         # Inject parsed_fields.agent into each related alert manually
         for r in related_alerts:
             try:
@@ -116,13 +124,6 @@ def alert_detail_view(
                 r.parsed_agent = parsed.get("mapped_fields", {}).get("agent", "—")
             except Exception:
                 r.parsed_agent = "—"
-
-        total_related = related_query.count()
-
-        related_alerts = related_query.order_by(
-            case((Alert.status == "done", 1), else_=0),
-            Alert.created_at.desc()
-        ).offset(offset).limit(page_size).all()
 
         total_pages = max((total_related + page_size - 1) // page_size, 1)
 
