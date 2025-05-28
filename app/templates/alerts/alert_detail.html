@@ -111,9 +111,9 @@
     {% if parsed_fields.agent %}
     <div class="d-flex justify-content-between align-items-center mb-2">
         <h4 class="tactical-heading">🧩 Related Alerts</h4>
-        <a href="/web/v1/sentineliq/search?q=agent:{{ parsed_fields.agent | urlencode }}"
+        <a href="/web/v1/sentineliq/search?q=agent:{{ parsed_fields.agent_name | urlencode }}"
            class="btn btn-sm btn-outline-info">
-            🔎 View All From {{ parsed_fields.agent }}
+            🔎 View All From {{ parsed_fields.agent_name }}
         </a>
     </div>
     {% else %}
