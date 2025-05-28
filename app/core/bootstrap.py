@@ -36,26 +36,26 @@ from passlib.hash import bcrypt
 
 def init_data():
     db: Session = SessionLocal()
+    try:
+        existing = db.query(User).filter(User.email == "admin@sentinel.local").first()
+        if existing:
+            print("[+] Admin user already exists — skipping bootstrap.")
+            return
 
-    # Check if any users exist
-    user_exists = db.query(User).first()
-    if user_exists:
-        print("[+] Initial data already exists — skipping bootstrap.")
+        admin = User(
+            username="admin",
+            full_name="Default Admin",
+            email="admin@sentinel.local",
+            password_hash=bcrypt.hash("ChangeMe!"),
+            role="admin",
+            is_active=True,
+            is_superuser=True
+        )
+        db.add(admin)
+        db.commit()
+        print("[+] Default admin user created (username: admin, password: ChangeMe!)")
+    except Exception as e:
+        db.rollback()
+        print(f"[!] Bootstrap error: {e}")
+    finally:
         db.close()
-        return
-
-    # Create default admin user
-    admin = User(
-        username="admin",
-        full_name="Default Admin",
-        email="admin@sentinel.local",
-        password_hash=bcrypt.hash("ChangeMe!"),
-        role="admin",
-        is_active=True,
-        is_superuser=True
-    )
-
-    db.add(admin)
-    db.commit()
-    print("[+] Default admin user created (username: admin, password: ChangeMe123!)")
-    db.close()
