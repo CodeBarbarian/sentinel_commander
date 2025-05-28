@@ -110,17 +110,16 @@
 <div class="container-fluid my-5">
     {% if parsed_fields.agent_name %}
     <div class="d-flex justify-content-between align-items-center mb-2">
-        <h4 class="tactical-heading">🧩 Related Alerts</h4>
+        <h4 class="tactical-heading">Related Alerts</h4>
         <a href="/web/v1/sentineliq/search?q=agent:{{ parsed_fields.agent_name | urlencode }}"
            class="btn btn-sm btn-outline-info">
             🔎 View All From {{ parsed_fields.agent_name }}
         </a>
     </div>
     {% else %}
-    <h4 class="tactical-heading mb-2">🧩 Related Alerts</h4>
+    <h4 class="tactical-heading mb-2">Related Alerts</h4>
     {% endif %}
 
-    <h4 class="tactical-heading mb-3">Related Alerts</h4>
     {% if related_alerts %}
     <div class="card border border-secondary bg-dark">
         <div class="card-body p-0">
