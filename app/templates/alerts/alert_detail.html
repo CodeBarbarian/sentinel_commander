@@ -38,7 +38,7 @@
                     {{ alert.resolution.replace('_', ' ')|capitalize if alert.resolution else '—' }}
                 </div>
                 <div class="col-md-4"><strong>Source</strong><br>{{ alert.source or "—" }}</div>
-                <div class="col-md-4"><strong>Agent</strong><br>{{ parsed_fields.get("agent", "—") }}</div>
+                <div class="col-md-4"><strong>Agent</strong><br>{{ parsed_fields.get("agent_name", "—") }}</div>
                 <div class="col-md-4"><strong>Created</strong><br>{{ alert.created_at.strftime('%Y-%m-%d %H:%M') }}
                 </div>
                 <div class="col-md-12">
