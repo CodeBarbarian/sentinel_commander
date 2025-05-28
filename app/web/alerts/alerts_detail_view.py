@@ -4,15 +4,24 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from sqlalchemy import case
-
 from starlette.responses import RedirectResponse
-
 from app.core.database import SessionLocal
 from app.models.alert import Alert
 from app.utils.parser.general_parser_engine import run_parser_for_type
 from app.utils.parser.renderer import render_alert_detail_fields
 import json
 from app.utils import auth
+from sqlalchemy import case, func
+from fastapi import APIRouter, Request, Depends, Query, HTTPException
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+from sqlalchemy.orm import Session
+from app.core.database import SessionLocal
+from app.models.alert import Alert
+from app.utils import auth
+from app.utils.parser.general_parser_engine import run_parser_for_type
+from app.utils.parser.renderer import render_alert_detail_fields
+import json
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -24,17 +33,7 @@ def get_db():
     finally:
         db.close()
 
-from sqlalchemy import case
-from fastapi import APIRouter, Request, Depends, Query, HTTPException
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
-from sqlalchemy.orm import Session
-from app.core.database import SessionLocal
-from app.models.alert import Alert
-from app.utils import auth
-from app.utils.parser.general_parser_engine import run_parser_for_type
-from app.utils.parser.renderer import render_alert_detail_fields
-import json
+
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -106,7 +105,7 @@ def alert_detail_view(
     if agent_name:
         related_query = db.query(Alert).filter(
             Alert.id != alert.id,
-            Alert.source_payload.ilike(f'%{agent_name}%')
+            func.lower(Alert.source_payload).like(f"%{agent_name.lower()}%")
         )
 
         total_related = related_query.count()
