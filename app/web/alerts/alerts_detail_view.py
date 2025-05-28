@@ -97,7 +97,11 @@ def alert_detail_view(
     offset = (page - 1) * page_size
 
     # Ensure we have an agent to match on
-    agent_name = parsed_fields.get("agent") if isinstance(parsed_fields.get("agent"), str) else None
+    agent_name = (
+        parsed_fields.get("agent_name") or parsed_fields.get("agent")
+        if isinstance(parsed_fields.get("agent_name") or parsed_fields.get("agent"), str)
+        else None
+    )
 
     related_alerts = []
     total_related = 0
@@ -121,7 +125,7 @@ def alert_detail_view(
             try:
                 payload = json.loads(r.source_payload or "{}")
                 parsed = run_parser_for_type("alert", payload)
-                r.parsed_agent = parsed.get("mapped_fields", {}).get("agent", "—")
+                r.parsed_agent = parsed.get("mapped_fields", {}).get("agent_name", "—")
             except Exception:
                 r.parsed_agent = "—"
 
