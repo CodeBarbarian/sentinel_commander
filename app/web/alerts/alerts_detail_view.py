@@ -67,6 +67,7 @@ def alert_detail_view(
     try:
         parsed = run_parser_for_type("alert", source_payload_json)
         parsed_fields = parsed.get("mapped_fields", {})
+        print(f"[DEBUG] Parsed Fields (Alert #{alert.id}):", parsed_fields)
         parsed_tags = parsed.get("tags", [])
         parsed_enrichment = parsed.get("enrichment", {})
         parser_metadata = {
