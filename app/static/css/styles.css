@@ -11,6 +11,7 @@ a {
     color: #58a6ff;
     text-decoration: none;
 }
+
 a:hover {
     text-decoration: underline;
 }
@@ -27,10 +28,12 @@ a:hover {
     background-color: #161b22 !important;
     border-bottom: 1px solid #30363d;
 }
+
 .nav-link {
     color: #e0e0e0 !important;
     font-weight: 500;
 }
+
 .nav-link.active {
     color: #58a6ff !important;
     font-weight: 600;
@@ -45,9 +48,11 @@ a:hover {
     padding: 1rem;
     transition: background-color 0.2s ease;
 }
+
 .card:hover {
     background-color: #22272e;
 }
+
 .card-title {
     font-size: 1.1rem;
     font-weight: 600;
@@ -59,12 +64,14 @@ a:hover {
     text-align: center;
     padding: 1rem 0.5rem;
 }
+
 .stat-card h6 {
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 1px;
     color: #999;
 }
+
 .stat-card h2 {
     font-size: 2.25rem;
     color: #e0e0e0;
@@ -75,12 +82,15 @@ a:hover {
     color: #e0e0e0;
     background-color: #1c2128;
 }
+
 .table thead {
     background-color: #2c3138;
 }
+
 .table-hover tbody tr:hover {
     background-color: #20252b;
 }
+
 .table th,
 .table td {
     border-color: #3a3f45;
@@ -100,13 +110,16 @@ a:hover {
 .status-badge {
     color: #fff;
 }
+
 .status-new {
     background-color: #6c757d;
 }
+
 .status-in_progress {
     background-color: #0dcaf0;
     color: #000;
 }
+
 .status-done {
     background-color: #20c997;
 }
@@ -115,23 +128,42 @@ a:hover {
 .severity-critical {
     background-color: #b91c1c;
 }
+
 .severity-high {
     background-color: #dc3545;
 }
+
 .severity-medium {
     background-color: #fd7e14;
 }
+
 .severity-low {
     background-color: #198754;
 }
+
 .severity-informational {
     background-color: #6c757d;
 }
 
-.stat-card.bg-info    { background-color: rgba(13, 202, 240, 0.08) !important; color: #0dcaf0 !important; }
-.stat-card.bg-danger  { background-color: rgba(220, 53, 69, 0.08) !important; color: #dc3545 !important; }
-.stat-card.bg-warning { background-color: rgba(253, 193, 7, 0.08) !important; color: #fdc107 !important; }
-.stat-card.bg-success { background-color: rgba(25, 135, 84, 0.08) !important; color: #198754 !important; }
+.stat-card.bg-info {
+    background-color: rgba(13, 202, 240, 0.08) !important;
+    color: #0dcaf0 !important;
+}
+
+.stat-card.bg-danger {
+    background-color: rgba(220, 53, 69, 0.08) !important;
+    color: #dc3545 !important;
+}
+
+.stat-card.bg-warning {
+    background-color: rgba(253, 193, 7, 0.08) !important;
+    color: #fdc107 !important;
+}
+
+.stat-card.bg-success {
+    background-color: rgba(25, 135, 84, 0.08) !important;
+    color: #198754 !important;
+}
 
 
 /* === CHART ZONE === */
@@ -145,18 +177,22 @@ canvas {
 .btn {
     font-weight: 500;
 }
+
 .btn-outline-light {
     color: #e0e0e0;
     border-color: #555;
 }
+
 .btn-outline-light:hover {
     background-color: #555;
     color: #fff;
 }
+
 .btn-outline-primary {
     color: #58a6ff;
     border-color: #58a6ff;
 }
+
 .btn-outline-primary:hover {
     background-color: #58a6ff;
     color: #000;
@@ -174,6 +210,7 @@ canvas {
     background-color: #1c2128;
     color: #e0e0e0;
 }
+
 .modal-header,
 .modal-footer {
     border-color: #30363d;
@@ -188,6 +225,7 @@ textarea {
     border: 1px solid #333;
     padding: 0.5rem;
 }
+
 input::placeholder {
     color: #888;
 }
@@ -196,11 +234,13 @@ input::placeholder {
 tr.selected-row {
     background-color: #2a2a2a !important;
 }
+
 .alert-card {
     transition: 0.2s ease all;
 }
+
 .alert-card:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     transform: scale(1.01);
 }
 
@@ -211,6 +251,7 @@ tr.selected-row {
     background-color: transparent;
     color: #999;
 }
+
 .modern-tabs .nav-link.active {
     color: #58a6ff;
     border-bottom: 2px solid #58a6ff;
@@ -221,6 +262,7 @@ tr.selected-row {
     color: #58a6ff;
     font-size: 0.85rem;
 }
+
 .tactical-link:hover {
     text-decoration: underline;
 }
@@ -261,25 +303,63 @@ tr.selected-row {
 }
 
 /* Badges */
-.severity-critical { background-color: #b91c1c; color: white; }
-.severity-high { background-color: #dc3545; color: white; }
-.severity-medium { background-color: #fd7e14; color: white; }
-.severity-low { background-color: #198754; color: white; }
-.severity-informational { background-color: #6c757d; color: white; }
+.severity-critical {
+    background-color: #b91c1c;
+    color: white;
+}
 
-.status-new { background-color: #6c757d; color: white; }
-.status-in-progress { background-color: #0dcaf0; color: black; }
-.status-investigating { background-color: #f0c30d; color: black; }
-.status-critical { background-color: #b91c1c; color: white; }
-.status-done { background-color: #20c997; color: black; }
+.severity-high {
+    background-color: #dc3545;
+    color: white;
+}
+
+.severity-medium {
+    background-color: #fd7e14;
+    color: white;
+}
+
+.severity-low {
+    background-color: #198754;
+    color: white;
+}
+
+.severity-informational {
+    background-color: #6c757d;
+    color: white;
+}
+
+.status-new {
+    background-color: #6c757d;
+    color: white;
+}
+
+.status-in-progress {
+    background-color: #0dcaf0;
+    color: black;
+}
+
+.status-investigating {
+    background-color: #f0c30d;
+    color: black;
+}
+
+.status-critical {
+    background-color: #b91c1c;
+    color: white;
+}
+
+.status-done {
+    background-color: #20c997;
+    color: black;
+}
 
 /* Optional wizard styles */
 .wizard-step {
-  background-color: #1c2128;
-  border: 1px solid #3a3f45;
-  padding: 1.5rem;
-  border-radius: 0.5rem;
-  margin-bottom: 1.5rem;
+    background-color: #1c2128;
+    border: 1px solid #3a3f45;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
 }
 
 .form-label {
@@ -292,27 +372,27 @@ tr.selected-row {
 
 /* Case closing note */
 .tactical-note {
-  background-color: #1c1c1c;
-  color: #ccc;
-  border-left: 4px solid #0dcaf0;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  border-radius: 4px;
+    background-color: #1c1c1c;
+    color: #ccc;
+    border-left: 4px solid #0dcaf0;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 4px;
 }
 
 /* Tab content box */
 .tactical-tab-content {
-  background-color: #1c2128;
-  border: 1px solid #3a3f45;
-  padding: 1.5rem;
-  border-radius: 0.5rem;
-  margin-top: 1rem;
+    background-color: #1c2128;
+    border: 1px solid #3a3f45;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    margin-top: 1rem;
 }
 
 /* GLOBAL TEXT COLOR ENFORCEMENT */
 body.sc-body,
 body.sc-body {
-  color: #e0e0e0 !important;
+    color: #e0e0e0 !important;
 }
 
 /* Ensure border-based containers look correct */
@@ -323,236 +403,270 @@ body.sc-body {
 .nav-tabs .nav-link,
 .form-control,
 .form-select {
-  color: #e0e0e0 !important;
-  background-color: #1c2128 !important;
-  border-color: #3a3f45 !important;
+    color: #e0e0e0 !important;
+    background-color: #1c2128 !important;
+    border-color: #3a3f45 !important;
 }
 
 /* Fix Bootstrap tab header active state */
 .nav-tabs .nav-link.active {
-  background-color: #1c2128 !important;
-  border-color: #3a3f45 #3a3f45 transparent !important;
-  color: #58a6ff !important;
+    background-color: #1c2128 !important;
+    border-color: #3a3f45 #3a3f45 transparent !important;
+    color: #58a6ff !important;
 }
 
 /* Optional: lighten all <label> and <h*> globally */
 label, h1, h2, h3, h4, h5, h6 {
-  color: #f0f0f0 !important;
+    color: #f0f0f0 !important;
 }
 
 /* Tactical UI elements */
 .tactical-heading {
-  color: #f0f0f0;
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
+    color: #f0f0f0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
 }
 
 .tactical-subheading {
-  color: #ccc;
-  font-size: 0.95rem;
-  font-weight: 500;
-  margin-bottom: 0.3rem;
+    color: #ccc;
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin-bottom: 0.3rem;
 }
 
 .tactical-muted {
-  color: #999;
-  font-size: 0.95rem;
+    color: #999;
+    font-size: 0.95rem;
 }
 
 .tactical-code {
-  background-color: #101417;
-  color: #58a6ff;
-  padding: 0.2rem 0.4rem;
-  border-radius: 4px;
-  font-family: "Fira Code", monospace;
-  font-size: 0.9rem;
+    background-color: #101417;
+    color: #58a6ff;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-family: "Fira Code", monospace;
+    font-size: 0.9rem;
 }
 
 .tactical-divider {
-  height: 1px;
-  background-color: #2a2f34;
-  border: none;
-  width: 100%;
-  margin: 1.5rem 0;
+    height: 1px;
+    background-color: #2a2f34;
+    border: none;
+    width: 100%;
+    margin: 1.5rem 0;
 }
 
-.gap-sm { gap: 0.25rem; }
-.gap-md { gap: 0.5rem; }
-.gap-lg { gap: 1rem; }
+.gap-sm {
+    gap: 0.25rem;
+}
+
+.gap-md {
+    gap: 0.5rem;
+}
+
+.gap-lg {
+    gap: 1rem;
+}
 
 .tactical-tab-section {
-  margin-top: 0.5rem;
-  padding-top: 0.5rem;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
 }
 
 /* Ensures consistent outer tab padding area */
 .tactical-tab-wrapper {
-  background-color: #1c2128;
-  border: 1px solid #3a3f45;
-  border-radius: 0.5rem;
-  margin-top: 1rem;
+    background-color: #1c2128;
+    border: 1px solid #3a3f45;
+    border-radius: 0.5rem;
+    margin-top: 1rem;
 }
 
 /* Inner tab content layout */
 .tactical-tab-inner {
-  padding: 1.5rem;
+    padding: 1.5rem;
 }
 
 .tactical-note-card {
-  background-color: #1c2128;
-  border: 1px solid #3a3f45;
-  padding: 1rem;
-  border-radius: 0.5rem;
+    background-color: #1c2128;
+    border: 1px solid #3a3f45;
+    padding: 1rem;
+    border-radius: 0.5rem;
 }
 
 .tactical-timeline-item {
-  background-color: #1c2128;
-  border: 1px solid #3a3f45;
-  padding: 1rem;
-  border-radius: 0.5rem;
+    background-color: #1c2128;
+    border: 1px solid #3a3f45;
+    padding: 1rem;
+    border-radius: 0.5rem;
 }
 
 .timeline-actor-badge {
-  background-color: #555;
-  color: white;
-  font-size: 0.75rem;
-  padding: 0.2rem 0.6rem;
-  border-radius: 4px;
-  display: inline-block;
-  margin-top: 0.5rem;
+    background-color: #555;
+    color: white;
+    font-size: 0.75rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    display: inline-block;
+    margin-top: 0.5rem;
 }
 
 .tactical-task-card {
-  background-color: #1c2128;
-  border: 1px solid #3a3f45;
-  border-radius: 0.5rem;
-  padding: 1rem;
+    background-color: #1c2128;
+    border: 1px solid #3a3f45;
+    border-radius: 0.5rem;
+    padding: 1rem;
 }
 
 textarea.form-control-sm {
-  font-size: 0.85rem;
-  padding: 0.4rem;
-  line-height: 1.4;
+    font-size: 0.85rem;
+    padding: 0.4rem;
+    line-height: 1.4;
     height: 32px;
 }
 
 .sc-body input::placeholder,
 .sc-body textarea::placeholder {
-  color: #bbb !important;
+    color: #bbb !important;
 }
 
 .tactical-playbook-card {
-  background-color: #1c2128;
-  border: 1px solid #3a3f45;
-  border-radius: 0.5rem;
-  padding: 1rem;
+    background-color: #1c2128;
+    border: 1px solid #3a3f45;
+    border-radius: 0.5rem;
+    padding: 1rem;
 }
 
 .tactical-markdown-block {
-  background-color: #101417 !important;
-  color: #e0e0e0 !important;
-  border: 1px solid #333;
-  border-radius: 6px;
-  padding: 1rem;
+    background-color: #101417 !important;
+    color: #e0e0e0 !important;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 1rem;
 }
 
 .tactical-heading-xl {
-  font-size: 1.75rem;
-  font-weight: 600;
-  color: #f0f0f0;
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #f0f0f0;
 }
 
 .tactical-metadata-card {
-  background-color: #1c2128;
-  border: 1px solid #3a3f45;
-  border-radius: 0.5rem;
-  padding: 1rem;
+    background-color: #1c2128;
+    border: 1px solid #3a3f45;
+    border-radius: 0.5rem;
+    padding: 1rem;
 }
 
 
-.badge.status-* {
-  text-transform: capitalize;
+.badge.status- * {
+    text-transform: capitalize;
 }
 
 .modern-tabs .nav-link {
-  padding: 0.5rem 1rem;
-  border-radius: 0;
-  transition: color 0.2s ease, border-bottom 0.2s ease;
+    padding: 0.5rem 1rem;
+    border-radius: 0;
+    transition: color 0.2s ease, border-bottom 0.2s ease;
 }
 
 .modern-tabs .nav-link:hover {
-  color: #58a6ff;
+    color: #58a6ff;
 }
 
 .modern-tabs .nav-item {
-  margin-right: 0.5rem;
+    margin-right: 0.5rem;
 }
 
 .modal-body {
-  padding: 1.25rem;
+    padding: 1.25rem;
 }
+
 .modal-footer {
-  padding: 1rem 1.25rem;
+    padding: 1rem 1.25rem;
 }
 
 .modal.fade .modal-dialog {
-  transition: transform 0.3s ease-out;
+    transition: transform 0.3s ease-out;
 }
 
 .form-label {
-  color: #e0e0e0 !important;
+    color: #e0e0e0 !important;
 }
+
 textarea.form-control {
-  background-color: #0e1116;
+    background-color: #0e1116;
 }
 
 canvas {
-  height: 160px !important;
-  width: 100% !important;
+    height: 160px !important;
+    width: 100% !important;
 }
 
 .alert-scroll-wrapper::-webkit-scrollbar {
-  width: 6px;
+    width: 6px;
 }
+
 .alert-scroll-wrapper::-webkit-scrollbar-thumb {
-  background-color: #444;
-  border-radius: 3px;
+    background-color: #444;
+    border-radius: 3px;
 }
 
 .alert-card:hover {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  transform: scale(1.01);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transform: scale(1.01);
 }
 
 
 textarea.form-control-sm {
-  height: 32px !important;
-  resize: none;
-  overflow: hidden;
+    height: 32px !important;
+    resize: none;
+    overflow: hidden;
 }
+
 .tab-pane:not(.active) {
-  display: none !important;
+    display: none !important;
 }
 
 /* Fix hover behavior for SentinelIQ card */
 .alert-card:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  transform: none; /* Remove zoom effect */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transform: none; /* Remove zoom effect */
 }
 
 /* Fix table row hover from expanding too far */
 .tactical-table-hover:hover {
-  background-color: #20252b !important;
-  z-index: auto !important;
-  transform: none !important;
-  box-shadow: none !important;
+    background-color: #20252b !important;
+    z-index: auto !important;
+    transform: none !important;
+    box-shadow: none !important;
 }
 
 .tactical-table-header th {
-  background-color: #2c3138 !important;
-  color: #f0f0f0 !important;
-  font-weight: 600;
-  text-transform: uppercase;
-  font-size: 0.85rem;
+    background-color: #2c3138 !important;
+    color: #f0f0f0 !important;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+}
+
+.mitre-matrix {
+    display: grid;
+    grid-template-columns: repeat(11, 1fr);
+    gap: 4px;
+    font-size: 12px;
+    text-align: center;
+}
+
+.mitre-cell {
+    border: 1px solid #444;
+    padding: 8px;
+    background-color: #1f1f1f;
+    color: white;
+    border-radius: 4px;
+}
+
+.mitre-highlight {
+    background-color: #c0392b;
+    color: #fff;
+    font-weight: bold;
 }

@@ -22,7 +22,6 @@
         <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#enrichment">Enrichment</a></li>
         <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#raw">Raw</a></li>
         <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#mitre">MITRE ATT&CK</a></li>
-
     </ul>
 
     <!-- Tab Content -->
@@ -105,11 +104,11 @@
         <div class="tab-pane fade" id="raw">
             <pre class="tactical-markdown-block"><code>{{ source_payload_json | tojson(indent=2) }}</code></pre>
         </div>
-        
+
         <!-- MITRE ATT&CK Tab -->
         <div class="tab-pane fade" id="mitre">
-            {% set mitre = parsed_enrichment.get("mitre", {}) %}
-            {% if mitre %}
+            {% set mitre = mitre_info if mitre_info else parsed_enrichment.get("mitre", {}) %}
+            {% if mitre and mitre.get("id") %}
             <div class="row g-3">
                 <div class="col-md-12">
                     <strong>Technique ID(s):</strong><br>
@@ -118,25 +117,29 @@
                        class="badge bg-primary me-1">{{ tid }}</a>
                     {% endfor %}
                 </div>
+
+                {% if mitre.get("tactic") %}
                 <div class="col-md-12">
                     <strong>Tactics:</strong><br>
                     {% for tactic in mitre.get("tactic", []) %}
                     <span class="badge bg-warning text-dark me-1">{{ tactic }}</span>
                     {% endfor %}
                 </div>
+                {% endif %}
+
+                {% if mitre.get("technique") %}
                 <div class="col-md-12">
                     <strong>Techniques:</strong><br>
                     {% for technique in mitre.get("technique", []) %}
                     <span class="badge bg-info text-dark me-1">{{ technique }}</span>
                     {% endfor %}
                 </div>
+                {% endif %}
             </div>
             {% else %}
-            <p class="text-muted">No MITRE ATT&CK mapping found for this alert.</p>
+            <p class="text-muted mt-2">No MITRE ATT&CK mapping found for this alert.</p>
             {% endif %}
         </div>
-
-
     </div>
 
 

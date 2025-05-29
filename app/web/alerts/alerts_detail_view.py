@@ -63,14 +63,12 @@ def alert_detail_view(
     except Exception as e:
         source_payload_json = {"error": f"Invalid JSON: {str(e)}"}
 
-    # Parser Execution
+    # === Parser Execution ===
     try:
         parsed = run_parser_for_type("alert", source_payload_json)
         parsed_fields = parsed.get("mapped_fields", {})
-        print(f"[DEBUG] Parsed Fields (Alert #{alert.id}):", parsed_fields)
         parsed_tags = parsed.get("tags", [])
         parsed_enrichment = parsed.get("enrichment", {})
-        parsed_enrichment["mitre"] = source_payload_json.get("rule", {}).get("mitre", {})
         parser_metadata = {
             "parser_name": parsed.get("parser_name"),
             "matched": parsed.get("matched", False)
@@ -81,7 +79,12 @@ def alert_detail_view(
         parsed_enrichment = {}
         parser_metadata = {"parser_name": "unknown", "matched": False}
 
-    # Optional: if needed for legacy rendering or fallback accordion layout
+    # === MITRE Extraction (from original alert payload) ===
+    mitre_info = source_payload_json.get("rule", {}).get("mitre", {}) or {}
+    mitre_ids = mitre_info.get("id", []) if isinstance(mitre_info, dict) else []
+    mitre_tactics = mitre_info.get("tactic", []) if isinstance(mitre_info, dict) else []
+
+    # === Optional: rendered accordion view (legacy support) ===
     rendered_sections = render_alert_detail_fields(
         alert.__dict__,
         parsed_fields,
@@ -97,7 +100,6 @@ def alert_detail_view(
     page_size = 10
     offset = (page - 1) * page_size
 
-    # Ensure we have an agent to match on
     agent_name = (
         parsed_fields.get("agent_name") or parsed_fields.get("agent")
         if isinstance(parsed_fields.get("agent_name") or parsed_fields.get("agent"), str)
@@ -121,15 +123,14 @@ def alert_detail_view(
             Alert.created_at.desc()
         ).offset(offset).limit(page_size).all()
 
-        # Inject parsed_fields.agent into each related alert manually
         for r in related_alerts:
             try:
                 payload = json.loads(r.source_payload or "{}")
                 parsed = run_parser_for_type("alert", payload)
                 r.parsed_agent = (
-                        parsed.get("mapped_fields", {}).get("agent_name")
-                        or parsed.get("mapped_fields", {}).get("agent")
-                        or "—"
+                    parsed.get("mapped_fields", {}).get("agent_name")
+                    or parsed.get("mapped_fields", {}).get("agent")
+                    or "—"
                 )
             except Exception:
                 r.parsed_agent = "—"
@@ -149,6 +150,9 @@ def alert_detail_view(
         "related_total": total_related,
         "related_page": page,
         "related_pages": total_pages,
+        "mitre_ids": mitre_ids,
+        "mitre_tactics": mitre_tactics,
+        "mitre_info": mitre_info,
     })
 
 @router.post("/alerts/{alert_id}/update")
