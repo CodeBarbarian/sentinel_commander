@@ -70,6 +70,7 @@ def alert_detail_view(
         print(f"[DEBUG] Parsed Fields (Alert #{alert.id}):", parsed_fields)
         parsed_tags = parsed.get("tags", [])
         parsed_enrichment = parsed.get("enrichment", {})
+        parsed_enrichment["mitre"] = source_payload_json.get("rule", {}).get("mitre", {})
         parser_metadata = {
             "parser_name": parsed.get("parser_name"),
             "matched": parsed.get("matched", False)
