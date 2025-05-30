@@ -50,6 +50,7 @@ def alert_detail_view(
     alert_id: int,
     request: Request,
     page: int = Query(1, ge=1),
+    message_page: int = Query(1, ge=1),
     db: Session = Depends(get_db),
     user=Depends(auth.get_current_user)
 ):
@@ -79,7 +80,7 @@ def alert_detail_view(
         parsed_enrichment = {}
         parser_metadata = {"parser_name": "unknown", "matched": False}
 
-    # === MITRE Extraction (from original alert payload) ===
+    # === MITRE Extraction ===
     mitre_info = source_payload_json.get("rule", {}).get("mitre", {}) or {}
     mitre_ids = mitre_info.get("id", []) if isinstance(mitre_info, dict) else []
     mitre_tactics = mitre_info.get("tactic", []) if isinstance(mitre_info, dict) else []
@@ -96,7 +97,7 @@ def alert_detail_view(
         }
     )
 
-    # === Related Alerts (Paginated, based on agent.name) ===
+    # === Related Alerts by Agent ===
     page_size = 10
     offset = (page - 1) * page_size
 
@@ -137,6 +138,41 @@ def alert_detail_view(
 
         total_pages = max((total_related + page_size - 1) // page_size, 1)
 
+    # === Related Alerts by Message ===
+    msg_page_size = 10
+    msg_offset = (message_page - 1) * msg_page_size
+
+    related_alerts_by_message = []
+    total_related_msg = 0
+    total_pages_msg = 1
+
+    if alert.message:
+        related_msg_query = db.query(Alert).filter(
+            Alert.id != alert.id,
+            Alert.message == alert.message,
+            Alert.status != "done"
+        )
+
+        total_related_msg = related_msg_query.count()
+
+        related_alerts_by_message = related_msg_query.order_by(
+            Alert.created_at.desc()
+        ).offset(msg_offset).limit(msg_page_size).all()
+
+        for r in related_alerts_by_message:
+            try:
+                payload = json.loads(r.source_payload or "{}")
+                parsed = run_parser_for_type("alert", payload)
+                r.parsed_agent = (
+                    parsed.get("mapped_fields", {}).get("agent_name")
+                    or parsed.get("mapped_fields", {}).get("agent")
+                    or "—"
+                )
+            except Exception:
+                r.parsed_agent = "—"
+
+        total_pages_msg = max((total_related_msg + msg_page_size - 1) // msg_page_size, 1)
+
     return templates.TemplateResponse("alerts/alert_detail.html", {
         "request": request,
         "alert": alert,
@@ -150,10 +186,16 @@ def alert_detail_view(
         "related_total": total_related,
         "related_page": page,
         "related_pages": total_pages,
+        "related_alerts_by_message": related_alerts_by_message,
+        "related_total_msg": total_related_msg,
+        "related_page_msg": message_page,
+        "related_pages_msg": total_pages_msg,
         "mitre_ids": mitre_ids,
         "mitre_tactics": mitre_tactics,
         "mitre_info": mitre_info,
     })
+
+
 
 @router.post("/alerts/{alert_id}/update")
 def update_alert_form(

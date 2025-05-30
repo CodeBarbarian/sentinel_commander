@@ -144,62 +144,139 @@
 
 
 </div>
+
 <div class="container-fluid my-5">
-    {% if related_alerts %}
     <h4 class="tactical-heading mb-2">Related Alerts</h4>
-    <div class="card border border-secondary bg-dark">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-dark table-hover table-sm tactical-table mb-0">
-                    <thead class="tactical-table-header">
-                    <tr>
-                        <th>ID</th>
-                        <th>Created</th>
-                        <th>Message</th>
-                        <th>Status</th>
-                        <th>Severity</th>
-                        <th>Resolution</th>
-                        <th></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for r in related_alerts %}
-                    <tr>
-                        <td>#{{ r.id }}</td>
-                        <td>{{ r.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
-                        <td>
-                            <div class="fw-bold">{{ r.message[:60] or "—" }}</div>
-                            <small class="text-muted">Agent: {{ r.parsed_agent }}</small>
-                        </td>
-                        <td><span class="badge status-{{ r.status|replace('_', '-') }}">{{ r.status.replace('_', ' ')|capitalize }}</span>
-                        </td>
-                        <td><span class="badge severity-{{ r.severity_label|lower }}">{{ r.severity }}</span></td>
-                        <td>{{ r.resolution.replace('_', ' ')|capitalize if r.resolution else "—" }}</td>
-                        <td>
-                            <a href="/web/v1/alerts/{{ r.id }}" class="btn btn-sm btn-outline-primary">View</a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-                {% if related_pages > 1 %}
-                <nav class="mt-3">
-                    <ul class="pagination pagination-sm">
-                        {% for p in range(1, related_pages + 1) %}
-                        <li class="page-item {% if p == related_page %}active{% endif %}">
-                            <a class="page-link" href="/web/v1/alerts/{{ alert.id }}?page={{ p }}">{{ p }}</a>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                </nav>
-                {% endif %}
+
+    <ul class="nav nav-tabs mb-2" role="tablist" id="relatedTabs">
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#related-by-agent" role="tab">By Agent</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#related-by-message" role="tab">By Alert</a>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <!-- Related by Agent -->
+        <div class="tab-pane fade" id="related-by-agent" role="tabpanel">
+            {% if related_alerts %}
+            <div class="card border border-secondary bg-dark">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover table-sm tactical-table mb-0">
+                            <thead class="tactical-table-header">
+                            <tr>
+                                <th>ID</th>
+                                <th>Created</th>
+                                <th>Message</th>
+                                <th>Status</th>
+                                <th>Severity</th>
+                                <th>Resolution</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for r in related_alerts %}
+                            <tr>
+                                <td>#{{ r.id }}</td>
+                                <td>{{ r.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
+                                <td>
+                                    <div class="fw-bold">{{ r.message[:60] or "—" }}</div>
+                                    <small class="text-muted">Agent: {{ r.parsed_agent }}</small>
+                                </td>
+                                <td><span class="badge status-{{ r.status|replace('_', '-') }}">{{ r.status.replace('_', ' ')|capitalize }}</span>
+                                </td>
+                                <td><span class="badge severity-{{ r.severity_label|lower }}">{{ r.severity }}</span>
+                                </td>
+                                <td>{{ r.resolution.replace('_', ' ')|capitalize if r.resolution else "—" }}</td>
+                                <td><a href="/web/v1/alerts/{{ r.id }}" class="btn btn-sm btn-outline-primary">View</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                        {% if related_pages > 1 %}
+                        <nav class="mt-3">
+                            <ul class="pagination pagination-sm">
+                                {% for p in range(1, related_pages + 1) %}
+                                <li class="page-item {% if p == related_page %}active{% endif %}">
+                                    <a class="page-link"
+                                       href="/web/v1/alerts/{{ alert.id }}?page={{ p }}#related-by-agent">{{ p }}</a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </nav>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
+            {% else %}
+            <p class="text-muted">No related alerts by agent found.</p>
+            {% endif %}
+        </div>
+
+        <!-- Related by Message -->
+        <div class="tab-pane fade" id="related-by-message" role="tabpanel">
+            {% if related_alerts_by_message %}
+            <div class="card border border-secondary bg-dark">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover table-sm tactical-table mb-0">
+                            <thead class="tactical-table-header">
+                            <tr>
+                                <th>ID</th>
+                                <th>Created</th>
+                                <th>Message</th>
+                                <th>Status</th>
+                                <th>Severity</th>
+                                <th>Resolution</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for r in related_alerts_by_message %}
+                            <tr>
+                                <td>#{{ r.id }}</td>
+                                <td>{{ r.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
+                                <td>
+                                    <div class="fw-bold">{{ r.message[:60] or "—" }}</div>
+                                    <small class="text-muted">Agent: {{ r.parsed_agent }}</small>
+                                </td>
+                                <td><span class="badge status-{{ r.status|replace('_', '-') }}">{{ r.status.replace('_', ' ')|capitalize }}</span>
+                                </td>
+                                <td><span class="badge severity-{{ r.severity_label|lower }}">{{ r.severity }}</span>
+                                </td>
+                                <td>{{ r.resolution.replace('_', ' ')|capitalize if r.resolution else "—" }}</td>
+                                <td><a href="/web/v1/alerts/{{ r.id }}" class="btn btn-sm btn-outline-primary">View</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                        {% if related_pages_msg > 1 %}
+                        <nav class="mt-3">
+                            <ul class="pagination pagination-sm">
+                                {% for p in range(1, related_pages_msg + 1) %}
+                                <li class="page-item {% if p == related_page_msg %}active{% endif %}">
+                                    <a class="page-link"
+                                       href="/web/v1/alerts/{{ alert.id }}?message_page={{ p }}#related-by-message">{{ p
+                                        }}</a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </nav>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <p class="text-muted">No related alerts by message found.</p>
+            {% endif %}
         </div>
     </div>
-    {% else %}
-    <p class="text-muted">No related alerts found.</p>
-    {% endif %}
 </div>
+
 
 <!-- Edit Alert Modal -->
 <div class="modal fade" id="editAlertModal" tabindex="-1" aria-labelledby="editAlertModalLabel" aria-hidden="true">
@@ -246,14 +323,6 @@
 </div>
 
 <script>
-    function expandAll() {
-        document.querySelectorAll('.accordion-collapse').forEach(el => el.classList.add('show'));
-    }
-
-    function collapseAll() {
-        document.querySelectorAll('.accordion-collapse').forEach(el => el.classList.remove('show'));
-    }
-
     function highlightMatch(text, term) {
         const regex = new RegExp(`(${term})`, 'gi');
         return text.replace(regex, '<mark>$1</mark>');
@@ -272,30 +341,69 @@
             if (content.toLowerCase().includes(filter)) {
                 section.querySelector(".accordion-collapse")?.classList.add("show");
                 results.push(`<div class="mb-3">
-          <h6>${title}</h6>
-          <pre class="tactical-markdown-block"><code>${highlightMatch(content, filter)}</code></pre>
-        </div>`);
+                    <h6>${title}</h6>
+                    <pre class="tactical-markdown-block"><code>${highlightMatch(content, filter)}</code></pre>
+                </div>`);
             }
         });
 
         document.getElementById("searchResultsContent").innerHTML = results.length
-                ? results.join("")
-                : "<p class='tactical-muted'>No matches found.</p>";
+            ? results.join("")
+            : "<p class='tactical-muted'>No matches found.</p>";
 
         new bootstrap.Modal(document.getElementById("searchResultModal")).show();
     }
 
-    document.getElementById("alertSearchButton").addEventListener("click", runSearch);
-    document.getElementById("alertSearch").addEventListener("keypress", e => {
-        if (e.key === "Enter") runSearch();
-    });
-
-    document.addEventListener("click", e => {
-        if (e.target.classList.contains("copyable-json")) {
-            navigator.clipboard.writeText(e.target.innerText).then(() => {
-                new bootstrap.Toast(document.getElementById('copyToast')).show();
-            });
+    document.addEventListener("DOMContentLoaded", function () {
+        // === Main alert tab memory ===
+        const mainHash = window.location.hash;
+        if (mainHash) {
+            const mainTabTrigger = document.querySelector(`.nav-tabs .nav-link[href="${mainHash}"]`);
+            if (mainTabTrigger) new bootstrap.Tab(mainTabTrigger).show();
         }
+
+        document.querySelectorAll('.nav-tabs .nav-link').forEach(tab => {
+            tab.addEventListener('shown.bs.tab', function (e) {
+                const hash = e.target.getAttribute('href');
+                // Only update hash if not inside relatedTabs
+                if (hash && !e.target.closest('#relatedTabs')) {
+                    history.replaceState(null, null, hash);
+                }
+            });
+        });
+
+        // === Related tab memory using localStorage ===
+        const activeRelatedTab = localStorage.getItem("related-tab");
+        if (activeRelatedTab) {
+            const trigger = document.querySelector(`#relatedTabs a[href="${activeRelatedTab}"]`);
+            if (trigger) new bootstrap.Tab(trigger).show();
+        } else {
+            const firstRelatedTab = document.querySelector('#relatedTabs a.nav-link');
+            if (firstRelatedTab) new bootstrap.Tab(firstRelatedTab).show();
+        }
+
+        document.querySelectorAll('#relatedTabs .nav-link').forEach(el => {
+            el.addEventListener("shown.bs.tab", e => {
+                const tabId = e.target.getAttribute("href");
+                localStorage.setItem("related-tab", tabId);
+            });
+        });
+
+        // === Clipboard Copy Feedback ===
+        document.addEventListener("click", e => {
+            if (e.target.classList.contains("copyable-json")) {
+                navigator.clipboard.writeText(e.target.innerText).then(() => {
+                    new bootstrap.Toast(document.getElementById("copyToast")).show();
+                });
+            }
+        });
+
+        // === Search Input Events ===
+        document.getElementById("alertSearchButton")?.addEventListener("click", runSearch);
+        document.getElementById("alertSearch")?.addEventListener("keypress", e => {
+            if (e.key === "Enter") runSearch();
+        });
     });
 </script>
+
 {% endblock %}
