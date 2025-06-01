@@ -16,7 +16,7 @@ Template
 ### Fixed
 ```
 
-## [0.1.2] - 2025-06-01
+## [v0.1.2] - 2025-06-01
 ### Added
 - Added version modal and check in navigation header
 
@@ -25,7 +25,7 @@ Template
 ### Fixed
 
 
-## [0.1.1] - 2025-06-01
+## [v0.1.1] - 2025-06-01
 ### Added
 - New alert category view with severity-aware badge styling
 - Separate webhook-only application (`webhook_app.py`) with standalone startup/stop scripts
