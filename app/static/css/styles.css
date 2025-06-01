@@ -304,29 +304,31 @@ tr.selected-row {
 
 /* Badges */
 .severity-critical {
-    background-color: #b91c1c;
+    background-color: #800080; /* Purple */
     color: white;
 }
 
 .severity-high {
-    background-color: #dc3545;
+    background-color: #dc3545; /* Red */
     color: white;
 }
 
 .severity-medium {
-    background-color: #fd7e14;
-    color: white;
+    background-color: #fdc107; /* Yellow */
+    color: black;
 }
 
 .severity-low {
-    background-color: #198754;
+    background-color: #198754; /* Green */
     color: white;
 }
 
+.severity-info,
 .severity-informational {
-    background-color: #6c757d;
+    background-color: #6c757d; /* Gray */
     color: white;
 }
+
 
 .status-new {
     background-color: #6c757d;

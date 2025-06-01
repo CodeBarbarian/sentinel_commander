@@ -17,7 +17,7 @@ from app.api import users
 from app.api import publisher
 
 # Alerts View
-from app.web.alerts import alerts_view, alerts_detail_view
+from app.web.alerts import alerts_view, alerts_detail_view, alerts_categories_view
 
 # Dashboard view
 from app.web.dashboard import dashboard_view
@@ -94,8 +94,10 @@ app.include_router(sentineliq_publisher_view.router, prefix="/web/v1", tags=["Se
 app.include_router(dashboard_view.router, prefix="/web/v1", tags=["Dashboard"])
 
 # Alerts
+app.include_router(alerts_categories_view.router, prefix="/web/v1", tags=["Alerts"])
 app.include_router(alerts_view.router, prefix="/web/v1", tags=["Alerts"])
 app.include_router(alerts_detail_view.router, prefix="/web/v1", tags=["Alerts"])
+
 
 # Sources
 app.include_router(sources_view.router, prefix="/web/v1", tags=["Sources"])

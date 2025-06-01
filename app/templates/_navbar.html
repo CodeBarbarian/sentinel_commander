@@ -27,10 +27,20 @@
                 </li>
 
                 <!-- Alerts Dropdown -->
-                <li class="nav-item">
-                    <a class="nav-link {% if request.url.path.startswith('/web/v1/alerts') %}active{% endif %}"
-                       href="/web/v1/alerts">Alerts</a>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle {% if request.url.path.startswith('/web/v1/alerts') %}active{% endif %}"
+                       href="#" id="alertsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Alerts
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="alertsDropdown">
+                        <li><a class="dropdown-item {% if request.url.path == '/web/v1/alerts' %}active{% endif %}"
+                               href="/web/v1/alerts">All Alerts</a></li>
+                        <li>
+                            <a class="dropdown-item {% if request.url.path.startswith('/web/v1/alerts/category') %}active{% endif %}"
+                               href="/web/v1/alerts/category">By Category</a></li>
+                    </ul>
                 </li>
+
 
                 <!-- IRDB Dropdown -->
                 <li class="nav-item dropdown">

@@ -1,0 +1,109 @@
+{% extends "_design.html" %}
+{% block title %}Alerts - Category: {{ category }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="tactical-heading mb-0">Alerts in Category: <span class="tactical-code">{{ category }}</span></h4>
+    <div class="d-flex gap-md">
+      <a href="/web/v1/alerts/category" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Alert Categories
+      </a>
+      {% if show_all %}
+      <a href="/web/v1/alerts/category/{{ category }}" class="btn btn-sm btn-outline-primary">
+        Show Only New / In Progress
+      </a>
+      {% else %}
+      <a href="/web/v1/alerts/category/{{ category }}/all" class="btn btn-sm btn-outline-info">
+        Show All Alerts in This Category
+      </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="tactical-note-card">
+    {% if alerts %}
+    <div class="table-responsive">
+      <table class="tactical-table table-hover">
+        <thead class="tactical-table-header">
+          <tr>
+            <th>ID</th>
+            <th>Agent</th>
+            <th>Message</th>
+            <th>Severity</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th>View</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for alert in alerts %}
+          <tr class="{{ 'tactical-table-row' if loop.index is even else 'tactical-table-row-alt' }}">
+            <td>{{ alert.id }}</td>
+            <td>{{ alert.parsed_agent or "—" }}</td>
+            <td>
+                {{ alert.parsed_message or "—" }}
+            </td>
+            <td>
+              <span class="badge
+                {% if alert.severity >= 10 %}severity-critical
+                {% elif alert.severity >= 8 %}severity-high
+                {% elif alert.severity >= 5 %}severity-medium
+                {% elif alert.severity >= 1 %}severity-low
+                {% else %}severity-informational{% endif %}">
+                {{ alert.severity or "—" }}
+              </span>
+            </td>
+            <td>
+              <span class="badge status-{{ alert.status.replace('_', '-') | lower }}">
+                {{ alert.status.replace('_', ' ').title() }}
+              </span>
+            </td>
+            <td>{{ alert.created_at.strftime('%Y-%m-%d %H:%M') if alert.created_at else "—" }}</td>
+            <td>
+              <a href="/web/v1/alerts/{{ alert.id }}" class="btn btn-sm btn-outline-primary">View</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+      {% set max_display = 10 %}
+      {% set half = max_display // 2 %}
+      {% set start_page = page - half if page - half > 1 else 1 %}
+      {% set end_page = start_page + max_display - 1 if start_page + max_display - 1 < pages else pages %}
+      {% if end_page - start_page < max_display %}
+      {% set start_page = end_page - max_display + 1 if end_page - max_display + 1 > 1 else 1 %}
+      {% endif %}
+
+      <div class="d-flex justify-content-between align-items-center mt-3">
+          <small class="text-muted">Total: {{ total }} alerts</small>
+          <nav>
+              <ul class="pagination pagination-sm mb-0">
+                  {% if page > 1 %}
+                  <li class="page-item"><a class="page-link" href="?page=1">&laquo; First</a></li>
+                  <li class="page-item"><a class="page-link" href="?page={{ page - 1 }}">&lsaquo; Prev</a></li>
+                  {% endif %}
+
+                  {% for p in range(start_page, end_page + 1) %}
+                  <li class="page-item {% if p == page %}active{% endif %}">
+                      <a class="page-link" href="?page={{ p }}">{{ p }}</a>
+                  </li>
+                  {% endfor %}
+
+                  {% if page < pages %}
+                  <li class="page-item"><a class="page-link" href="?page={{ page + 1 }}">Next &rsaquo;</a></li>
+                  <li class="page-item"><a class="page-link" href="?page={{ pages }}">Last &raquo;</a></li>
+                  {% endif %}
+              </ul>
+          </nav>
+      </div>
+
+      {% else %}
+    <p class="tactical-muted mt-3">No alerts found in this category.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
