@@ -63,7 +63,8 @@
                     </a>
                     <ul class="dropdown-menu dropdown-menu-dark">
                         <li><a class="dropdown-item" href="/web/v1/sentineliq/triage">SentinelIQ - Triage</a></li>
-                        <li><a class="dropdown-item" href="/web/v1/sentineliq/search/advanced">SentinelIQ - Search</a></li>
+                        <li><a class="dropdown-item" href="/web/v1/sentineliq/search/advanced">SentinelIQ - Search</a>
+                        </li>
                         <li><a class="dropdown-item" href="/web/v1/sentineliq/publisher">SentinelIQ - Publisher</a></li>
                     </ul>
                 </li>
@@ -81,13 +82,16 @@
             <div class="navbar-text text-light small me-3" id="currentTime">
                 🕒 --
             </div>
-<!-- App Version -->
-<div class="navbar-text text-light small me-3">
-    🛠 v{{ request.state.version }}
-    {% if request.state.version_outdated %}
-        <span class="badge bg-danger ms-1">Update Available</span>
-    {% endif %}
-</div>
+            <!-- App Version -->
+            <div class="navbar-text text-light small me-3">
+                🛠 v{{ request.state.version }}
+                {% if request.state.version_outdated %}
+                <span class="badge bg-danger ms-1" role="button" data-bs-toggle="modal" data-bs-target="#updateModal">
+      Update Available
+    </span>
+                {% endif %}
+            </div>
+
         </div>
         <!-- User Profile Dropdown -->
         {% if request.session.user %}

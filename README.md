@@ -40,7 +40,7 @@
 
 ---
 
-## 🚀 Getting Started
+## Installation
 
 ### 1. Clone the Repository
 ```bash
@@ -61,6 +61,30 @@ uvicorn app.main:app --reload
 #### 3.2 Production
 Use the scripts as provided in the ```scripts``` directory.
 
+## Updating
+### 1. Stop the services
+Stop Sentinel
+```bash
+./scripts/stop_sentinel.sh
+```
+Stop Webhook (Sometimes not needed)
+```bash
+./scripts/stop_webhook.sh
+```
+### 2. Pull the new source
+```bash
+git pull
+```
+
+### 3. Start all services
+Start Sentinel
+```bash
+./scripts/start_sentinel.sh
+```
+Start Webhook (If not already running)
+```bash
+./scripts/start_webhook.sh
+```
 ## Project Structure
 ```bash
 /app

@@ -6,13 +6,24 @@ This project will adheres to [Semantic Versioning](https://semver.org/spec/v2.0.
 > 🚨 **Note:** Sentinel Commander is in **early alpha**. Breaking changes may occur at any time without notice.
 
 ---
-
+Template
+```bash
 ## [Unreleased]
 ### Added
 
 ### Changed
 
 ### Fixed
+```
+
+## [0.1.2] - 2025-06-01
+### Added
+- Added version modal and check in navigation header
+
+### Changed
+- Updated README to also include update instructions
+### Fixed
+
 
 ## [0.1.1] - 2025-06-01
 ### Added
