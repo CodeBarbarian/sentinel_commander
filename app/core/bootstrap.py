@@ -24,9 +24,9 @@ def ensure_internal_source():
         )
         db.add(internal)
         db.commit()
-        print(f"[+] Internal testing source created. API Key: {internal.api_key}")
+        print(f"[+] Default source created. API Key: {internal.api_key}")
     else:
-        print("[✓] Internal testing source already exists.")
+        print("[✓] Default source already exists.")
     db.close()
 
 from sqlalchemy.orm import Session

@@ -4,10 +4,11 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from app.core.log_config import setup_logging
 from app.core.database import Base, engine
+from app.core.version import get_local_version, is_version_outdated
 
 # API's
 from app.api import alerts
-from app.api import webhook
+#from app.api import webhook
 from app.api import sources
 from app.api import settings_parser
 from app.api import parsers
@@ -70,10 +71,7 @@ init_data()
 app = FastAPI(title="Sentinel IR")
 app.add_middleware(SessionMiddleware, secret_key="CHANGE_ME_TO_SOMETHING_RANDOM")
 # Webhook / Main Entrypoint for alerts
-app.include_router(webhook.router, tags=["Webhook"])
-
-
-
+#app.include_router(webhook.router, tags=["Webhook"])
 
 
 # API's
@@ -153,3 +151,10 @@ async def root_redirect(request: Request):
     if request.session.get("user_id"):
         return RedirectResponse(url="/web/v1/dashboard")
     return RedirectResponse(url="/web/v1/login")
+
+@app.middleware("http")
+async def add_version_to_request(request: Request, call_next):
+    request.state.version = get_local_version()
+    request.state.version_outdated = is_version_outdated()
+    response = await call_next(request)
+    return response

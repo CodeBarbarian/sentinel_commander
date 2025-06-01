@@ -81,7 +81,13 @@
             <div class="navbar-text text-light small me-3" id="currentTime">
                 🕒 --
             </div>
-
+<!-- App Version -->
+<div class="navbar-text text-light small me-3">
+    🛠 v{{ request.state.version }}
+    {% if request.state.version_outdated %}
+        <span class="badge bg-danger ms-1">Update Available</span>
+    {% endif %}
+</div>
         </div>
         <!-- User Profile Dropdown -->
         {% if request.session.user %}

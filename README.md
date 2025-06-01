@@ -1,82 +1,81 @@
 # Sentinel Commander
+
 > ⚠️ **Early Alpha Notice**  
-> Sentinel Commander is currently in early alpha. While many core features are functional and actively in use, the platform is under continuous development. Expect frequent changes, improvements, and new modules.   
+> Sentinel Commander is currently in early alpha. While many core features are functional and actively used, the platform is under continuous development. Expect rapid iteration, breaking changes, and new modules arriving frequently.
 
-**Sentinel Commander** is a modular, open-source platform for cyber security alert triage, case management, and response orchestration. Designed for modern Security Operations Centers (SOCs), it provides a structured, intuitive interface to track alerts, manage incidents, document findings, and automate triage workflows.
-
----
-
-## 🚀 Key Features
-
-- **Modular Architecture**: Sentinel Commander is organized into logical modules: Alerts, Cases, Playbooks, Sources, Assets, and more.
-- **Alert Ingestion & Triage**:
-  - Supports webhook ingestion from SIEMs (e.g., Wazuh) via unique GUID endpoints
-  - YAML-based parsers for dynamic field mapping and enrichment
-  - Advanced filtering, bulk actions, and tagging in the UI
-- **Case Management**:
-  - Full incident tracking with Summary, Tasks, IOCs, Notes, Timeline, Evidence, Connected Alerts
-  - Optional playbook integration per case
-- **Data Enrichment**:
-  - Tagging, resolution status, severity mapping, parser-driven field expansion
-  - Integration-ready for tools like MISP, OpenCTI, and Velociraptor
-- **UI & UX**:
-  - Responsive Bootstrap frontend with dark/light mode support
-  - Dynamic filtering and bulk editing using modals
-  - RESTful API-first design
+**Sentinel Commander** is a modular, open-source platform for cybersecurity alert triage, case management, and response orchestration. Built for modern Security Operations Centers (SOCs), it helps analysts investigate, document, and respond to threats with structure and flexibility.
 
 ---
 
-## 🧩 Module Overview
+## Top 5 Features
 
-| Module         | Description                                                                 |
-|----------------|-----------------------------------------------------------------------------|
-| `Alerts`       | Central alert triage with parser-driven detail views, filters, bulk actions |
-| `Cases`        | Incident handling hub with customizable workflows and linked data           |
-| `Sources`      | Manage and monitor alert sources with unique webhook keys                   |
-| `Parser Sandbox` | Upload and test YAML parsers against raw alert payloads                   |
-| `Settings`     | Manage field display settings, parser files, and system options             |
-| `Assets`       | Global and case-specific asset tracking and classification                  |
-| `IRDB`         | Knowledge base for Indicators, TTPs, and Playbooks                          |
+1. **Alert Ingestion via Webhooks**
+   - Accept alerts from any external system (e.g., Wazuh) using unique GUID-based webhook endpoints with API key validation.
+   
+2. **YAML-Based Parsing Engine**
+   - Dynamic field mapping and enrichment through editable YAML parser files. Enables structured alert triage, classification, and display customization.
+
+3. **Full-Stack Case Management**
+   - Create structured incidents with tabs for Summary, Notes, Tasks, IOCs, Timeline, Evidence, and connected alerts. Supports tagging, severity mapping, and closing workflows.
+
+4. **Triage-Centric UI**
+   - Fast, filterable alert views with bulk actions, tagging, and severity badges. Modals for resolution editing, triage workflows, and parser previews.
+
+5. **Parser Sandbox** - (Currently disabled)
+   - Upload and test YAML parsers directly in the UI. Validate enrichment logic before applying to production data.
 
 ---
 
-## 🛠️ Getting Started
+## Module Overview
 
-1. **Clone the repository**
+| Module            | Description                                                                 |
+|-------------------|-----------------------------------------------------------------------------|
+| `Alerts`          | Parser-enhanced triage dashboard with filters, bulk actions, and severity logic |
+| `Cases`           | Central incident tracking with linked alerts, tasks, IOCs, and evidence     |
+| `Sources`         | Manage alert source integrations and monitor API usage via GUID webhooks   |
+| `Parser Sandbox`  | Upload and validate YAML parsers for field mapping and enrichment           |
+| `Settings`        | Manage visible fields, YAML files, and system-wide configuration            |
+| `Assets`          | Track assets globally or link them to individual cases                      |
+| `IRDB`            | Internal reference DB for Indicators, TTPs, and response playbooks          |
 
+---
+
+## 🚀 Getting Started
+
+### 1. Clone the Repository
 ```bash
 git clone https://github.com/codebarbarian/sentinel_commander.git
-cd sentinel-commander
+cd sentinel_commander
 ```
 
-2. **Install requirements**
+### 2. Install dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-3. **Start the application**
+### 3. Run the application
+#### 3.1 Development
 ```bash
 uvicorn app.main:app --reload
 ```
+#### 3.2 Production
+Use the scripts as provided in the ```scripts``` directory.
 
 ## Project Structure
 ```bash
 /app
-├── api/                # FastAPI route handlers
-│   ├── alerts.py
-│   ├── cases.py
-│   ├── sources.py
-│   └── ...
-├── core/               # DB config, utility functions
-├── models/             # SQLAlchemy models
-├── schemas/            # Pydantic schemas
-├── parsers/            # YAML parser config files
-├── web/                # Web UI controllers
-│   ├── alerts_view.py
-│   ├── cases_view.py
-│   ├── ...
-└── templates/          # HTML templates and partials
+├── api/                # FastAPI route handlers for backend APIs
+├── core/               # DB, logging, bootstrap logic
+├── models/             # SQLAlchemy ORM models
+├── schemas/            # Pydantic request/response schemas
+├── webhook/            # Isolated webhook listener
+├── parsers/            # YAML parser files for alert enrichment
+├── web/                # UI route controllers (alerts, cases, etc.)
+└── templates/          # Jinja2 templates (Bootstrap layout)
 ```
 
-## Contribution
-We welcome contributions! Please fork the repo and open a PR. If you're implementing a new module, try to match the existing design and folder structure. Tests and YAML examples are appreciated.
+## Contributing
+We welcome contributions!
+Please fork the repo and open a pull request. If you're adding a new module, try to match the existing structure and styling. YAML parser examples, test coverage, and UI improvements are always appreciated.
+
+Sentinel Commander is proudly open-source. Built for teams who need control, transparency, and full ownership over their security workflows.

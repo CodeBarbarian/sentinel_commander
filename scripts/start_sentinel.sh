@@ -5,10 +5,10 @@
 
 APP_MODULE="app.main:app"
 HOST="0.0.0.0"
-PORT="8000"
+PORT="80"
 WORKERS=4
 LOG_LEVEL="info"
-LOG_DIR="logs"
+LOG_DIR="logs/sentinel"
 
 # Create log directory if it doesn't exist
 mkdir -p "$LOG_DIR"
@@ -17,13 +17,13 @@ mkdir -p "$LOG_DIR"
 STARTUP_LOG="$LOG_DIR/startup_$(date +%Y%m%d_%H%M%S).log"
 
 echo "Launching Sentinel Commander via Gunicorn with $WORKERS Uvicorn workers..."
-echo "Logs: $LOG_DIR/gunicorn.log, $LOG_DIR/access.log"
+echo "Logs: $LOG_DIR/sentinel_gunicorn.log, $LOG_DIR/sentinel_access.log"
 
 nohup gunicorn "$APP_MODULE" \
   --worker-class uvicorn.workers.UvicornWorker \
   --bind "$HOST:$PORT" \
   --workers "$WORKERS" \
   --log-level "$LOG_LEVEL" \
-  --access-logfile "$LOG_DIR/access.log" \
-  --error-logfile "$LOG_DIR/gunicorn.log" \
+  --access-logfile "$LOG_DIR/sentinel_access.log" \
+  --error-logfile "$LOG_DIR/sentinel_gunicorn.log" \
   >> "$STARTUP_LOG" 2>&1 &
