@@ -12,3 +12,5 @@ app = FastAPI(
     redoc_url=None,
     openapi_url="/openapi.json"
 )
+
+app.include_router(webhook.router, tags=["Webhook"])
