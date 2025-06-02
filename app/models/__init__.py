@@ -15,11 +15,13 @@ from .iocs import IOC
 from .publisher import PublisherList, PublisherEntry
 from .saved_search import SavedSearch
 from .module import Module
+from .customer_detail import CustomerDetail
 __all__ = [
     "Case",
     "User",
     "Alert",
     "Customer",
+    "CustomerDetail",
     "CaseNote",
     "Source",
     "CaseTag",
