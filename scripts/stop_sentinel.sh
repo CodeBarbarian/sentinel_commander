@@ -1,5 +1,5 @@
 #!/bin/bash
-
+cd "$(dirname "$0")/.." || exit 1
 # Sentinel Commander - Stop Script
 # This script finds and terminates the Gunicorn process running Sentinel Commander.
 

@@ -15,6 +15,12 @@ Template
 
 ### Fixed
 ```
+## [Unreleased]
+### Added
+
+### Changed
+- Updated scripts/* due to directory structure changes
+### Fixed
 
 ## [v0.1.2] - 2025-06-01
 ### Added

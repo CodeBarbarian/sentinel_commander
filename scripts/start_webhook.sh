@@ -1,5 +1,5 @@
 #!/bin/bash
-
+cd "$(dirname "$0")/.." || exit 1
 # Sentinel Commander - Webhook Service Startup Script
 # This script runs the webhook listener separately with logs.
 

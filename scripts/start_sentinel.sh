@@ -1,5 +1,5 @@
 #!/bin/bash
-
+cd "$(dirname "$0")/.." || exit 1
 # Sentinel Commander - Production Startup Script with Gunicorn + Uvicorn Workers + Logging
 # This script runs the app in the background with separate log files.
 
