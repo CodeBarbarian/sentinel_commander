@@ -3,7 +3,7 @@ cd "$(dirname "$0")/.." || exit 1
 # Sentinel Commander - Stop Webhook Script
 # This script finds and terminates the Gunicorn process running the webhook handler.
 
-APP_MODULE="webhook_app:app"
+APP_MODULE="app.webhook_app:app"
 
 echo "Stopping Sentinel Webhook Service..."
 
