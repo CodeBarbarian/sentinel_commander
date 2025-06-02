@@ -30,6 +30,7 @@ from app.web.sources import sources_view
 from app.web.settings import settings_view
 from app.web.settings import settings_yaml_view
 from app.web.modules import modules_view
+from app.web.modules import maxmind_module
 
 # Cases Views
 from app.web.cases import cases_view
@@ -108,6 +109,7 @@ app.include_router(assets_view.router, prefix="/web/v1", tags=["Assets"])
 app.include_router(iocs_view.router, prefix="/web/v1", tags=["IOCs"])
 
 # Settings
+app.include_router(maxmind_module.router, prefix="/web/v1", tags=["Settings"])
 app.include_router(settings_view.router, prefix="/web/v1", tags=["Settings"])
 app.include_router(settings_yaml_view.router, prefix="/web/v1", tags=["Settings"])
 app.include_router(modules_view.router, prefix="/web/v1", tags=["Settings"])

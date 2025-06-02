@@ -1,6 +1,6 @@
 import re
 from collections import OrderedDict
-from app.utils.geoip import lookup_country
+from app.web.modules.maxmind_module import lookup_country
 def extract_from_path(data, path):
     try:
         parts = re.split(r'\.(?![^\[]*\])', path)
