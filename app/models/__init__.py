@@ -13,7 +13,8 @@ from .case_playbooks import CasePlaybook
 from .playbooks import Playbook
 from .iocs import IOC
 from .publisher import PublisherList, PublisherEntry
-
+from .saved_search import SavedSearch
+from .module import Module
 __all__ = [
     "Case",
     "User",
@@ -31,5 +32,6 @@ __all__ = [
     "IOC",
     "publisher",
     "PublisherList",
-
+    "SavedSearch",
+    "Module"
 ]

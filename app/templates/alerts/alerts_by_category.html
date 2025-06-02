@@ -47,9 +47,9 @@
             </td>
             <td>
               <span class="badge
-                {% if alert.severity >= 10 %}severity-critical
-                {% elif alert.severity >= 8 %}severity-high
-                {% elif alert.severity >= 5 %}severity-medium
+                {% if alert.severity >= 15 %}severity-critical
+                {% elif alert.severity >= 12 %}severity-high
+                {% elif alert.severity >= 7 %}severity-medium
                 {% elif alert.severity >= 1 %}severity-low
                 {% else %}severity-informational{% endif %}">
                 {{ alert.severity or "—" }}

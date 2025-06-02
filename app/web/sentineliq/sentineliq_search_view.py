@@ -15,7 +15,8 @@ from fastapi.templating import Jinja2Templates
 import json
 from datetime import datetime
 import re
-
+from app.models.saved_search import SavedSearch
+from fastapi import Form
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
@@ -252,7 +253,35 @@ def sentineliq_search(
     })
 
 @router.get("/sentineliq/search/advanced", response_class=HTMLResponse)
-def sentineliq_advanced_search(request: Request, user=Depends(auth.get_current_user)):
+def sentineliq_advanced_search(request: Request, db: Session = Depends(get_db), user=Depends(auth.get_current_user)):
+    saved_searches = db.query(SavedSearch).order_by(SavedSearch.created_at.desc()).limit(20).all()
     return templates.TemplateResponse("sentineliq_search/sentineliq_search_advanced.html", {
-        "request": request
+        "request": request,
+        "saved_searches": saved_searches
     })
+
+@router.post("/sentineliq/save_search", response_class=HTMLResponse)
+def save_search(
+    name: str = Form(...),
+    query_string: str = Form(...),
+    db: Session = Depends(get_db),
+    user=Depends(auth.get_current_user)
+):
+    db.add(SavedSearch(name=name, query_string=query_string))
+    db.commit()
+    return HTMLResponse('<script>window.location.href="/web/v1/sentineliq/search/advanced";</script>')
+
+from fastapi.responses import JSONResponse
+
+@router.delete("/sentineliq/search/saved/{search_id}")
+def delete_saved_search(
+    search_id: int,
+    db: Session = Depends(get_db),
+    user=Depends(auth.get_current_user)
+):
+    saved = db.query(SavedSearch).filter(SavedSearch.id == search_id).first()
+    if not saved:
+        return JSONResponse(status_code=404, content={"detail": "Search not found"})
+    db.delete(saved)
+    db.commit()
+    return {"status": "deleted"}

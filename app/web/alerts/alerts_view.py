@@ -63,6 +63,7 @@ def list_alerts_view(
     end_event_time: Optional[str] = Query(None),
     raw_alert_id: Optional[str] = Query(None, alias="alert_id"),
     severity: Optional[str] = Query(None),
+    resolution: Optional[str] = Query(None),
     user=Depends(auth.get_current_user)
 ):
     offset = (page - 1) * limit
@@ -78,11 +79,15 @@ def list_alerts_view(
     if source:
         query = query.filter(Alert.source == source)
 
+    if resolution:
+        resolution_values = [r.strip() for r in resolution.split(",") if r.strip()]
+        query = query.filter(Alert.resolution.in_(resolution_values))
+
     if status:
         status_values = [s.strip() for s in status.split(",") if s.strip()]
         query = query.filter(Alert.status.in_(status_values))
     else:
-        query = query.filter(Alert.status.in_(["new", "in_progress", "done"]))
+        query = query.filter(Alert.status.in_(["new", "in_progress"]))
 
     if tags:
         tag_values = [tag.strip() for tag in tags.split(",") if tag.strip()]
@@ -136,6 +141,7 @@ def list_alerts_view(
     query_dict = {
         "source": source,
         "status": status,
+        "resolution": resolution,
         "severity": severity,
         "limit": limit,
         "alert_id": raw_alert_id,

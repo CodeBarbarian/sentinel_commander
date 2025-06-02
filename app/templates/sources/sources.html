@@ -3,77 +3,110 @@
 
 {% block content %}
 <div class="card alert-card">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h5 class="tactical-heading mb-0">⚙️ Ingestion Sources</h5>
-    <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#createSourceModal">
-      <i class="bi bi-plus-circle"></i> New Source
-    </button>
-  </div>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="tactical-heading mb-0">⚙️ Ingestion Sources</h5>
+        <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#createSourceModal">
+            <i class="bi bi-plus-circle"></i> New Source
+        </button>
+    </div>
 
-  <p class="tactical-muted small mb-3">Total sources: {{ sources|length }}</p>
+    <p class="tactical-muted small mb-3">Total sources: {{ sources|length }}</p>
 
-  <div class="table-responsive">
-    <table class="tactical-table">
-      <thead>
-        <tr class="tactical-table-header">
-          <th>Display Name</th>
-          <th>Internal Name</th>
-          <th>GUID</th>
-          <th>API Key</th>
-          <th>Status</th>
-          <th class="text-end">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for source in sources %}
-        <tr class="{% if loop.index is even %}tactical-table-row{% else %}tactical-table-row-alt{% endif %} tactical-table-hover">
-          <td>{{ source.display_name }}</td>
-          <td>{{ source.name }}</td>
-          <td><code class="tactical-code">{{ source.guid }}</code></td>
-          <td>
-            <code class="tactical-code" style="cursor: pointer;" onclick="copyToClipboard('api-{{ source.guid }}')" id="api-{{ source.guid }}">
-              {{ source.api_key }}
-            </code>
-          </td>
-          <td>
+    <div class="table-responsive">
+        <table class="tactical-table">
+            <thead>
+            <tr class="tactical-table-header">
+                <th>Display Name</th>
+                <th>Internal Name</th>
+                <th>Customer Name</th>
+                <th>GUID</th>
+                <th>API Key</th>
+                <th>Status</th>
+                <th class="text-end">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for source in sources %}
+            <tr class="{% if loop.index is even %}tactical-table-row{% else %}tactical-table-row-alt{% endif %} tactical-table-hover">
+                <td>{{ source.display_name }}</td>
+                <td>{{ source.name }}</td>
+                <td>{{ source.customer.name if source.customer else '—' }}</td>
+                <td><code class="tactical-code">{{ source.guid }}</code></td>
+                <td>
+                    <code class="tactical-code" style="cursor: pointer;"
+                          onclick="copyToClipboard('api-{{ source.guid }}')" id="api-{{ source.guid }}">
+                        {{ source.api_key }}
+                    </code>
+                </td>
+                <td>
             <span class="badge {{ 'status-done' if source.is_active else 'status-new' }}">
               {{ 'Active' if source.is_active else 'Inactive' }}
             </span>
-          </td>
-          <td class="text-end">
-            <div class="d-flex justify-content-end gap-1">
-              <form method="post" action="/web/v1/sources/{{ source.guid }}/toggle">
-                <button class="btn btn-sm btn-outline-warning">Toggle</button>
-              </form>
-              <form method="post" action="/web/v1/sources/{{ source.guid }}/regenerate">
-                <button class="btn btn-sm btn-outline-info">New Key</button>
-              </form>
-              <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteSourceModal-{{ source.guid }}">
-                Delete
-              </button>
-            </div>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+                </td>
+                <td class="text-end">
+                    <div class="d-flex justify-content-end gap-1">
+                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
+                                data-bs-target="#editSourceModal-{{ source.guid }}">
+                            Edit
+                        </button>
+                        <form method="post" action="/web/v1/sources/{{ source.guid }}/toggle">
+                            <button class="btn btn-sm btn-outline-warning">Toggle</button>
+                        </form>
+                        <form method="post" action="/web/v1/sources/{{ source.guid }}/regenerate">
+                            <button class="btn btn-sm btn-outline-info">New Key</button>
+                        </form>
+                        <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal"
+                                data-bs-target="#deleteSourceModal-{{ source.guid }}">
+                            Delete
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
-
+{% for source in sources %}
+<div class="modal fade" id="editSourceModal-{{ source.guid }}" tabindex="-1"
+     aria-labelledby="editSourceLabel-{{ source.guid }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <form method="post" action="/web/v1/sources/{{ source.guid }}/update" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editSourceLabel-{{ source.guid }}">✏️ Edit Source</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="name-{{ source.guid }}" class="form-label">Internal Name</label>
+                    <input type="text" class="form-control" id="name-{{ source.guid }}" name="name"
+                           value="{{ source.name }}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="display_name-{{ source.guid }}" class="form-label">Display Name</label>
+                    <input type="text" class="form-control" id="display_name-{{ source.guid }}" name="display_name"
+                           value="{{ source.display_name }}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="customer-{{ source.guid }}" class="form-label">Customer</label>
+                    <select name="customer_id" class="form-select" id="customer-{{ source.guid }}">
+                        <option value="">— None —</option>
+                        {% for c in customers %}
+                        <option value="{{ c.id }}" {% if source.customer_id|string == c.id|string %}selected{% endif %}>
+                            {{ c.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-sm btn-success">💾 Save</button>
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endfor %}
 {% include "sources/_add_source_modal.html" %}
 {% include "sources/_delete_source_modal.html" %}
-
-<script>
-function copyToClipboard(id) {
-  const el = document.getElementById(id);
-  navigator.clipboard.writeText(el.textContent).then(() => {
-    el.classList.add("text-success");
-    el.innerText = "Copied!";
-    setTimeout(() => {
-      el.innerText = el.dataset.original || el.textContent;
-      el.classList.remove("text-success");
-    }, 1200);
-  });
-}
-</script>
 {% endblock %}

@@ -26,6 +26,9 @@
                 <td class="fw-semibold">{{ customer.name }}</td>
                 <td class="text-muted">{{ customer.description or "—" }}</td>
                 <td class="text-end">
+                    <a href="/web/v1/customers/{{ customer.id }}" class="btn btn-sm btn-outline-success me-1">
+                        View
+                    </a>
                     <button
                             type="button"
                             class="btn btn-sm btn-outline-primary me-1"

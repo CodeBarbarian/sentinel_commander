@@ -29,6 +29,7 @@ from app.web.sources import sources_view
 # Settings View
 from app.web.settings import settings_view
 from app.web.settings import settings_yaml_view
+from app.web.modules import modules_view
 
 # Cases Views
 from app.web.cases import cases_view
@@ -109,6 +110,8 @@ app.include_router(iocs_view.router, prefix="/web/v1", tags=["IOCs"])
 # Settings
 app.include_router(settings_view.router, prefix="/web/v1", tags=["Settings"])
 app.include_router(settings_yaml_view.router, prefix="/web/v1", tags=["Settings"])
+app.include_router(modules_view.router, prefix="/web/v1", tags=["Settings"])
+
 
 # Users
 app.include_router(users_view.router, prefix="/web/v1", tags=["Users"])

@@ -8,7 +8,10 @@ from app.core.database import get_db
 from app.models.iocs import IOC
 from fastapi.templating import Jinja2Templates
 from app.utils import auth
-
+from app.models.alert import Alert
+from app.models.case import Case
+from app.models.case_ioc import CaseIOC
+from app.models.publisher import PublisherList, PublisherEntry
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
@@ -61,6 +64,7 @@ def edit_ioc(
         db.commit()
     return RedirectResponse("/web/v1/iocs", status_code=302)
 
+
 @router.get("/iocs/{ioc_id}", response_class=HTMLResponse)
 def ioc_detail_view(
     request: Request,
@@ -82,12 +86,27 @@ def ioc_detail_view(
             "tags": i.tags,
         }
 
+    # Related alerts where IOC value is mentioned
+    alerts = db.query(Alert).filter(
+        Alert.message.ilike(f"%{ioc.value}%") |
+        Alert.source_payload.ilike(f"%{ioc.value}%")
+    ).order_by(Alert.created_at.desc()).limit(20).all()
+
+    # Related cases via CaseIOC linking
+    related_case_iocs = db.query(CaseIOC).filter(CaseIOC.global_ioc_id == ioc.id).all()
+    related_cases = [ci.case for ci in related_case_iocs if ci.case]  # Avoid None if orphaned
+
+    # Related SentinelIQ lists
+    lists = db.query(PublisherList).join(PublisherEntry).filter(PublisherEntry.value == ioc.value).all()
+
     return templates.TemplateResponse("iocs/iocs_detail.html", {
         "request": request,
         "ioc": ioc,
-        "ioc_json": serialize_ioc(ioc)
+        "ioc_json": serialize_ioc(ioc),
+        "linked_alerts": alerts,
+        "linked_cases": related_cases,
+        "linked_lists": lists,
     })
-
 @router.post("/iocs/{ioc_id}/edit")
 def update_ioc(
     ioc_id: int,

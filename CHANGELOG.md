@@ -15,6 +15,29 @@ Template
 
 ### Fixed
 ```
+
+## [v0.1.4] - 2025-06-02 - Production Ready for small environments
+### Added
+- Added saved search in SentinelIQ Search Module
+- Addded saved search modal and pydantic scheme
+- Added back the search bar within the alert details page
+- Added support for resolution search in alerts page
+- Added support for customer in sources
+- Added support for customer details
+- Added wireframe for operator dashboard -> dashboard/operator
+- Added wireframe for settings/modules
+- Added support for MaxMind GeoIP database for IP geolocation
+- Added wireframe for ioc enrichment
+### Changed
+- User profile now uses modal for edit user
+- User Role Admin for accessing settings/users -> Create, Delete Users, and view all users
+- Minor changes to the changelog
+### Fixed
+- Added date to dashboard graph "Alerts over time"
+- Minor fixes to the alert details page
+- Minor fixes to the iocs page
+
+
 ## [v0.1.3] - 2025-06-02
 ### Added
 - Triage All eligible alerts button
@@ -28,7 +51,6 @@ Template
 ## [v0.1.2] - 2025-06-01
 ### Added
 - Added version modal and check in navigation header
-
 ### Changed
 - Updated README to also include update instructions
 
@@ -41,7 +63,6 @@ Template
 - Category counters on the alert category index
 - Started using Semantic versioning
 - Added version checks
-
 ### Changed
 - Moved webhook router out of `main.py` for isolation
 - Updated navbar to support `Alerts → Categories` navigation
@@ -50,7 +71,6 @@ Template
   - High = Red
   - Medium = Yellow
   - Low = Green
-
 ### Fixed
 - Resolved full-row background bug in alert tables
 - Fixed unclosed `{% if %}` Jinja block that broke category view

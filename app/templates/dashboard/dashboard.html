@@ -3,7 +3,15 @@
 
 {% block content %}
 <div class="container-fluid tactical-dashboard mt-3">
-
+<!-- Dashboard Navigation -->
+<div class="d-flex justify-content-start align-items-center gap-3 mb-4">
+  <a href="/web/v1/dashboard" class="btn btn-sm btn-outline-primary {% if request.url.path.endswith('/dashboard') %}active{% endif %}">
+    Tactical Dashboard
+  </a>
+  <a href="/web/v1/dashboard/operator" class="btn btn-sm btn-outline-secondary {% if request.url.path.endswith('/dashboard/operator') %}active{% endif %}">
+    Operator Dashboard
+  </a>
+</div>
   <!-- Top Grid: Status Overview -->
   <div class="row g-3 mb-4">
     {% for card in [
@@ -82,7 +90,7 @@
     chart: {
       type: 'bar',
       height: 300,
-      toolbar: { show: false }
+      toolbar: { show: true }
     },
     series: [{
       name: "Alerts",
@@ -118,7 +126,7 @@
     chart: {
       type: 'line',
       height: 300,
-      toolbar: { show: false }
+      toolbar: { show: true }
     },
     series: [{
       name: "Alerts",

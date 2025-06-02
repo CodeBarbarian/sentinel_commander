@@ -57,7 +57,8 @@ def dashboard_view(request: Request, user=Depends(auth.get_current_user), db: Se
     for i in range(6, -1, -1):
         day = now.date() - timedelta(days=i)
         count = db.query(func.count(Alert.id)).filter(func.date(Alert.created_at) == day).scalar()
-        timeline_labels.append(day.strftime("%a"))
+        timeline_labels.append(day.strftime("%A (%d %b)"))
+#        timeline_labels.append(day.strftime("%a"))
         timeline_values.append(count)
 
     # Get latest 5 alerts
@@ -113,4 +114,22 @@ def dashboard_view(request: Request, user=Depends(auth.get_current_user), db: Se
         "recent_alerts": recent_alerts,
         "status_labels": status_labels,
         "status_values": status_values,
+    })
+
+@router.get("/dashboard/operator", response_class=HTMLResponse)
+def operator_dashboard_view(request: Request, user=Depends(auth.get_current_user), db: Session = Depends(get_db)):
+    # 🟥 Critical Alerts (severity == 15)
+    critical_alerts = db.query(func.count(Alert.id)).filter(Alert.severity == 15).scalar()
+
+    # 🟨 Open Alerts (status != 'done' / 'closed')
+    open_alerts = db.query(func.count(Alert.id)).filter(Alert.status.notin_(["done", "closed", "resolved"])).scalar()
+
+    # 🗂️ Open Cases (state != 'closed')
+    open_cases = db.query(func.count(Case.id)).filter(Case.state != "closed").scalar()
+
+    return templates.TemplateResponse("dashboard/dashboard_operator.html", {
+        "request": request,
+        "critical_alerts_count": critical_alerts,
+        "open_alerts_count": open_alerts,
+        "open_cases_count": open_cases,
     })

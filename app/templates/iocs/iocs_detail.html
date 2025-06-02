@@ -3,101 +3,180 @@
 
 {% block content %}
 <div class="container mt-4">
-  <h3 class="tactical-heading mb-3">🧪 IOC #{{ ioc.id }} - {{ ioc.value or "—" }}</h3>
-
-  <div class="d-flex justify-content-end mb-3">
-    <button class="btn btn-sm btn-outline-warning"
-            data-bs-toggle="modal"
-            data-bs-target="#editIocModal"
-            onclick="loadIocFromScriptTag()">
-      ✏️ Edit IOC
-    </button>
-  </div>
-
-  <div class="tactical-metadata-card">
-    <div class="row">
-      <div class="col-md-6">
-        <p><strong>Type:</strong> {{ ioc.type or "—" }}</p>
-        <p><strong>Value:</strong> {{ ioc.value or "—" }}</p>
-        <p><strong>Source:</strong> {{ ioc.source or "—" }}</p>
-      </div>
-      <div class="col-md-6">
-        <p><strong>Tags:</strong>
-          {% if ioc.tags %}
-            {% for tag in ioc.tags.split(",") %}
-              <span class="badge bg-secondary me-1">{{ tag.strip() }}</span>
-            {% endfor %}
-          {% else %}
-            <span class="text-muted">None</span>
-          {% endif %}
-        </p>
-        <p><strong>Description:</strong><br>
-          <span class="text-muted">{{ ioc.description or "No description available." }}</span>
-        </p>
-        <p><strong>Created At:</strong> {{ ioc.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
-      </div>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="tactical-heading mb-0">🧪 IOC #{{ ioc.id }} - {{ ioc.value or "—" }}</h4>
+        <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#editIocModal"
+                onclick="loadIocFromScriptTag()">✏️ Edit IOC
+        </button>
     </div>
-  </div>
+
+    <div class="tactical-metadata-card mb-4">
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>Type:</strong> {{ ioc.type or "—" }}</p>
+                <p><strong>Value:</strong> {{ ioc.value or "—" }}</p>
+                <p><strong>Source:</strong> {{ ioc.source or "—" }}</p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>Tags:</strong>
+                    {% if ioc.tags %}
+                    {% for tag in ioc.tags.split(",") %}
+                    <span class="badge bg-secondary me-1">{{ tag.strip() }}</span>
+                    {% endfor %}
+                    {% else %}
+                    <span class="tactical-muted">None</span>
+                    {% endif %}
+                </p>
+                <p><strong>Description:</strong><br>
+                    <span class="tactical-muted">{{ ioc.description or "No description available." }}</span>
+                </p>
+                <p><strong>Created At:</strong> {{ ioc.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Linked Entities Tabs -->
+    <ul class="nav nav-tabs mt-4" id="iocTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="alerts-tab" data-bs-toggle="tab" data-bs-target="#alerts" type="button"
+                    role="tab">🔔 Alerts
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="cases-tab" data-bs-toggle="tab" data-bs-target="#cases" type="button"
+                    role="tab">📁 Cases
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="lists-tab" data-bs-toggle="tab" data-bs-target="#lists" type="button"
+                    role="tab">📚 Lists
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content tactical-note-card" id="iocTabContent">
+        <!-- Alerts -->
+        <div class="tab-pane fade show active p-3" id="alerts" role="tabpanel">
+            {% if linked_alerts %}
+            <ul class="list-group">
+                {% for alert in linked_alerts %}
+                <li class="list-group-item tactical-table-row tactical-table-hover d-flex justify-content-between align-items-center">
+
+                    <div>
+                        <div class="text-light fw-semibold">
+                            <span class="text-danger">#{{ alert.id }}</span> – {{ alert.message or "No message" }}
+                        </div>
+                        <div class="tactical-muted small">Source: {{ alert.source }} | {{
+                            alert.created_at.strftime('%Y-%m-%d') }}
+                        </div>
+                    </div>
+                    <a href="/web/v1/alerts/{{ alert.id }}" class="btn btn-sm btn-outline-primary">View</a>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="tactical-muted">No alerts associated with this IOC.</p>
+            {% endif %}
+        </div>
+
+        <!-- Cases -->
+        <div class="tab-pane fade p-3" id="cases" role="tabpanel">
+            {% if linked_cases %}
+            <ul class="list-group">
+                {% for case in linked_cases %}
+                <li class="list-group-item tactical-table-row tactical-table-hover d-flex justify-content-between align-items-center">
+
+                    <div>
+                        <div class="text-light fw-semibold">
+                            <span class="text-warning">#{{ case.id }}</span> – {{ case.title or "Untitled" }}
+                        </div>
+                        <div class="tactical-muted small">{{ case.classification or "No classification" }}</div>
+                    </div>
+                    <a href="/web/v1/cases/{{ case.id }}" class="btn btn-sm btn-outline-primary">View</a>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="tactical-muted">No cases associated with this IOC.</p>
+            {% endif %}
+        </div>
+
+        <!-- Lists -->
+        <div class="tab-pane fade p-3" id="lists" role="tabpanel">
+            {% if linked_lists %}
+            <ul class="list-group">
+                {% for list in linked_lists %}
+                <li class="list-group-item tactical-table-row tactical-table-hover d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-light fw-semibold">
+  <span class="text-info">{{ list.name }}</span> – <span class="text-muted text-uppercase small">{{ list.list_type or "Custom" }}</span>
+</div>
+                        <div class="tactical-muted small">{{ list.description or "No description" }}</div>
+                    </div>
+                    <a href="/web/v1/sentineliq/publisher/{{ list.id }}" class="btn btn-sm btn-outline-primary">View</a>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="tactical-muted">This IOC is not in any SentinelIQ list.</p>
+            {% endif %}
+        </div>
+    </div>
 </div>
 
-<!-- Edit Modal -->
+<!-- Edit IOC Modal -->
 <div class="modal fade" id="editIocModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-scrollable">
-    <div class="modal-content">
-      <form method="post" action="/web/v1/iocs/{{ ioc.id }}/edit">
-        <div class="modal-header">
-          <h5 class="modal-title">✏️ Edit IOC</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <form method="post" action="/web/v1/iocs/{{ ioc.id }}/edit">
+                <div class="modal-header">
+                    <h5 class="modal-title">✏️ Edit IOC</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="ioc_id" id="editIocId">
+                    <div class="mb-3"><label class="form-label">Type</label><input type="text" class="form-control"
+                                                                                   name="type" id="editType"></div>
+                    <div class="mb-3"><label class="form-label">Value</label><input type="text" class="form-control"
+                                                                                    name="value" id="editValue"></div>
+                    <div class="mb-3"><label class="form-label">Source</label><input type="text" class="form-control"
+                                                                                     name="source" id="editSource">
+                    </div>
+                    <div class="mb-3"><label class="form-label">Tags</label><input type="text" class="form-control"
+                                                                                   name="tags" id="editTags"></div>
+                    <div class="mb-3"><label class="form-label">Description</label><textarea class="form-control"
+                                                                                             name="description"
+                                                                                             id="editDescription"
+                                                                                             rows="3"></textarea></div>
+                </div>
+                <div class="modal-footer d-flex justify-content-between">
+                    <a href="/web/v1/iocs/{{ ioc.id }}/edit" class="small tactical-muted">Full edit page</a>
+                    <div>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancel
+                        </button>
+                        <button type="submit" class="btn btn-sm btn-outline-success">Update IOC</button>
+                    </div>
+                </div>
+            </form>
         </div>
-        <div class="modal-body">
-          <input type="hidden" name="ioc_id" id="editIocId">
-          <div class="mb-3">
-            <label class="form-label">Type</label>
-            <input type="text" class="form-control" name="type" id="editType">
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Value</label>
-            <input type="text" class="form-control" name="value" id="editValue">
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Source</label>
-            <input type="text" class="form-control" name="source" id="editSource">
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Tags</label>
-            <input type="text" class="form-control" name="tags" id="editTags">
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Description</label>
-            <textarea class="form-control" name="description" id="editDescription" rows="3"></textarea>
-          </div>
-        </div>
-        <div class="modal-footer d-flex justify-content-between">
-          <a href="/web/v1/iocs/{{ ioc.id }}/edit" class="small text-muted">Full edit page</a>
-          <div>
-            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn btn-sm btn-outline-success">Update IOC</button>
-          </div>
-        </div>
-      </form>
     </div>
-  </div>
 </div>
 
-<!-- IOC JSON for JavaScript -->
-<script id="ioc-json" type="application/json">
-  {{ ioc_json | tojson }}
-</script>
-
+<!-- JSON Bootstrap -->
+<script id="ioc-json" type="application/json">{{
+    ioc_json
+    |
+    tojson
+}}</script>
 <script>
-  function loadIocFromScriptTag() {
-    const ioc = JSON.parse(document.getElementById("ioc-json").textContent);
-    document.getElementById('editIocId').value = ioc.id;
-    document.getElementById('editType').value = ioc.type || '';
-    document.getElementById('editValue').value = ioc.value || '';
-    document.getElementById('editSource').value = ioc.source || '';
-    document.getElementById('editTags').value = ioc.tags || '';
-    document.getElementById('editDescription').value = ioc.description || '';
-  }
+    function loadIocFromScriptTag() {
+        const ioc = JSON.parse(document.getElementById("ioc-json").textContent);
+        document.getElementById('editIocId').value = ioc.id;
+        document.getElementById('editType').value = ioc.type || '';
+        document.getElementById('editValue').value = ioc.value || '';
+        document.getElementById('editSource').value = ioc.source || '';
+        document.getElementById('editTags').value = ioc.tags || '';
+        document.getElementById('editDescription').value = ioc.description || '';
+    }
 </script>
 {% endblock %}

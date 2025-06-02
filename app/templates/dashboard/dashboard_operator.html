@@ -1,0 +1,82 @@
+{% extends "_design.html" %}
+{% block title %}Operator Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+<!-- Dashboard Navigation -->
+<div class="d-flex justify-content-start align-items-center gap-3 mb-4">
+  <a href="/web/v1/dashboard" class="btn btn-sm btn-outline-primary {% if request.url.path.endswith('/dashboard') %}active{% endif %}">
+    Tactical Dashboard
+  </a>
+  <a href="/web/v1/dashboard/operator" class="btn btn-sm btn-outline-secondary {% if request.url.path.endswith('/dashboard/operator') %}active{% endif %}">
+    Operator Dashboard
+  </a>
+</div>
+  <!-- Top Stats Row -->
+  <div class="row text-center mb-4">
+    <!-- Critical Alerts -->
+    <div class="col-md-4 mb-3">
+      <a href="/web/v1/alerts?severity=critical" class="btn btn-outline-danger w-100 p-4">
+        🔴 <strong>Critical Alerts</strong>
+        <div class="mt-2">
+          <span class="badge bg-danger fs-5">{{ critical_alerts_count or "n/a"}}</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- Open Alerts -->
+    <div class="col-md-4 mb-3">
+      <a href="/web/v1/alerts?status=open" class="btn btn-outline-warning w-100 p-4">
+        🟡 <strong>Open Alerts</strong>
+        <div class="mt-2">
+          <span class="badge bg-warning text-dark fs-5">{{ open_alerts_count or "n/a"}}</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- Open Cases -->
+    <div class="col-md-4 mb-3">
+      <a href="/web/v1/cases?status=open" class="btn btn-outline-info w-100 p-4">
+        🗂️ <strong>Open Cases</strong>
+        <div class="mt-2">
+          <span class="badge bg-info text-dark fs-5">{{ open_cases_count or "n/a"}}</span>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Live Feed and Event Stream -->
+  <div class="row">
+    <!-- Intel Feed -->
+    <div class="col-md-8 mb-4">
+      <div class="card h-100">
+        <div class="card-header bg-dark text-white">
+          🧠 IOC, Address, Signature News Feed
+        </div>
+        <div class="card-body">
+          <div id="intel-feed">
+            <p class="text-muted">Live threat intelligence will appear here.</p>
+            <!-- Insert polling or live feed logic -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Event Stream -->
+    <div class="col-md-4 mb-4">
+      <div class="card h-100">
+        <div class="card-header bg-dark text-white">
+          📡 Incoming Live Events
+        </div>
+        <div class="card-body">
+          <div id="event-stream">
+            <p class="text-muted">Real-time events loading...</p>
+            <!-- WebSocket or streaming integration -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

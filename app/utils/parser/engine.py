@@ -1,6 +1,6 @@
 import re
 from collections import OrderedDict
-
+from app.utils.geoip import lookup_country
 def extract_from_path(data, path):
     try:
         parts = re.split(r'\.(?![^\[]*\])', path)
@@ -126,6 +126,11 @@ def run_custom_parser(yaml_config, alert_input):
                         "ip": ip_val,
                         "info": "This is a placeholder for IP enrichment."
                     }
+                elif enrich_type == "geolocation":
+                    ip_val = extract_from_path(alert_source, enrich.get("field"))
+                    if ip_val:
+                        geo_info = lookup_country(ip_val)
+                        parsed["enrichment"]["geolocation"] = geo_info
 
             elif enrich_type == "tag_if":
                 condition = enrich.get("condition", "")

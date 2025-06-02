@@ -4,10 +4,20 @@
 {% block content %}
 <div class="container-fluid my-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex justify-content-end align-items-center mb-3">
+            <div class="input-group w-auto">
+                <input type="text" class="form-control form-control-sm" id="alertSearch"
+                       placeholder="Search alert details..."/>
+                <button class="btn btn-sm btn-outline-light" id="alertSearchButton">
+                    <i class="bi bi-search"></i> Search
+                </button>
+            </div>
+        </div>
         <h4 class="tactical-heading-xl mb-0">🚨 Alert #{{ alert.id }} - {{ alert.message or "—" }}</h4>
         <a href="/web/v1/alerts" class="btn btn-sm btn-outline-secondary">
             <i class="bi bi-arrow-left"></i> Back to Alerts
         </a>
+
     </div>
     <!-- Edit Modal Trigger -->
     <div class="d-flex justify-content-end mt-4">
@@ -90,7 +100,17 @@
                 <div class="col-md-6">
                     <div class="tactical-note-card">
                         <small class="text-muted">{{ key }}</small>
+                        {% if key == 'geolocation' %}
+                        <ul class="list-unstyled mb-0">
+                            <li><strong>IP:</strong> {{ value.ip }}</li>
+                            <li><strong>Country:</strong> {{ value.country }}</li>
+                            <li><strong>City:</strong> {{ value.city }}</li>
+                            <li><strong>Coordinates:</strong> {{ value.lat }}, {{ value.lon }}</li>
+                            <li><small class="text-muted">From {{ value.provider }}</small></li>
+                        </ul>
+                        {% else %}
                         <pre class="tactical-markdown-block"><code>{{ value | tojson(indent=2) }}</code></pre>
+                        {% endif %}
                     </div>
                 </div>
                 {% endfor %}
@@ -321,7 +341,24 @@
         </form>
     </div>
 </div>
-
+<!-- Search Result Modal -->
+<div class="modal fade" id="searchResultModal" tabindex="-1" aria-labelledby="searchResultModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content bg-dark text-light">
+            <div class="modal-header">
+                <h5 class="modal-title" id="searchResultModalLabel">🔍 Search Results</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="searchResultsContent">
+                <!-- Injected content by JS -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
     function highlightMatch(text, term) {
         const regex = new RegExp(`(${term})`, 'gi');
@@ -333,17 +370,29 @@
         if (filter.length < 2) return;
 
         const results = [];
-        document.querySelectorAll(".accordion-item").forEach(section => {
-            const title = section.querySelector(".accordion-button")?.innerText.trim();
-            const contentElement = section.querySelector(".accordion-body");
-            const content = contentElement?.innerText.trim();
 
-            if (content.toLowerCase().includes(filter)) {
-                section.querySelector(".accordion-collapse")?.classList.add("show");
-                results.push(`<div class="mb-3">
-                    <h6>${title}</h6>
-                    <pre class="tactical-markdown-block"><code>${highlightMatch(content, filter)}</code></pre>
-                </div>`);
+        // Loop through each tab-pane
+        document.querySelectorAll(".tab-pane").forEach(tabPane => {
+            const tabId = tabPane.id;
+            const tabLabel = document.querySelector(`a.nav-link[href="#${tabId}"]`)?.innerText || tabId;
+
+            let sectionMatches = [];
+
+            // Loop through all visible text elements inside this tab
+            tabPane.querySelectorAll("*").forEach(el => {
+                if (el.children.length === 0 && el.textContent) {
+                    const text = el.textContent.trim();
+                    if (text.toLowerCase().includes(filter)) {
+                        sectionMatches.push(`<pre class="tactical-markdown-block mb-2"><code>${highlightMatch(text, filter)}</code></pre>`);
+                    }
+                }
+            });
+
+            if (sectionMatches.length) {
+                results.push(`<div class="mb-4">
+                <h6 class="border-bottom pb-1">${tabLabel}</h6>
+                ${sectionMatches.join("")}
+            </div>`);
             }
         });
 
@@ -353,6 +402,7 @@
 
         new bootstrap.Modal(document.getElementById("searchResultModal")).show();
     }
+
 
     document.addEventListener("DOMContentLoaded", function () {
         // === Main alert tab memory ===

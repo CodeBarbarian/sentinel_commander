@@ -10,7 +10,7 @@ router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
 @router.get("/users", response_class=HTMLResponse)
-def user_list(request: Request, db: Session = Depends(get_db), user=Depends(auth.get_current_user)):
+def user_list(request: Request, db: Session = Depends(get_db), user=Depends(auth.require_admin)):
     users = db.query(User).all()
     return templates.TemplateResponse("users/users.html", {
         "request": request,
@@ -27,7 +27,7 @@ def create_user(
     password: str = Form(...),
     role: str = Form(...),
     db: Session = Depends(get_db),
-    user=Depends(auth.get_current_user)
+    user=Depends(auth.require_admin)
 ):
     hashed_password = bcrypt.hash(password)
 
@@ -50,7 +50,7 @@ def create_user(
 def delete_user(
     user_id: int = Form(...),
     db: Session = Depends(get_db),
-    current_user=Depends(auth.get_current_user)
+    current_user=Depends(auth.require_admin)
 ):
     # Ensure current_user is a real model, not a dict
     if isinstance(current_user, dict):
@@ -101,13 +101,13 @@ def update_user(
 
     return RedirectResponse("/web/v1/users", status_code=302)
 
-@router.get("/profile", response_class=HTMLResponse)
+@router.get("/users/profile", response_class=HTMLResponse)
 def user_profile(
     request: Request,
     db: Session = Depends(get_db),
     user=Depends(auth.get_current_user)
 ):
-    db_user = db.query(User).filter(User.id == user["id"]).first()
+    db_user = db.query(User).filter(User.id == user.id).first()
 
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
