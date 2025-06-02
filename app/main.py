@@ -134,7 +134,6 @@ app.include_router(cases_playbooks_view.router, prefix="/web/v1", tags=["Cases"]
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 # Templates
 templates = Jinja2Templates(directory="app/templates")
-web
 def format_datetime(value, format="%Y-%m-%d %H:%M:%S"):
     try:
         dt = datetime.fromisoformat(value)
