@@ -12,8 +12,12 @@ from app.models.alert import Alert
 from app.models.case import Case
 from app.models.case_ioc import CaseIOC
 from app.models.publisher import PublisherList, PublisherEntry
+from app.web.modules.maxmind_module import lookup_country
+from app.utils.sockets.broadcast import broadcast_dashboard_event
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
+
+
 
 @router.get("/iocs", response_class=HTMLResponse)
 def list_iocs(request: Request, db: Session = Depends(get_db), user=Depends(auth.get_current_user)):
@@ -21,7 +25,7 @@ def list_iocs(request: Request, db: Session = Depends(get_db), user=Depends(auth
     return templates.TemplateResponse("iocs/iocs.html", {"request": request, "iocs": iocs})
 
 @router.post("/iocs/create")
-def create_ioc(
+async def create_ioc(
     type: str = Form(...),
     value: str = Form(...),
     description: str = Form(None),
@@ -33,14 +37,30 @@ def create_ioc(
     ioc = IOC(type=type, value=value, description=description, source=source, tags=tags)
     db.add(ioc)
     db.commit()
+
+    await broadcast_dashboard_event({
+        "title":"IOC",
+        "type": "intel",
+        "severity": "info",
+        "message": f"{value} added."
+    })
+
     return RedirectResponse("/web/v1/iocs", status_code=302)
 
 @router.post("/iocs/delete")
-def delete_ioc(ioc_id: int = Form(...), db: Session = Depends(get_db), user=Depends(auth.get_current_user)):
+async def delete_ioc(ioc_id: int = Form(...), db: Session = Depends(get_db), user=Depends(auth.get_current_user)):
     ioc = db.query(IOC).filter(IOC.id == ioc_id).first()
     if ioc:
         db.delete(ioc)
         db.commit()
+
+    await broadcast_dashboard_event({
+        "title":"IOC",
+        "type": "intel",
+        "severity": "info",
+        "message": f"{ioc} deleted."
+    })
+
     return RedirectResponse("/web/v1/iocs", status_code=302)
 
 @router.post("/iocs/edit")
@@ -72,6 +92,8 @@ def ioc_detail_view(
     db: Session = Depends(get_db),
     user=Depends(auth.get_current_user)
 ):
+
+    print("Lol")
     ioc = db.query(IOC).filter(IOC.id == ioc_id).first()
     if not ioc:
         raise HTTPException(status_code=404, detail="IOC not found")
@@ -99,6 +121,13 @@ def ioc_detail_view(
     # Related SentinelIQ lists
     lists = db.query(PublisherList).join(PublisherEntry).filter(PublisherEntry.value == ioc.value).all()
 
+    enrichment = None
+    print(ioc.type + "string 2")
+    if ioc.type and ioc.type.lower() == "ip":
+        print("Looking up country for IP")
+        print(ioc.value)
+        enrichment = lookup_country(ioc.value)
+
     return templates.TemplateResponse("iocs/iocs_detail.html", {
         "request": request,
         "ioc": ioc,
@@ -106,6 +135,7 @@ def ioc_detail_view(
         "linked_alerts": alerts,
         "linked_cases": related_cases,
         "linked_lists": lists,
+        "enrichment": enrichment,
     })
 @router.post("/iocs/{ioc_id}/edit")
 def update_ioc(

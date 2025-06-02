@@ -52,6 +52,12 @@
                     role="tab">📚 Lists
             </button>
         </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="enrich-tab" data-bs-toggle="tab" data-bs-target="#enrich" type="button"
+                    role="tab">
+                🌍 Enrichment
+            </button>
+        </li>
     </ul>
 
     <div class="tab-content tactical-note-card" id="iocTabContent">
@@ -109,8 +115,9 @@
                 <li class="list-group-item tactical-table-row tactical-table-hover d-flex justify-content-between align-items-center">
                     <div>
                         <div class="text-light fw-semibold">
-  <span class="text-info">{{ list.name }}</span> – <span class="text-muted text-uppercase small">{{ list.list_type or "Custom" }}</span>
-</div>
+                            <span class="text-info">{{ list.name }}</span> – <span
+                                class="text-muted text-uppercase small">{{ list.list_type or "Custom" }}</span>
+                        </div>
                         <div class="tactical-muted small">{{ list.description or "No description" }}</div>
                     </div>
                     <a href="/web/v1/sentineliq/publisher/{{ list.id }}" class="btn btn-sm btn-outline-primary">View</a>
@@ -119,6 +126,30 @@
             </ul>
             {% else %}
             <p class="tactical-muted">This IOC is not in any SentinelIQ list.</p>
+            {% endif %}
+        </div>
+
+        <!-- Enrichment -->
+        <div class="tab-pane fade p-3" id="enrich" role="tabpanel">
+            {% if enrichment %}
+            <ul class="list-group">
+                <li class="list-group-item tactical-table-row tactical-table-hover d-flex justify-content-between align-items-center">
+                    <div class="text-light fw-semibold"><span class="text-warning">IP:</span> {{ enrichment.ip }}</div>
+                </li>
+                <li class="list-group-item tactical-table-row tactical-table-hover d-flex justify-content-between align-items-center">
+                    <div class="text-light fw-semibold"><span class="text-warning">Country:</span> {{ enrichment.country
+                        }}
+                    </div>
+                </li>
+                <li class="list-group-item tactical-table-row tactical-table-hover d-flex justify-content-between align-items-center">
+                    <div class="text-light fw-semibold"><span class="text-warning">ISO Code:</span> {{
+                        enrichment.iso_code }}
+                    </div>
+                </li>
+
+            </ul>
+            {% else %}
+            <p class="tactical-muted">No enrichment available.</p>
             {% endif %}
         </div>
     </div>

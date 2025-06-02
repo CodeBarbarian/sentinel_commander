@@ -22,6 +22,7 @@ from app.web.alerts import alerts_view, alerts_detail_view, alerts_categories_vi
 
 # Dashboard view
 from app.web.dashboard import dashboard_view
+from app.web.dashboard import ws_dashboard
 
 # Sources View
 from app.web.sources import sources_view
@@ -92,6 +93,7 @@ app.include_router(sentineliq_search_view.router, prefix="/web/v1", tags=["Senti
 app.include_router(sentineliq_publisher_view.router, prefix="/web/v1", tags=["SentinelIQ"])
 # Dashboard
 app.include_router(dashboard_view.router, prefix="/web/v1", tags=["Dashboard"])
+app.include_router(ws_dashboard.router, prefix="/web/v1", tags=["Dashboard"])
 
 # Alerts
 app.include_router(alerts_categories_view.router, prefix="/web/v1", tags=["Alerts"])

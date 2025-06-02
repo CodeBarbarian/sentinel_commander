@@ -54,7 +54,7 @@ def delete_user(
 ):
     # Ensure current_user is a real model, not a dict
     if isinstance(current_user, dict):
-        current_user = db.query(User).filter(User.id == current_user.get("id")).first()
+         db.query(User).filter(User.id == current_user.id).first()
 
     user_to_delete = db.query(User).filter(User.id == user_id).first()
     if not user_to_delete:
@@ -84,7 +84,7 @@ def update_user(
 ):
     # If current_user is a dict, fetch real user from DB
     if isinstance(current_user, dict):
-        current_user = db.query(User).filter(User.id == current_user.get("id")).first()
+        current_user = db.query(User).filter(User.id == current_user.id).first()
 
     if not current_user or current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Not authorized")
@@ -126,7 +126,7 @@ def update_profile(
     db: Session = Depends(get_db),
     current_user=Depends(auth.get_current_user)
 ):
-    db_user = db.query(User).filter(User.id == current_user["id"]).first()
+    db_user = db.query(User).filter(User.id == current_user.id).first()
 
     if full_name is not None:
         db_user.full_name = full_name

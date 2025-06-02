@@ -119,7 +119,7 @@ def dashboard_view(request: Request, user=Depends(auth.get_current_user), db: Se
 @router.get("/dashboard/operator", response_class=HTMLResponse)
 def operator_dashboard_view(request: Request, user=Depends(auth.get_current_user), db: Session = Depends(get_db)):
     # 🟥 Critical Alerts (severity == 15)
-    critical_alerts = db.query(func.count(Alert.id)).filter(Alert.severity == 15).scalar()
+    critical_alerts = db.query(func.count(Alert.id)).filter(Alert.severity == 15, Alert.status == "new").scalar()
 
     # 🟨 Open Alerts (status != 'done' / 'closed')
     open_alerts = db.query(func.count(Alert.id)).filter(Alert.status.notin_(["done", "closed", "resolved"])).scalar()

@@ -8,9 +8,7 @@ from datetime import datetime
 from typing import Optional
 import uuid
 import logging
-
 router = APIRouter()
-
 
 def get_db():
     db = SessionLocal()
@@ -18,7 +16,6 @@ def get_db():
         yield db
     finally:
         db.close()
-
 
 @router.post("/webhook/{guid}")
 async def receive_alert(guid: str, request: Request, db: Session = Depends(get_db)):

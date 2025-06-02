@@ -16,6 +16,17 @@ Template
 ### Fixed
 ```
 
+## [v0.1.5]
+### Added
+- Added Geolocation to IOCS and Alerts (Alert Detail View)
+- Added windows alert YAML (as a wireframe)
+- Added ubuntu alert YAML (as wireframe)
+- Added a general linux alert YAML (as a wireframe)
+- Added websockets for live dashboard (started implementation)
+### Changed
+
+### Fixed
+
 ## [v0.1.4] - 2025-06-02 - Production Ready for small environments
 ### Added
 - Added saved search in SentinelIQ Search Module
