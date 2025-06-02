@@ -9,9 +9,69 @@
     </div>
 
     <p class="lead">Automated triage for incoming alerts. Group, suppress, tag, and escalate intelligently.</p>
-
+    <!-- Filter/Search Form -->
+    <form method="get" class="row g-2 mb-3 align-items-end">
+        <div class="col-sm-4">
+            <input type="text" name="q" class="form-control form-control-sm" placeholder="🔍 Search message"
+                   value="{{ request.query_params.get('q', '') }}">
+        </div>
+        <div class="col-sm-3">
+            <select name="min_severity" class="form-select form-select-sm">
+                <option value="">Min Severity</option>
+                {% for level in [0, 4, 8, 12] %}
+                <option value="{{ level }}" {% if request.query_params.get(
+                'min_severity') == level|string %}selected{% endif %}>
+                ≥ {{ level }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-sm-3">
+            <select name="status" class="form-select form-select-sm">
+                <option value="">Any Status</option>
+                {% for s in ['new', 'in_progress', 'done'] %}
+                <option value="{{ s }}" {% if request.query_params.get(
+                'status') == s %}selected{% endif %}>{{ s.replace('_', ' ').capitalize() }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-sm-2 d-flex gap-2">
+            <button type="submit" class="btn btn-sm btn-outline-primary w-100">Apply Filters</button>
+            {% if request.query_params %}
+            <a href="/web/v1/sentineliq/triage" class="btn btn-sm btn-outline-secondary w-100">Clear</a>
+            {% endif %}
+        </div>
+    </form>
     <h5 class="tactical-heading mb-3">🧪 Triage Candidates</h5>
+    <!-- Triage All Button + Modal -->
+    <div class="d-flex justify-content-end mb-3">
+        <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#triageAllModal">
+            🤖 Triage All
+        </button>
+    </div>
 
+    <!-- Modal -->
+    <div class="modal fade" id="triageAllModal" tabindex="-1" aria-labelledby="triageAllLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="triageAllLabel">Confirm Bulk Triage</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    This will apply automated triage recommendations to
+                    <strong>{{ triage_eligible_count }}</strong> eligible alert{{ 's' if triage_eligible_count != 1 }}.
+                    <br><br>Do you want to proceed?
+                </div>
+                <div class="modal-footer">
+                    <form method="post" action="/web/v1/sentineliq/triage/all">
+                        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-sm btn-success">✅ Apply All</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="table-responsive">
         <table class="tactical-table">
             <thead>
@@ -157,6 +217,45 @@
             </div>
             {% endfor %}
             </tbody>
+            {% if pagination.total_pages > 1 %}
+            <nav aria-label="Triage pagination" class="mt-4">
+                <ul class="pagination justify-content-center">
+
+                    {# First and Prev #}
+                    <li class="page-item {% if pagination.current_page == 1 %}disabled{% endif %}">
+                        <a class="page-link"
+                           href="?page=1&page_size={{ pagination.page_size }}{{ '&q=' ~ request.query_params.q if request.query_params.q }}{{ '&min_severity=' ~ request.query_params.min_severity if request.query_params.min_severity }}{{ '&status=' ~ request.query_params.status if request.query_params.status }}">First</a>
+                    </li>
+                    <li class="page-item {% if pagination.current_page == 1 %}disabled{% endif %}">
+                        <a class="page-link"
+                           href="?page={{ pagination.current_page - 1 }}&page_size={{ pagination.page_size }}{{ '&q=' ~ request.query_params.q if request.query_params.q }}{{ '&min_severity=' ~ request.query_params.min_severity if request.query_params.min_severity }}{{ '&status=' ~ request.query_params.status if request.query_params.status }}">Previous</a>
+                    </li>
+
+                    {# Page numbers (max 5 visible) #}
+                    {% set start_page = 1 if (pagination.current_page - 2) < 1 else (pagination.current_page - 2) %}
+                    {% set end_page = pagination.total_pages if (start_page + 4) > pagination.total_pages else
+                    (start_page + 4) %}
+                    {% set start_page = 1 if (end_page - 4) < 1 else (end_page - 4) %}
+                    {% for p in range(start_page, end_page + 1) %}
+                    <li class="page-item {% if p == pagination.current_page %}active{% endif %}">
+                        <a class="page-link"
+                           href="?page={{ p }}&page_size={{ pagination.page_size }}{{ '&q=' ~ request.query_params.q if request.query_params.q }}{{ '&min_severity=' ~ request.query_params.min_severity if request.query_params.min_severity }}{{ '&status=' ~ request.query_params.status if request.query_params.status }}">{{
+                            p }}</a>
+                    </li>
+                    {% endfor %}
+
+                    {# Next and Last #}
+                    <li class="page-item {% if pagination.current_page == pagination.total_pages %}disabled{% endif %}">
+                        <a class="page-link"
+                           href="?page={{ pagination.current_page + 1 }}&page_size={{ pagination.page_size }}{{ '&q=' ~ request.query_params.q if request.query_params.q }}{{ '&min_severity=' ~ request.query_params.min_severity if request.query_params.min_severity }}{{ '&status=' ~ request.query_params.status if request.query_params.status }}">Next</a>
+                    </li>
+                    <li class="page-item {% if pagination.current_page == pagination.total_pages %}disabled{% endif %}">
+                        <a class="page-link"
+                           href="?page={{ pagination.total_pages }}&page_size={{ pagination.page_size }}{{ '&q=' ~ request.query_params.q if request.query_params.q }}{{ '&min_severity=' ~ request.query_params.min_severity if request.query_params.min_severity }}{{ '&status=' ~ request.query_params.status if request.query_params.status }}">Last</a>
+                    </li>
+                </ul>
+            </nav>
+            {% endif %}
         </table>
     </div>
 </div>

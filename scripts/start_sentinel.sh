@@ -6,7 +6,7 @@ cd "$(dirname "$0")/.." || exit 1
 APP_MODULE="app.main:app"
 HOST="0.0.0.0"
 PORT="80"
-WORKERS=4
+WORKERS=8
 LOG_LEVEL="info"
 LOG_DIR="logs/sentinel"
 

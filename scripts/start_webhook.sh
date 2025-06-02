@@ -3,7 +3,7 @@ cd "$(dirname "$0")/.." || exit 1
 # Sentinel Commander - Webhook Service Startup Script
 # This script runs the webhook listener separately with logs.
 
-APP_MODULE="webhook_app:app"
+APP_MODULE="app.app_webhook:app"
 HOST="0.0.0.0"
 PORT="8000"
 WORKERS=2

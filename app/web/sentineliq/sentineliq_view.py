@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Depends, HTTPException
+from fastapi import APIRouter, Request, Depends, HTTPException, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
 from app.core.database import get_db
@@ -7,28 +7,71 @@ from app.models.alert import Alert
 from app.utils.parser.general_parser_engine import run_parser_for_type
 from app.utils import auth
 import json
-
+from typing import Optional
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
-@router.get("/sentineliq/triage", response_class=HTMLResponse)
-def sentinel_iq_page(request: Request, db: Session = Depends(get_db), user=Depends(auth.get_current_user)):
-    recent_alerts = (
+def get_eligible_triage_alerts(db: Session):
+    alerts = (
         db.query(Alert)
         .filter(Alert.status.in_(["new", "in_progress"]))
-        .order_by(Alert.severity.desc())
-        .limit(50)
         .all()
     )
 
+    eligible = []
+    for alert in alerts:
+        try:
+            payload = json.loads(alert.source_payload or "{}")
+            result = run_parser_for_type("triage", payload)
+            mapped = result.get("mapped_fields", {})
+            if mapped.get("recommended_status") or mapped.get("recommended_resolution") or mapped.get("recommended_action"):
+                eligible.append(alert.id)
+        except:
+            continue
+    return eligible
+
+@router.get("/sentineliq/triage", response_class=HTMLResponse)
+def sentinel_iq_page(
+    request: Request,
+    db: Session = Depends(get_db),
+    user=Depends(auth.get_current_user),
+    q: Optional[str] = None,
+    min_severity: Optional[str] = None,
+    status: Optional[str] = None,
+    page: int = 1,
+    page_size: int = 50,
+):
+    query = db.query(Alert)
+
+    if q:
+        query = query.filter(Alert.message.ilike(f"%{q.lower()}%"))
+
+    if min_severity and min_severity.isdigit():
+        query = query.filter(Alert.severity >= int(min_severity))
+
+    if status:
+        query = query.filter(Alert.status == status)
+
+    # Total count before pagination
+    total_alerts = query.count()
+    total_pages = max(1, (total_alerts + page_size - 1) // page_size)
+    page = max(1, min(page, total_pages))
+
+    # Paginated query
+    offset = (page - 1) * page_size
+    alerts = query.order_by(Alert.severity.desc()).offset(offset).limit(page_size).all()
+
+    # Triage processing
     triaged_alerts = []
-    for alert in recent_alerts:
+    triage_eligible_count = 0
+    for alert in alerts:
         try:
             payload = json.loads(alert.source_payload) if alert.source_payload else {}
-            #print(payload)
             triage_result = run_parser_for_type("triage", payload)
-            #print(f"[Triage] Alert #{alert.id} → {triage_result}")
             alert.triage_result = triage_result
+            mapped = triage_result.get("mapped_fields", {})
+            if mapped.get("recommended_status") or mapped.get("recommended_resolution"):
+                triage_eligible_count += 1
         except Exception as e:
             alert.triage_result = {"error": str(e)}
 
@@ -36,10 +79,48 @@ def sentinel_iq_page(request: Request, db: Session = Depends(get_db), user=Depen
 
     return templates.TemplateResponse("sentinel_iq/sentinel_iq.html", {
         "request": request,
-        "page_title": "Sentinel IQ",
-        "intro": "This module will handle automatic alert triage using rules, enrichment, and smart logic.",
-        "alerts": triaged_alerts
+        "alerts": triaged_alerts,
+        "triage_eligible_count": triage_eligible_count,
+        "pagination": {
+            "total_alerts": total_alerts,
+            "total_pages": total_pages,
+            "current_page": page,
+            "page_size": page_size,
+        }
     })
+
+
+
+@router.post("/sentineliq/triage/all")
+def triage_all_alerts(
+    request: Request,
+    db: Session = Depends(get_db),
+    user=Depends(auth.get_current_user)
+):
+    alerts = (
+        db.query(Alert)
+        .filter(Alert.status.in_(["new", "in_progress"]))
+        .all()
+    )
+
+    for alert in alerts:
+        try:
+            payload = json.loads(alert.source_payload or "{}")
+            result = run_parser_for_type("triage", payload)
+            mapped = result.get("mapped_fields", {})
+
+            if mapped.get("recommended_status") or mapped.get("recommended_resolution") or mapped.get("recommended_action"):
+                if mapped.get("recommended_status"):
+                    alert.status = mapped["recommended_status"]
+                if mapped.get("recommended_resolution"):
+                    alert.resolution = mapped["recommended_resolution"]
+                if mapped.get("recommended_action"):
+                    alert.resolution_comment = f"Auto-applied: {mapped['recommended_action']}"
+        except:
+            continue
+
+    db.commit()
+    return RedirectResponse(url="/web/v1/sentineliq/triage", status_code=303)
 
 @router.get("/alerts/{alert_id}/quick/res/{res_key}")
 def quick_resolution_action(alert_id: int, res_key: str, db: Session = Depends(get_db), user=Depends(auth.get_current_user)):

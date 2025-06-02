@@ -15,12 +15,15 @@ Template
 
 ### Fixed
 ```
-## [Unreleased]
+## [v0.1.3] - 2025-06-02
 ### Added
-
+- Triage All eligible alerts button
+- Added searching and filtering to triage page
 ### Changed
 - Updated scripts/* due to directory structure changes
 ### Fixed
+- Webhook startup script now correctly handles the application load
+
 
 ## [v0.1.2] - 2025-06-01
 ### Added
@@ -28,7 +31,6 @@ Template
 
 ### Changed
 - Updated README to also include update instructions
-### Fixed
 
 
 ## [v0.1.1] - 2025-06-01
