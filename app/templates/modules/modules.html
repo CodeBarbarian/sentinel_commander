@@ -3,6 +3,42 @@
 
 {% block content %}
 <div class="container mt-4">
+<div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
+
+  <!-- MISP Module -->
+  <div class="col">
+    <div class="card bg-dark text-white h-100 border border-secondary">
+      <div class="card-body">
+        <h5 class="card-title">🧠 MISP</h5>
+        <p class="card-text text-muted">Threat Intelligence from MISP platform.</p>
+        <a href="#" target="_blank" class="btn btn-sm btn-outline-info">Configure MISP</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- MaxMind Module -->
+  <div class="col">
+    <div class="card bg-dark text-white h-100 border border-secondary">
+      <div class="card-body">
+        <h5 class="card-title">🌍 MaxMind</h5>
+        <p class="card-text text-muted">IP Geolocation support using MaxMind DB/API.</p>
+        <a href="#" target="_blank" class="btn btn-sm btn-outline-info">Configure MaxMind</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- VirusTotal Module -->
+  <div class="col">
+    <div class="card bg-dark text-white h-100 border border-secondary">
+      <div class="card-body">
+        <h5 class="card-title">🦠 VirusTotal</h5>
+        <p class="card-text text-muted">Malware detection and reputation lookup with VirusTotal.</p>
+        <a href="#" target="_blank" class="btn btn-sm btn-outline-info">Configure VirusTotal</a>
+      </div>
+    </div>
+  </div>
+
+</div>
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h4 class="tactical-heading mb-0">🧩 Modules</h4>
     <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#addModuleModal">

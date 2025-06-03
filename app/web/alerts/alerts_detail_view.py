@@ -1,18 +1,7 @@
 from typing import Optional
-from fastapi import APIRouter, Request, Form, Depends, HTTPException, Query
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
-from sqlalchemy.orm import Session
-from sqlalchemy import case
 from starlette.responses import RedirectResponse
-from app.core.database import SessionLocal
-from app.models.alert import Alert
-from app.utils.parser.general_parser_engine import run_parser_for_type
-from app.utils.parser.renderer import render_alert_detail_fields
-import json
-from app.utils import auth
 from sqlalchemy import case, func
-from fastapi import APIRouter, Request, Depends, Query, HTTPException
+from fastapi import APIRouter, Request, Depends, Query, HTTPException, Form
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
@@ -20,20 +9,7 @@ from app.core.database import SessionLocal
 from app.models.alert import Alert
 from app.utils import auth
 from app.utils.parser.general_parser_engine import run_parser_for_type
-from app.utils.parser.renderer import render_alert_detail_fields
 import json
-
-router = APIRouter()
-templates = Jinja2Templates(directory="app/templates")
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -84,18 +60,6 @@ def alert_detail_view(
     mitre_info = source_payload_json.get("rule", {}).get("mitre", {}) or {}
     mitre_ids = mitre_info.get("id", []) if isinstance(mitre_info, dict) else []
     mitre_tactics = mitre_info.get("tactic", []) if isinstance(mitre_info, dict) else []
-
-    # === Optional: rendered accordion view (legacy support) ===
-    rendered_sections = render_alert_detail_fields(
-        alert.__dict__,
-        parsed_fields,
-        extra_context={
-            "parsed_fields": parsed_fields,
-            "parsed_tags": parsed_tags,
-            "parsed_enrichment": parsed_enrichment,
-            "source_payload_json": source_payload_json
-        }
-    )
 
     # === Related Alerts by Agent ===
     page_size = 10
@@ -178,7 +142,6 @@ def alert_detail_view(
         "parsed_enrichment": parsed_enrichment,
         "parser_metadata": parser_metadata,
         "source_payload_json": source_payload_json,
-        "rendered_sections": rendered_sections,
         "related_alerts": related_alerts,
         "related_total": total_related,
         "related_page": page,
@@ -191,8 +154,6 @@ def alert_detail_view(
         "mitre_tactics": mitre_tactics,
         "mitre_info": mitre_info,
     })
-
-
 
 @router.post("/alerts/{alert_id}/update")
 def update_alert_form(
