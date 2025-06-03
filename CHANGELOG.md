@@ -15,6 +15,13 @@ Template
 
 ### Fixed
 ```
+## [v0.1.9] - 2025-06-03
+### Added
+
+### Changed
+
+### Fixed
+- Alert to live dashboard
 
 ## [v0.1.8] - 2025-06-03
 ### Added
