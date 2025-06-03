@@ -1,9 +1,0 @@
-parser_name: ubuntu_parser
-parser_type: alert
-match:
-  location: ubuntu
-
-fields:
-
-
-enrichment:

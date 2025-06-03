@@ -1,0 +1,41 @@
+parser_name: suricata_parser
+parser_type: alert
+match:
+  location: /var/log/suricata/eve.json
+
+fields:
+  # Default Parser Fields
+  description: rule.description
+  groups: rule.groups
+  id: rule.id
+  timestamp: timestamp
+  location: location
+  severity: rule.level
+  source_name: manager.name
+  agent_id: agent.id
+  agent_name: agent.name
+  asset_tags: agent.name  # Used in alert_settings.yaml to match asset tags
+
+  # Suricata Specific Fields
+  Attack Target: data.alert.metadata.attack_target
+  Confidence: data.alert.metadata.confidence
+  Severity: data.alert.metadata.signature_severity
+  Category: data.alert.category
+  Action: data.alert.action
+  HTTP: data.http.url
+  HTTP Code: data.http.status
+  ip: data.src_ip
+  tags:
+    - suricata
+    - ET INFO
+
+enrichment:
+  - type: tag_if
+    condition: "data.alert.action == 'allowed'"
+    tag: "Traffic Allowed (NOT BLOCKED)"
+
+  - type: geolocation
+    field: data.src_ip
+
+  - type: misp_lookup
+    field: data.src_ip

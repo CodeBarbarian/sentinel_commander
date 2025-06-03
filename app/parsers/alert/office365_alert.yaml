@@ -4,7 +4,19 @@ match:
   location: office365
 
 fields:
-  Agent Name: agent.name
+  # Default Parser Fields
+  description: rule.description
+  groups: rule.groups
+  id: rule.id
+  timestamp: timestamp
+  location: location
+  severity: rule.level
+  source_name: manager.name
+  agent_id: agent.id
+  agent_name: agent.name
+  asset_tags: agent.name  # Used in alert_settings.yaml to match asset tags
+
+  # Office 365 Specific Fields
   subject: data.office365.Subject
   sender: data.office365.P2Sender
   verdict: data.office365.Verdict

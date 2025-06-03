@@ -4,9 +4,20 @@ match:
   location: EventChannel
 
 fields:
+  # Default parser fields
   description: rule.description
-  rule_level: rule.level
   groups: rule.groups
+  id: rule.id
+  timestamp: timestamp
+  location: location
+  severity: rule.level
+  source_name: manager.name
+  agent_id: agent.id
+  agent_name: agent.name
+  asset_tags: agent.name  # Used in alert_settings.yaml to match asset tags
+
+  # Specific fields for EventChannel alerts
+  rule_level: rule.level
   message: data.win.system.message
   agent: agent.name
   eventID: data.win.system.eventID
