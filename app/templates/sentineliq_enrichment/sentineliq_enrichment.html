@@ -1,0 +1,33 @@
+{% extends "_design.html" %}
+{% block title %}SentinelIQ Enrichment{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h4>⚡ SentinelIQ Enrichment</h4>
+  <form id="enrich-form" class="d-flex gap-2 mb-4">
+    <input type="text" class="form-control" name="value" id="value" placeholder="Enter IP, hash, domain..." required>
+    <button type="submit" class="btn btn-primary">🔍 Search</button>
+  </form>
+
+  <div id="results-container">
+    <p class="text-muted">Start by entering a value to enrich.</p>
+  </div>
+</div>
+
+<script>
+document.getElementById("enrich-form").addEventListener("submit", async function (e) {
+  e.preventDefault();
+  const val = document.getElementById("value").value.trim();
+  const container = document.getElementById("results-container");
+  container.innerHTML = "<p class='text-muted'>🔄 Enriching...</p>";
+
+  try {
+    const res = await fetch(`/web/v1/sentineliq/enrichment/api?value=${encodeURIComponent(val)}`);
+    const html = await res.text();
+    container.innerHTML = html;
+  } catch (err) {
+    container.innerHTML = "<p class='text-danger'>Error fetching enrichment.</p>";
+  }
+});
+</script>
+{% endblock %}

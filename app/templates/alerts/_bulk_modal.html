@@ -39,7 +39,7 @@
           <textarea class="form-control form-control-sm" id="bulkComment" name="comment" rows="3" placeholder="Optional comment to apply..."></textarea>
         </div>
       </div>
-
+      <input type="hidden" name="return_to" value="{{ request.url.query }}">
       <div class="modal-footer">
         <button type="submit" class="btn btn-sm btn-outline-success">✅ Apply Changes</button>
         <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>

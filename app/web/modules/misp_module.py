@@ -42,32 +42,40 @@ class MISPEnrichment:
             return {"error": "MISP client not initialized"}
 
         try:
-            result = self.client.search('attributes', value=value, pythonify=True)
-            if not result or not result.get("Attribute"):
+            result = self.client.search('attributes', value=value, pythonify=False)
+            print("The Result is: ")
+            print(result)
+            # 🔍 FIX: Check if 'Attribute' is in the FIRST dict of response list
+            response = result
+            print("The Response is: ")
+            print(response)
+            if isinstance(response, dict):
+                attributes = response.get("Attribute", [])
+            elif isinstance(response, list) and len(response) > 0 and isinstance(response[0], dict):
+                attributes = response[0].get("Attribute", [])
+            else:
+                attributes = []
+
+            if not attributes:
                 return {"matches": 0, "data": []}
 
             data = []
-            for attr in result["Attribute"]:
-                event_info = None
-                try:
-                    event = self.client.get_event(attr.event_id, pythonify=True)
-                    event_info = {
-                        "id": attr.event_id,
-                        "info": getattr(event, "info", "No title"),
-                        "org": getattr(event, "Orgc", {}).get("name", "Unknown") if event else "Unknown",
-                        "date": getattr(event, "date", "Unknown"),
-                        "tags": [t["name"] for t in event.tags] if event and event.tags else []
-                    }
-                except Exception:
-                    event_info = {"id": attr.event_id, "info": "Unavailable", "tags": []}
-
+            for attr in attributes:
+                event = attr.get("Event", {})
                 data.append({
-                    "attribute_id": attr.id,
-                    "type": attr.type,
-                    "category": attr.category,
-                    "value": attr.value,
-                    "to_ids": attr.to_ids,
-                    "event": event_info,
+                    "attribute_id": attr.get("id"),
+                    "type": attr.get("type"),
+                    "category": attr.get("category"),
+                    "value": attr.get("value"),
+                    "to_ids": attr.get("to_ids"),
+                    "tags": [tag.get("name") for tag in attr.get("Tag", [])] if isinstance(attr.get("Tag"),
+                                                                                           list) else [],
+                    "event": {
+                        "id": event.get("id", "N/A"),
+                        "info": event.get("info", "No title"),
+                        "org": event.get("Orgc", {}).get("name") if isinstance(event.get("Orgc"), dict) else "Unknown",
+                        "date": event.get("date", "Unknown")
+                    }
                 })
 
             return {
@@ -79,3 +87,9 @@ class MISPEnrichment:
         except Exception as e:
             logger.error(f"❌ MISP enrichment failed for {value}: {e}")
             return {"error": str(e)}
+
+
+
+
+
+

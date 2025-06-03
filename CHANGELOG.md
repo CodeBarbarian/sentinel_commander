@@ -1,7 +1,7 @@
 # 📜 Changelog
 
 All notable changes to **Sentinel Commander** will be documented in this file.  
-This project will adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+This project will adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 > 🚨 **Note:** Sentinel Commander is in **early alpha**. Breaking changes may occur at any time without notice.
 
@@ -15,6 +15,16 @@ Template
 
 ### Fixed
 ```
+## [v0.1.7] - 2025-06-03
+### Added
+- SentinelIQ Enrichment Module
+- Added support for Geolocation and MISP enrichment in SentinelIQ Enrichment Module
+- Added some scheduled tasks for quality of life improvements
+### Changed
+- Changed the main.py to use dedicated router registry
+### Fixed
+- Persistent filters in alerts when searching and performing bulk actions
+- Fixed the dashboard design, forgot to close a div
 
 ## [v0.1.6] - 2025-06-03
 ### Added
@@ -25,6 +35,7 @@ Template
 - Fixed HTTPS support for web sockets
 - Fixed the design for GeoLocation in Alerts and IOCS
 - Fixed wire framing in YAML files (DO NOT USE EMPTY YAML FILES FOR PRODUCTION)
+
 
 ## [v0.1.5] - 2025-06-02
 ### Added

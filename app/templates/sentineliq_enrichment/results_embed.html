@@ -1,0 +1,16 @@
+<div class="alert alert-info">
+  Results for: <strong>{{ query }}</strong>
+</div>
+
+{% if results %}
+  {% for r in results %}
+    <div class="card mb-3">
+      <div class="card-header bg-dark text-white fw-bold">{{ r.title }}</div>
+      <div class="card-body small text-light">
+        {{ r.content | safe }}
+      </div>
+    </div>
+  {% endfor %}
+{% else %}
+  <p class="text-warning">No enrichment data found for <strong>{{ query }}</strong>.</p>
+{% endif %}

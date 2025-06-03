@@ -184,6 +184,7 @@ async def bulk_update_alerts(
     status: Optional[str] = Form(None),
     resolution: Optional[str] = Form(None),
     comment: Optional[str] = Form(None),
+    return_to: Optional[str] = Form(""),
     db: Session = Depends(get_db),
     user=Depends(auth.get_current_user)
 ):
@@ -204,7 +205,10 @@ async def bulk_update_alerts(
             alert.resolution_comment = comment
 
     db.commit()
-    return RedirectResponse("/web/v1/alerts", status_code=303)
+
+    # Preserve filters after bulk update
+    redirect_url = f"/web/v1/alerts?{return_to}" if return_to else "/web/v1/alerts"
+    return RedirectResponse(redirect_url, status_code=303)
 
 
 

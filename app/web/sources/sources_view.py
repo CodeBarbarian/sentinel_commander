@@ -35,7 +35,7 @@ async def create_source(
     name: str = Form(...),
     display_name: str = Form(...),
     db: Session = Depends(get_db),
-    user=Depends(auth.get_current_user)
+    user=Depends(auth.require_admin)
 ):
     existing = db.query(Source).filter(Source.name == name).first()
     if existing:
@@ -55,7 +55,7 @@ async def create_source(
 
 
 @router.post("/sources/{guid}/toggle")
-async def toggle_source(guid: str, db: Session = Depends(get_db), user=Depends(auth.get_current_user)):
+async def toggle_source(guid: str, db: Session = Depends(get_db), user=Depends(auth.require_admin)):
     source = db.query(Source).filter(Source.guid == guid).first()
     if source:
         source.is_active = not source.is_active
@@ -64,7 +64,7 @@ async def toggle_source(guid: str, db: Session = Depends(get_db), user=Depends(a
 
 
 @router.post("/sources/{guid}/regenerate")
-async def regenerate_api_key(guid: str, db: Session = Depends(get_db), user=Depends(auth.get_current_user)):
+async def regenerate_api_key(guid: str, db: Session = Depends(get_db), user=Depends(auth.require_admin)):
     source = db.query(Source).filter(Source.guid == guid).first()
     if source:
         source.api_key = generate_api_key()
@@ -73,7 +73,7 @@ async def regenerate_api_key(guid: str, db: Session = Depends(get_db), user=Depe
 
 
 @router.post("/sources/{guid}/delete")
-async def delete_source(guid: str, db: Session = Depends(get_db), user=Depends(auth.get_current_user)):
+async def delete_source(guid: str, db: Session = Depends(get_db), user=Depends(auth.require_admin)):
     source = db.query(Source).filter(Source.guid == guid).first()
     if source and not source.is_protected:
         db.delete(source)
