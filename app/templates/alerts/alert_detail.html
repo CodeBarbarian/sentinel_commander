@@ -86,6 +86,7 @@
                     </div>
                 </div>
                 {% endfor %}
+                <pre>{{ parsed_fields | tojson(indent=2) }}</pre>
             </div>
             {% else %}
             <p class="tactical-muted">No parsed fields available.</p>
