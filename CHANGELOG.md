@@ -15,6 +15,11 @@ Template
 
 ### Fixed
 ```
+## [v0.2.0] - 2025-06-03
+### Fixed
+- Trying to fix agent name issue in alert detail
+
+
 ## [v0.1.10] - 2025-06-03
 ### Changed
 - Changed the alert presentation on the live dashboard to include ID

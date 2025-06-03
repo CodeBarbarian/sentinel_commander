@@ -101,11 +101,8 @@ def alert_detail_view(
     page_size = 10
     offset = (page - 1) * page_size
 
-    agent_name = (
-        parsed_fields.get("agent_name") or parsed_fields.get("agent")
-        if isinstance(parsed_fields.get("agent_name") or parsed_fields.get("agent"), str)
-        else None
-    )
+    raw_agent = parsed_fields.get("agent_name") or parsed_fields.get("agent")
+    agent_name = raw_agent if isinstance(raw_agent, str) else None
 
     related_alerts = []
     total_related = 0
