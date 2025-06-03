@@ -15,6 +15,11 @@ Template
 
 ### Fixed
 ```
+## [v0.1.10] - 2025-06-03
+### Changed
+- Changed the alert presentation on the live dashboard to include ID
+- Changed the triage to show only in progress and new alerts when entering sentineliq/triage instead of all
+
 ## [v0.1.9] - 2025-06-03
 ### Added
 

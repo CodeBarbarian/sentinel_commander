@@ -42,6 +42,8 @@ def sentinel_iq_page(
     page_size: int = 50,
 ):
     query = db.query(Alert)
+    query = query.filter(Alert.status.in_(["new", "in_progress"]))
+    toggle = False
 
     if q:
         query = query.filter(Alert.message.ilike(f"%{q.lower()}%"))
@@ -51,6 +53,7 @@ def sentinel_iq_page(
 
     if status:
         query = query.filter(Alert.status == status)
+
 
     # Total count before pagination
     total_alerts = query.count()

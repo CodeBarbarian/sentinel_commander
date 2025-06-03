@@ -147,7 +147,7 @@
 
             item.className = `border-start ${border} ps-3 mb-3`;
             item.innerHTML = `
-            <div class="fw-bold ${titleClass}">${icon} ${data.severity?.toUpperCase() || "ALERT"}</div>
+            <div class="fw-bold ${titleClass}">${icon} ${data.id} - ${data.severity?.toUpperCase() || "ALERT"}</div>
             <div class="text-muted small">${data.message || "No message provided."}</div>
             <hr class="my-2">
         `;
