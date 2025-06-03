@@ -127,9 +127,29 @@ def list_alerts_view(
         try:
             payload = json.loads(alert.source_payload or "{}")
             parsed = run_parser_for_type("alert", payload)
-            alert.parsed_fields = parsed.get("mapped_fields", {})
-        except Exception:
-            alert.parsed_fields = {}
+
+            mapped = parsed.get("mapped_fields", {}) or {}
+
+            # Ensure agent_name always exists
+            if "agent_name" not in mapped:
+                agent_name = payload.get("agent", {}).get("name")
+                if agent_name:
+                    mapped["agent_name"] = agent_name
+                    mapped["agent"] = agent_name  # fallback display
+
+            alert.parsed_fields = mapped
+
+        except Exception as e:
+            # Fallback parse
+            try:
+                payload = json.loads(alert.source_payload or "{}")
+                agent_name = payload.get("agent", {}).get("name")
+                alert.parsed_fields = {
+                    "agent_name": agent_name,
+                    "agent": agent_name
+                }
+            except Exception:
+                alert.parsed_fields = {}
 
     for alert in alerts:
         alert.created_at_formatted = alert.created_at.strftime("%Y-%m-%d %H:%M:%S") if alert.created_at else "-"
