@@ -98,27 +98,119 @@
             <div class="row g-3">
                 {% for key, value in parsed_enrichment.items() %}
                 <div class="col-md-6">
-                    <div class="tactical-note-card">
-                        <small class="text-muted">{{ key }}</small>
-                        {% if key == 'geolocation' %}
-                        <ul class="list-unstyled mb-0">
-                            <li><strong>IP:</strong> {{ value.ip }}</li>
-                            <li><strong>Country:</strong> {{ value.country }}</li>
-                            <li><strong>City:</strong> {{ value.city }}</li>
-                            <li><strong>Coordinates:</strong> {{ value.lat }}, {{ value.lon }}</li>
-                            <li><small class="text-muted">From {{ value.provider }}</small></li>
-                        </ul>
-                        {% else %}
-                        <pre class="tactical-markdown-block"><code>{{ value | tojson(indent=2) }}</code></pre>
-                        {% endif %}
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-body">
+                            <h6 class="card-subtitle mb-2 text-muted text-uppercase small">{{ key }}</h6>
+
+                            {% if key == 'geolocation' %}
+                            <div class="tactical-note-card mb-3">
+                                <div class="tactical-heading mb-2">🌍 Geolocation Details</div>
+                                <div class="row g-2">
+                                    <div class="col-md-4">
+                                        <div class="tactical-markdown-block p-3">
+                                            <span class="text-muted">🌐 IP</span><br>
+                                            <strong class="text-info">{{ value.ip }}</strong>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="tactical-markdown-block p-3">
+                                            <span class="text-muted">🏳️ Country</span><br>
+                                            <strong class="text-success">{{ value.country }}</strong>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="tactical-markdown-block p-3">
+                                            <span class="text-muted">🏁 ISO Code</span><br>
+                                            <strong class="text-warning">{{ value.iso_code }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {% elif key == 'MISP' %}
+                            {% if value.matches > 0 %}
+                            {% for item in value.data %}
+                            <div class="tactical-note-card mb-3">
+                                <div class="tactical-heading mb-2">🔗 MISP Attribute: {{ item.type }}</div>
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <div class="tactical-markdown-block p-3">
+                                            <span class="text-muted">🧬 Value</span><br>
+                                            <strong class="text-info">{{ item.value }}</strong>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="tactical-markdown-block p-3">
+                                            <span class="text-muted">📂 Category</span><br>
+                                            <strong class="text-warning">{{ item.category }}</strong>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="tactical-markdown-block p-3">
+                                            <span class="text-muted">🛡️ To IDS</span><br>
+                                            <strong class="text-success">{{ item.to_ids }}</strong>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="tactical-markdown-block p-3">
+                                            <span class="text-muted">🔢 Attribute ID</span><br>
+                                            <strong class="text-secondary">{{ item.attribute_id }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <div class="row g-2">
+                                        <div class="col-md-6">
+                                            <div class="tactical-markdown-block p-3">
+                                                <span class="text-muted">📄 Event Title</span><br>
+                                                <strong>{{ item.event.info }}</strong>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="tactical-markdown-block p-3">
+                                                <span class="text-muted">🏢 Org</span><br>
+                                                <strong>{{ item.event.org }}</strong>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="tactical-markdown-block p-3">
+                                                <span class="text-muted">📅 Date</span><br>
+                                                <strong>{{ item.event.date }}</strong>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="tactical-markdown-block p-3">
+                                                <span class="text-muted">🏷️ Tags</span><br>
+                                                {% if item.event.tags %}
+                                                <strong>{{ item.event.tags | join(", ") }}</strong>
+                                                {% else %}
+                                                <span class="text-muted">None</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {% else %}
+                            <p class="text-muted">No matches in MISP.</p>
+                            {% endif %}
+
+
+                            {% else %}
+                            <!-- Fallback for any other enrichment -->
+                            <pre class="bg-dark text-white p-2 rounded small"><code>{{ value | tojson(indent=2) }}</code></pre>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
                 {% endfor %}
             </div>
             {% else %}
-            <p class="tactical-muted">No enrichment data for this alert.</p>
+            <p class="text-muted fst-italic">No enrichment data for this alert.</p>
             {% endif %}
         </div>
+
 
         <!-- Raw Payload Tab -->
         <div class="tab-pane fade" id="raw">

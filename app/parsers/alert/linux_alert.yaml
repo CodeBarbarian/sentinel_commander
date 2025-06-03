@@ -1,0 +1,9 @@
+parser_name: linux_parser
+parser_type: alert
+match:
+  location: linux
+
+fields:
+
+
+enrichment:

@@ -3,183 +3,215 @@
 
 {% block content %}
 <div class="container-fluid mt-4">
-<!-- Dashboard Navigation -->
-<div class="d-flex justify-content-start align-items-center gap-3 mb-4">
-  <a href="/web/v1/dashboard" class="btn btn-sm btn-outline-primary {% if request.url.path.endswith('/dashboard') %}active{% endif %}">
-    Tactical Dashboard
-  </a>
-  <a href="/web/v1/dashboard/operator" class="btn btn-sm btn-outline-secondary {% if request.url.path.endswith('/dashboard/operator') %}active{% endif %}">
-    Operator Dashboard
-  </a>
-  <!-- Live Status Indicator -->
-  <div class="d-flex align-items-center gap-2 ms-4">
-    <span id="ws-status-indicator" class="rounded-circle" style="width: 12px; height: 12px; background-color: red;"></span>
-    <small class="text-muted">Live</small>
-  </div>
-</div>
-  <!-- Top Stats Row -->
-  <div class="row text-center mb-4">
-    <!-- Critical Alerts -->
-    <div class="col-md-4 mb-3">
-      <a href="/web/v1/alerts?severity=critical" class="btn btn-outline-danger w-100 p-4">
-        🔴 <strong>Critical Alerts</strong>
-        <div class="mt-2">
-          <span id="critical-alert-count" class="badge bg-danger fs-5">{{ critical_alerts_count or "n/a"}}</span>
+    <!-- Dashboard Navigation -->
+    <div class="d-flex justify-content-start align-items-center gap-3 mb-4">
+        <a href="/web/v1/dashboard"
+           class="btn btn-sm btn-outline-primary {% if request.url.path.endswith('/dashboard') %}active{% endif %}">
+            Tactical Dashboard
+        </a>
+        <a href="/web/v1/dashboard/operator"
+           class="btn btn-sm btn-outline-secondary {% if request.url.path.endswith('/dashboard/operator') %}active{% endif %}">
+            Operator Dashboard
+        </a>
+        <!-- Live Status Indicator -->
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <span id="ws-status-indicator"
+                  style="width:12px;height:12px;border-radius:50%;background:red;display:inline-block;"></span>
+            <span class="small text-muted">Live Connection</span>
         </div>
-      </a>
+    </div>
+    <!-- Top Stats Row -->
+    <div class="row text-center mb-4">
+        <!-- Critical Alerts -->
+        <div class="col-md-4 mb-3">
+            <a href="/web/v1/alerts?severity=critical" class="btn btn-outline-danger w-100 p-4">
+                🔴 <strong>Critical Alerts</strong>
+                <div class="mt-2">
+                    <span id="critical-alert-count"
+                          class="badge bg-danger fs-5">{{ critical_alerts_count or "n/a"}}</span>
+                </div>
+            </a>
+        </div>
+
+        <!-- Open Alerts -->
+        <div class="col-md-4 mb-3">
+            <a href="/web/v1/alerts?status=new" class="btn btn-outline-warning w-100 p-4">
+                🟡 <strong>Open Alerts</strong>
+                <div class="mt-2">
+                    <span id="open-alert-count"
+                          class="badge bg-warning text-dark fs-5">{{ open_alerts_count or "n/a"}}</span>
+
+                </div>
+            </a>
+        </div>
+
+        <!-- Open Cases -->
+        <div class="col-md-4 mb-3">
+            <a href="/web/v1/cases?status=open" class="btn btn-outline-info w-100 p-4">
+                🗂️ <strong>Open Cases</strong>
+                <div class="mt-2">
+                    <span id="open-case-count"
+                          class="badge bg-info text-dark fs-5">{{ open_cases_count or "n/a"}}</span>
+
+                </div>
+            </a>
+        </div>
     </div>
 
-    <!-- Open Alerts -->
-    <div class="col-md-4 mb-3">
-      <a href="/web/v1/alerts?status=new" class="btn btn-outline-warning w-100 p-4">
-        🟡 <strong>Open Alerts</strong>
-        <div class="mt-2">
-          <span id="open-alert-count" class="badge bg-warning text-dark fs-5">{{ open_alerts_count or "n/a"}}</span>
-
+    <!-- Live Feed and Event Stream -->
+    <div class="row">
+        <!-- Intel Feed -->
+        <div class="col-md-8 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-dark text-white">
+                    Alert Feed
+                </div>
+                <div class="card-body">
+                    <div id="intel-feed">
+                        <p class="text-muted">Live threat intelligence will appear here.</p>
+                        <!-- Insert polling or live feed logic -->
+                    </div>
+                </div>
+            </div>
         </div>
-      </a>
+
+        <!-- Event Stream -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-dark text-white">
+                    IOC, Address, Signature News Feed
+                </div>
+                <div class="card-body">
+                    <div id="event-stream">
+                        <p class="text-muted">Real-time events loading...</p>
+                        <!-- WebSocket or streaming integration -->
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <!-- Open Cases -->
-    <div class="col-md-4 mb-3">
-      <a href="/web/v1/cases?status=open" class="btn btn-outline-info w-100 p-4">
-        🗂️ <strong>Open Cases</strong>
-        <div class="mt-2">
-          <span id="open-case-count" class="badge bg-info text-dark fs-5">{{ open_cases_count or "n/a"}}</span>
-
-        </div>
-      </a>
-    </div>
-  </div>
-
-  <!-- Live Feed and Event Stream -->
-  <div class="row">
-    <!-- Intel Feed -->
-    <div class="col-md-8 mb-4">
-      <div class="card h-100">
-        <div class="card-header bg-dark text-white">
-          Alert Feed
-        </div>
-        <div class="card-body">
-          <div id="intel-feed">
-            <p class="text-muted">Live threat intelligence will appear here.</p>
-            <!-- Insert polling or live feed logic -->
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Event Stream -->
-    <div class="col-md-4 mb-4">
-      <div class="card h-100">
-        <div class="card-header bg-dark text-white">
-          IOC, Address, Signature News Feed
-        </div>
-        <div class="card-body">
-          <div id="event-stream">
-            <p class="text-muted">Real-time events loading...</p>
-            <!-- WebSocket or streaming integration -->
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
 </div>
 <script>
-const wsStatus = document.getElementById("ws-status-indicator");
+    const wsStatus = document.getElementById("ws-status-indicator");
 
-const socket = new WebSocket("ws://" + window.location.host + "/web/v1/ws/dashboard");
+    const socket = new WebSocket((window.location.protocol === "https:" ? "wss://" : "ws://") + window.location.host + "/web/v1/ws/dashboard");
 
-socket.onopen = function () {
-    console.log("✅ Connected to live dashboard socket");
-    wsStatus.style.backgroundColor = "green";
-};
+    socket.onopen = function () {
+        console.log("✅ Connected to live dashboard socket");
+        wsStatus.style.backgroundColor = "green";
+    };
 
-socket.onclose = function () {
-    console.warn("🔌 WebSocket disconnected from /ws/dashboard");
-    wsStatus.style.backgroundColor = "red";
-};
+    socket.onclose = function () {
+        console.warn("🔌 WebSocket disconnected from /ws/dashboard");
+        wsStatus.style.backgroundColor = "red";
+    };
 
-socket.onerror = function (error) {
-    console.error("❌ WebSocket error:", error);
-    wsStatus.style.backgroundColor = "red";
-};
+    socket.onerror = function (error) {
+        console.error("❌ WebSocket error:", error);
+        wsStatus.style.backgroundColor = "red";
+    };
 
-socket.onmessage = function (event) {
-    const data = JSON.parse(event.data);
-console.log("[Dashboard] Event received:", data);
+    socket.onmessage = function (event) {
+        const data = JSON.parse(event.data);
+        console.log("[Dashboard] Event received:", data);
 
-    // === ALERTS: Feed on the LEFT side (intel-feed) ===
-    if (data.type === "new_alert") {
-        const intelFeed = document.getElementById("intel-feed");
-        const item = document.createElement("div");
+        // === ALERTS: Feed on the LEFT side (intel-feed) ===
+        if (data.type === "new_alert") {
+            const intelFeed = document.getElementById("intel-feed");
+            const item = document.createElement("div");
 
-        let icon = "🟢", border = "border-success", titleClass = "text-success";
-        switch ((data.severity || "").toLowerCase()) {
-            case "critical": icon = "🔴"; border = "border-danger"; titleClass = "text-danger"; break;
-            case "high":     icon = "🟠"; border = "border-warning"; titleClass = "text-warning"; break;
-            case "medium":   icon = "🟡"; border = "border-warning"; titleClass = "text-warning"; break;
-            case "low":      icon = "🔵"; border = "border-info";    titleClass = "text-info";    break;
-        }
+            let icon = "🟢", border = "border-success", titleClass = "text-success";
+            switch ((data.severity || "").toLowerCase()) {
+                case "critical":
+                    icon = "🔴";
+                    border = "border-danger";
+                    titleClass = "text-danger";
+                    break;
+                case "high":
+                    icon = "🟠";
+                    border = "border-warning";
+                    titleClass = "text-warning";
+                    break;
+                case "medium":
+                    icon = "🟡";
+                    border = "border-warning";
+                    titleClass = "text-warning";
+                    break;
+                case "low":
+                    icon = "🔵";
+                    border = "border-info";
+                    titleClass = "text-info";
+                    break;
+            }
 
-        item.className = `border-start ${border} ps-3 mb-3`;
-        item.innerHTML = `
+            item.className = `border-start ${border} ps-3 mb-3`;
+            item.innerHTML = `
             <div class="fw-bold ${titleClass}">${icon} ${data.severity?.toUpperCase() || "ALERT"}</div>
             <div class="text-muted small">${data.message || "No message provided."}</div>
             <hr class="my-2">
         `;
-        intelFeed.prepend(item);
-    }
-
-    // === INTELLIGENCE: Feed on the RIGHT side (event-stream) ===
-    if (data.type === "intel") {
-        const eventStream = document.getElementById("event-stream");
-        const item = document.createElement("div");
-
-        let icon = "🧠", border = "border-info", titleClass = "text-info";
-        const title = (data.title || "").toLowerCase();
-
-        if (title.includes("ioc"))       { icon = "📛"; titleClass = "text-danger"; border = "border-danger"; }
-        else if (title.includes("hash")) { icon = "🧬"; titleClass = "text-warning"; border = "border-warning"; }
-        else if (title.includes("ip") || title.includes("address")) {
-            icon = "📍"; titleClass = "text-primary"; border = "border-primary";
-        } else if (title.includes("signature")) {
-            icon = "🖋️"; titleClass = "text-muted"; border = "border-secondary";
+            intelFeed.prepend(item);
         }
 
-        item.className = `border-start ${border} ps-3 mb-3`;
-        item.innerHTML = `
+        // === INTELLIGENCE: Feed on the RIGHT side (event-stream) ===
+        if (data.type === "intel") {
+            const eventStream = document.getElementById("event-stream");
+            const item = document.createElement("div");
+
+            let icon = "🧠", border = "border-info", titleClass = "text-info";
+            const title = (data.title || "").toLowerCase();
+
+            if (title.includes("ioc")) {
+                icon = "📛";
+                titleClass = "text-danger";
+                border = "border-danger";
+            } else if (title.includes("hash")) {
+                icon = "🧬";
+                titleClass = "text-warning";
+                border = "border-warning";
+            } else if (title.includes("ip") || title.includes("address")) {
+                icon = "📍";
+                titleClass = "text-primary";
+                border = "border-primary";
+            } else if (title.includes("signature")) {
+                icon = "🖋️";
+                titleClass = "text-muted";
+                border = "border-secondary";
+            }
+
+            item.className = `border-start ${border} ps-3 mb-3`;
+            item.innerHTML = `
             <div class="fw-bold ${titleClass}">${icon} ${data.title || "Intel"}</div>
             <div class="text-muted small">${data.message || "No details available."}</div>
             <hr class="my-2">
         `;
-        eventStream.prepend(item);
-    }
-
-    // === SYSTEM EVENTS
-    if (data.type === "event") {
-        const eventStream = document.getElementById("event-stream");
-        const evt = document.createElement("div");
-        evt.className = "small text-muted border-bottom py-1";
-        evt.innerText = data.message || "Received unknown event";
-        eventStream.prepend(evt);
-    }
-
-// === Update Top Boxes Metrics ===
-    if (data.type === "metrics") {
-        if (data.critical_alerts_count !== undefined) {
-            document.querySelector("#critical-alert-count").innerText = data.critical_alerts_count;
+            eventStream.prepend(item);
         }
-        if (data.open_alerts_count !== undefined) {
-            document.querySelector("#open-alert-count").innerText = data.open_alerts_count;
-        }
-        if (data.open_cases_count !== undefined) {
-            document.querySelector("#open-case-count").innerText = data.open_cases_count;
-        }
-    }
 
-};
+        // === SYSTEM EVENTS
+        if (data.type === "event") {
+            const eventStream = document.getElementById("event-stream");
+            const evt = document.createElement("div");
+            evt.className = "small text-muted border-bottom py-1";
+            evt.innerText = data.message || "Received unknown event";
+            eventStream.prepend(evt);
+        }
+
+        // === Update Top Boxes Metrics ===
+        if (data.type === "metrics") {
+            if (data.critical_alerts_count !== undefined) {
+                document.querySelector("#critical-alert-count").innerText = data.critical_alerts_count;
+            }
+            if (data.open_alerts_count !== undefined) {
+                document.querySelector("#open-alert-count").innerText = data.open_alerts_count;
+            }
+            if (data.open_cases_count !== undefined) {
+                document.querySelector("#open-case-count").innerText = data.open_cases_count;
+            }
+        }
+
+    };
 </script>
 
 {% endblock %}

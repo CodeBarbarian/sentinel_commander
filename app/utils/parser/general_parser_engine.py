@@ -2,6 +2,9 @@
 
 import yaml
 from pathlib import Path
+
+from sqlalchemy.orm import Session
+
 from app.utils.parser.engine import run_custom_parser
 
 PARSER_BASE_DIR = Path("app/parsers")
@@ -10,7 +13,7 @@ def load_yaml_file(path):
     with open(path, "r") as f:
         return yaml.safe_load(f)
 
-def run_parser_for_type(parser_type: str, source_payload: dict):
+def run_parser_for_type(parser_type: str, source_payload: dict, db: Session = None):
     parser_dir = PARSER_BASE_DIR / parser_type
     result = {
         "matched": False,
@@ -28,7 +31,7 @@ def run_parser_for_type(parser_type: str, source_payload: dict):
         default_path = parser_dir / "default.yaml"
         if default_path.exists():
             default_yaml = load_yaml_file(default_path)
-            default_result = run_custom_parser(default_yaml, source_payload)
+            default_result = run_custom_parser(default_yaml, source_payload, db)
             result.update({
                 "mapped_fields": default_result.get("mapped_fields", {}),
                 "tags": default_result.get("tags", []),
@@ -44,7 +47,7 @@ def run_parser_for_type(parser_type: str, source_payload: dict):
                 continue
 
             parser_yaml = load_yaml_file(parser_path)
-            parser_result = run_custom_parser(parser_yaml, source_payload)
+            parser_result = run_custom_parser(parser_yaml, source_payload, db)
 
             if parser_result.get("matched"):
                 result.update({

@@ -1,0 +1,9 @@
+parser_name: windows_parser
+parser_type: alert
+match:
+  location: windows
+
+fields:
+
+
+enrichment:

@@ -66,7 +66,7 @@ def alert_detail_view(
 
     # === Parser Execution ===
     try:
-        parsed = run_parser_for_type("alert", source_payload_json)
+        parsed = run_parser_for_type("alert", source_payload_json, db)
         parsed_fields = parsed.get("mapped_fields", {})
         parsed_tags = parsed.get("tags", [])
         parsed_enrichment = parsed.get("enrichment", {})
@@ -127,7 +127,7 @@ def alert_detail_view(
         for r in related_alerts:
             try:
                 payload = json.loads(r.source_payload or "{}")
-                parsed = run_parser_for_type("alert", payload)
+                parsed = run_parser_for_type("alert", payload, db)
                 r.parsed_agent = (
                     parsed.get("mapped_fields", {}).get("agent_name")
                     or parsed.get("mapped_fields", {}).get("agent")
@@ -162,7 +162,7 @@ def alert_detail_view(
         for r in related_alerts_by_message:
             try:
                 payload = json.loads(r.source_payload or "{}")
-                parsed = run_parser_for_type("alert", payload)
+                parsed = run_parser_for_type("alert", payload, db)
                 r.parsed_agent = (
                     parsed.get("mapped_fields", {}).get("agent_name")
                     or parsed.get("mapped_fields", {}).get("agent")

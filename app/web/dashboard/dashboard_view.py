@@ -43,12 +43,15 @@ def dashboard_view(request: Request, user=Depends(auth.get_current_user), db: Se
             tag_set.update(tag.strip() for tag in row.tags.split(",") if tag.strip())
     unique_tags = len(tag_set)
 
-    # Severity breakdown
+    # Severity breakdown for today only
     severity_levels = ["Informational", "Low", "Medium", "High", "Critical"]
     severity_counts = []
     for label in severity_levels:
         values = SEVERITY_MAP[label]
-        count = db.query(func.count(Alert.id)).filter(Alert.severity.in_(values)).scalar()
+        count = db.query(func.count(Alert.id)).filter(
+            Alert.severity.in_(values),
+            Alert.created_at >= start_of_day
+        ).scalar()
         severity_counts.append(count)
 
     # Alerts per day for last 7 days
@@ -118,13 +121,13 @@ def dashboard_view(request: Request, user=Depends(auth.get_current_user), db: Se
 
 @router.get("/dashboard/operator", response_class=HTMLResponse)
 def operator_dashboard_view(request: Request, user=Depends(auth.get_current_user), db: Session = Depends(get_db)):
-    # 🟥 Critical Alerts (severity == 15)
+    # Critical Alerts (severity == 15)
     critical_alerts = db.query(func.count(Alert.id)).filter(Alert.severity == 15, Alert.status == "new").scalar()
 
-    # 🟨 Open Alerts (status != 'done' / 'closed')
+    # Open Alerts (status != 'done' / 'closed')
     open_alerts = db.query(func.count(Alert.id)).filter(Alert.status.notin_(["done", "closed", "resolved"])).scalar()
 
-    # 🗂️ Open Cases (state != 'closed')
+    # Open Cases (state != 'closed')
     open_cases = db.query(func.count(Case.id)).filter(Case.state != "closed").scalar()
 
     return templates.TemplateResponse("dashboard/dashboard_operator.html", {

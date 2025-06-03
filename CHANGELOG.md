@@ -16,7 +16,17 @@ Template
 ### Fixed
 ```
 
-## [v0.1.5]
+## [v0.1.6] - 2025-06-03
+### Added
+- Added basic MISP support (testing only)
+### Changed
+- Changed the Severity Distribution graph to only show the last day of data
+### Fixed
+- Fixed HTTPS support for web sockets
+- Fixed the design for GeoLocation in Alerts and IOCS
+- Fixed wire framing in YAML files (DO NOT USE EMPTY YAML FILES FOR PRODUCTION)
+
+## [v0.1.5] - 2025-06-02
 ### Added
 - Added Geolocation to IOCS and Alerts (Alert Detail View)
 - Added windows alert YAML (as a wireframe)
