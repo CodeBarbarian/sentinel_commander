@@ -54,13 +54,6 @@ async def delete_ioc(ioc_id: int = Form(...), db: Session = Depends(get_db), use
         db.delete(ioc)
         db.commit()
 
-    await broadcast_dashboard_event({
-        "title":"IOC",
-        "type": "intel",
-        "severity": "info",
-        "message": f"{ioc} deleted."
-    })
-
     return RedirectResponse("/web/v1/iocs", status_code=302)
 
 @router.post("/iocs/edit")

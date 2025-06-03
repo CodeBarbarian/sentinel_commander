@@ -15,6 +15,14 @@ Template
 
 ### Fixed
 ```
+
+## [v0.1.8] - 2025-06-03
+### Added
+- Added tasks to tasks directory
+### Changed
+- Added additional debug statements for sockets for real time alerts
+### Fixed
+
 ## [v0.1.7] - 2025-06-03
 ### Added
 - SentinelIQ Enrichment Module

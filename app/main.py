@@ -4,14 +4,18 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 from datetime import datetime
-import asyncio
-from app.utils.sockets.metrics_task import broadcast_metrics_loop, broadcast_new_alerts_loop, refresh_version_task
 from contextlib import asynccontextmanager
 from app.core.log_config import setup_logging
 from app.core.database import Base, engine
-from app.core.version import get_local_version, is_version_outdated
 from app.core.router_registry import router_registry
 from app.core.bootstrap import ensure_internal_source, init_data
+import asyncio
+
+from app.tasks.version_check_task import refresh_version_task
+from app.tasks.dashboard_metrics_task import broadcast_metrics_loop
+from app.tasks.dashboard_new_alerts_task import broadcast_new_alerts_loop
+
+from app.core.version import get_local_version
 
 # Init
 setup_logging()
@@ -56,8 +60,15 @@ async def root_redirect(request: Request):
 
 @app.middleware("http")
 async def attach_version_to_request(request: Request, call_next):
+    # Fallback if app state is missing version info (e.g., first run)
+    if not hasattr(request.app.state, "version"):
+        request.app.state.version = get_local_version()
+        request.app.state.version_outdated = False
+
+    # Attach app-level version info to the request
     request.state.version = request.app.state.version
     request.state.version_outdated = request.app.state.version_outdated
+
     return await call_next(request)
 
 
