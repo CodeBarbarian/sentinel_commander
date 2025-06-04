@@ -86,7 +86,19 @@
                     </div>
                 </div>
                 {% endfor %}
-                <pre>{{ parsed_fields | tojson(indent=2) }}</pre>
+
+                <div class="mb-3">
+                    <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#parsedFieldsCollapse" aria-expanded="false"
+                            aria-controls="parsedFieldsCollapse">
+                        🧬 Show Parsed Data
+                    </button>
+
+                    <div class="collapse mt-2" id="parsedFieldsCollapse">
+                        <small class="text-muted">Parsed Data (Everything which is parsed)</small>
+                        <pre class="tactical-markdown-block mb-0"><code>{{ parsed_fields | tojson(indent=2) }}</code></pre>
+                    </div>
+                </div>
             </div>
             {% else %}
             <p class="tactical-muted">No parsed fields available.</p>

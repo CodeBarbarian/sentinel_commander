@@ -16,22 +16,41 @@ Template
 ### Fixed
 ```
 
+## [v0.2.1] - 2025-06-03 - The removing a lot of stuff to place new stuff update!
+### Added
+- Placeholders for MISP, MaxMind and VirusTotal Module Pages
+- Placeholder for documentation in settings
+- Logging to MISP Module (Centralized Logging)
+### Changed
+- Commented out the API Routers due to security for production
+- Moved matrics.py into app/utils/sockets
+- alerts_details_view.py Imports
+- Collapsable shown with button for all parsed fields
+### Fixed
+
+### Removed
+- app/db/session.py (redundant)
+- app/utils/display.py (redundant)
+- app/utils/geo.py (redundant)
+- Removed legacy rendering of Alert Details
+
+
+
 ## [v0.2.0] - 2025-06-03
 ### Fixed
 - Trying to fix agent name issue in alert detail
+
 
 ## [v0.1.10] - 2025-06-03
 ### Changed
 - Changed the alert presentation on the live dashboard to include ID
 - Changed the triage to show only in progress and new alerts when entering sentineliq/triage instead of all
 
+
 ## [v0.1.9] - 2025-06-03
-### Added
-
-### Changed
-
 ### Fixed
 - Alert to live dashboard
+
 
 ## [v0.1.8] - 2025-06-03
 ### Added
@@ -39,6 +58,7 @@ Template
 ### Changed
 - Added additional debug statements for sockets for real time alerts
 ### Fixed
+
 
 ## [v0.1.7] - 2025-06-03
 ### Added
@@ -50,6 +70,7 @@ Template
 ### Fixed
 - Persistent filters in alerts when searching and performing bulk actions
 - Fixed the dashboard design, forgot to close a div
+
 
 ## [v0.1.6] - 2025-06-03
 ### Added
@@ -69,9 +90,7 @@ Template
 - Added ubuntu alert YAML (as wireframe)
 - Added a general linux alert YAML (as a wireframe)
 - Added websockets for live dashboard (started implementation)
-### Changed
 
-### Fixed
 
 ## [v0.1.4] - 2025-06-02 - Production Ready for small environments
 ### Added

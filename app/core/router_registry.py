@@ -18,14 +18,14 @@ from app.web.users import users_view, auth_view
 
 router_registry = [
     # API routes
-    (alerts.router, "/api/v1"),
-    (sources.router, "/api/v1"),
-    (settings_parser.router, "/api/v1"),
-    (parsers.router, "/api/v1"),
-    (cases.router, "/api/v1"),
-    (customers.router, "/api/v1"),
-    (users.router, "/api/v1"),
-    (publisher.router, "/api/v1"),
+    #(alerts.router, "/api/v1"),
+    #(sources.router, "/api/v1"),
+    #(settings_parser.router, "/api/v1"),
+    #(parsers.router, "/api/v1"),
+    #(cases.router, "/api/v1"),
+    #(customers.router, "/api/v1"),
+    #(users.router, "/api/v1"),
+    #(publisher.router, "/api/v1"),
 
     # Web routes
     (dashboard_view.router, "/web/v1"),

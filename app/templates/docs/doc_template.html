@@ -1,0 +1,13 @@
+{% extends "_design.html" %}
+{% block title %}Documentation - Sentinel Commander{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h4 class="tactical-heading mb-4">📘 Sentinel Commander Documentation</h4>
+    <div class="card p-4">
+        <div class="markdown-body">
+            {{ content | safe }}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -4,6 +4,11 @@ from app.models.source import Source
 from app.core.database import SessionLocal
 import uuid
 import secrets
+from sqlalchemy.orm import Session
+from app.core.database import SessionLocal
+from app.models.user import User
+from passlib.hash import bcrypt
+
 
 def generate_api_key() -> str:
     """Generate a secure 40-character hex token."""
@@ -28,11 +33,6 @@ def ensure_internal_source():
     else:
         print("[✓] Default source already exists.")
     db.close()
-
-from sqlalchemy.orm import Session
-from app.core.database import SessionLocal
-from app.models.user import User
-from passlib.hash import bcrypt
 
 def init_data():
     db: Session = SessionLocal()

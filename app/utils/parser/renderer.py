@@ -76,7 +76,6 @@ def render_alert_card_fields(alert_data, parsed_fields=None, config=None):
             "color": color,
             "no_label": no_label
         })
-    #print(f"[RENDER DEBUG] Alert ID: {combined_data.get('id')}, Field: {key}, Raw: {raw_value}, Final: {value}, Style: {style}")
 
     return rendered
 

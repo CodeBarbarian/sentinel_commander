@@ -2,7 +2,7 @@ import asyncio
 from sqlalchemy.orm import Session
 from app.core.database import SessionLocal
 from app.utils.sockets.broadcast import broadcast_dashboard_event
-from app.utils.metrics import get_current_metrics
+from app.utils.sockets.metrics import get_current_metrics
 
 async def broadcast_metrics_loop():
     while True:
