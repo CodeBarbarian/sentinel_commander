@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from app.core.database import SessionLocal
 from app.models.user import User
 from passlib.hash import bcrypt
+import logging
 
 
 def generate_api_key() -> str:
@@ -15,6 +16,8 @@ def generate_api_key() -> str:
     return secrets.token_hex(20)  # 40 characters
 
 def ensure_internal_source():
+    logger = logging.getLogger(__name__)
+
     db: Session = SessionLocal()
     existing = db.query(Source).filter(Source.name == "Default API Key").first()
 
@@ -29,17 +32,18 @@ def ensure_internal_source():
         )
         db.add(internal)
         db.commit()
-        print(f"[+] Default source created. API Key: {internal.api_key}")
+        logging.info(f"Default source created. API Key: {internal.api_key}")
     else:
-        print("[✓] Default source already exists.")
+        logging.info("Default source already exists.")
     db.close()
 
 def init_data():
+    logger = logging.getLogger(__name__)
     db: Session = SessionLocal()
     try:
         existing = db.query(User).filter(User.email == "admin@sentinel.local").first()
         if existing:
-            print("[+] Admin user already exists — skipping bootstrap.")
+            logging.info("[+] Admin user already exists — skipping bootstrap.")
             return
 
         admin = User(
@@ -53,9 +57,9 @@ def init_data():
         )
         db.add(admin)
         db.commit()
-        print("[+] Default admin user created (username: admin, password: ChangeMe!)")
+        logger.info("[+] Default admin user created (username: admin, password: ChangeMe!)")
     except Exception as e:
         db.rollback()
-        print(f"[!] Bootstrap error: {e}")
+        logger.error(f"[!] Bootstrap error: {e}")
     finally:
         db.close()

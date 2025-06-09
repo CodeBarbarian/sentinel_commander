@@ -86,7 +86,6 @@ def ioc_detail_view(
     user=Depends(auth.get_current_user)
 ):
 
-    print("Lol")
     ioc = db.query(IOC).filter(IOC.id == ioc_id).first()
     if not ioc:
         raise HTTPException(status_code=404, detail="IOC not found")
@@ -115,10 +114,8 @@ def ioc_detail_view(
     lists = db.query(PublisherList).join(PublisherEntry).filter(PublisherEntry.value == ioc.value).all()
 
     enrichment = None
-    print(ioc.type + "string 2")
     if ioc.type and ioc.type.lower() == "ip":
-        print("Looking up country for IP")
-        print(ioc.value)
+
         enrichment = lookup_country(ioc.value)
 
     return templates.TemplateResponse("iocs/iocs_detail.html", {

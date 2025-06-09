@@ -45,7 +45,6 @@ def enrichment_api(
     # MISP
     misp = MISPEnrichment(db)
     misp_result = misp.enrich_with_misp(value)
-    print("🧠 MISP matches count:", misp_result.get("matches"))
     if misp_result.get("matches", 0) > 0:
         match_html = ""
         for match in misp_result["data"]:

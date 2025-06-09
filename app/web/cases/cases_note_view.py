@@ -65,7 +65,6 @@ def add_note_to_case(
     case_id: int,
     request: Request,
     content: str = Form(...),
-    author_id: int = Form(...),
     db: Session = Depends(get_db),
     user=Depends(auth.get_current_user)
 ):
@@ -73,7 +72,7 @@ def add_note_to_case(
     if not case:
         raise HTTPException(status_code=404, detail="Case not found")
 
-    note = CaseNote(case_id=case_id, author_id=author_id, content=content)
+    note = CaseNote(case_id=case_id, author_id=user.id, content=content)
     db.add(note)
     db.commit()
 
@@ -82,7 +81,7 @@ def add_note_to_case(
         case_id=case_id,
         event_type="note_added",
         message="Note added to case.",
-        actor_id=author_id,
+        actor_id=user.id,
         details=content[:255]  # Limit for preview in timeline
     )
 

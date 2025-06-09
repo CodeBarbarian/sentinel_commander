@@ -5,8 +5,10 @@ from app.utils.sockets.broadcast import broadcast_dashboard_event
 from sqlalchemy import desc
 from app.models.alert import Alert
 from app.utils.severity import SEVERITY_LABELS
+import logging
 
 async def broadcast_new_alerts_loop():
+    logger = logging.getLogger(__name__)
     latest_seen_id = None
 
     while True:
@@ -32,7 +34,7 @@ async def broadcast_new_alerts_loop():
                         latest_seen_id = max(latest_seen_id, alert.id)
 
         except Exception as e:
-            print("❌ Error broadcasting new alerts:", e)
+            logger.error("❌ Error broadcasting new alerts:", e)
         finally:
             db.close()
 

@@ -15,6 +15,15 @@ Template
 
 ### Fixed
 ```
+## [v0.2.2] - 2025-06-09
+### Added
+
+### Changed
+
+### Fixed
+- Username/Email is now used instead of hardcoded admin on notes in cases
+### Removed
+- Webhook/Router -- Unused
 
 ## [v0.2.1] - 2025-06-03 - The removing a lot of stuff to place new stuff update!
 ### Added
@@ -120,6 +129,7 @@ Template
 - Added searching and filtering to triage page
 ### Changed
 - Updated scripts/* due to directory structure changes
+- Switched out print statements with actual logging
 ### Fixed
 - Webhook startup script now correctly handles the application load
 
