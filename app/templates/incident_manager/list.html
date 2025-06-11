@@ -1,0 +1,115 @@
+{% extends "_design.html" %}
+{% block title %}Incidents - Sentinel Commander{% endblock %}
+
+{% block content %}
+<div class="container-fluid my-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="tactical-heading-xl mb-0">🧯 Incident Response Manager</h4>
+    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#createIncidentModal">
+      ➕ New Incident
+    </button>
+  </div>
+
+  <!-- Search -->
+  <form class="mb-3" method="get" action="/web/v1/incidents/">
+    <div class="input-group">
+      <input type="text" name="search" class="form-control" placeholder="Search by ID, title, or lead…">
+      <button class="btn btn-outline-secondary" type="submit">🔍 Search</button>
+    </div>
+  </form>
+
+  <!-- Incidents Table -->
+  <div class="card border border-secondary shadow-sm">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-dark table-hover table-sm tactical-table mb-0">
+          <thead class="tactical-table-header">
+            <tr>
+              <th>ID</th>
+              <th>Title</th>
+              <th>Category</th>
+              <th>Severity</th>
+              <th>Status</th>
+              <th>Lead</th>
+              <th>Date Detected</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for incident in incidents %}
+            <tr>
+              <td>#{{ incident.id }}</td>
+              <td>{{ incident.title }}</td>
+              <td>{{ incident.category or "—" }}</td>
+              <td>
+                <span class="badge bg-danger text-white">{{ incident.severity }}</span>
+              </td>
+              <td>
+                <span class="badge bg-info text-dark">{{ incident.status }}</span>
+              </td>
+              <td>{{ incident.lead_name or "—" }}</td>
+              <td>{{ incident.date_detected.strftime("%Y-%m-%d") }}</td>
+              <td class="text-end">
+                <a href="/web/v1/incidents/{{ incident.id }}" class="btn btn-sm btn-outline-light">🔎 View</a>
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="8" class="text-center text-muted py-3">No incidents found.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Create Incident Modal -->
+<div class="modal fade" id="createIncidentModal" tabindex="-1" aria-labelledby="createIncidentModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <form method="post" action="/web/v1/incidents/create">
+        <div class="modal-header">
+          <h5 class="modal-title">➕ New Incident</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="incidentTitle" class="form-label">Incident Title</label>
+            <input type="text" class="form-control" id="incidentTitle" name="title" required>
+          </div>
+          <div class="mb-3">
+            <label for="incidentCategory" class="form-label">Category</label>
+            <input type="text" class="form-control" id="incidentCategory" name="category">
+          </div>
+          <div class="mb-3">
+            <label for="incidentSeverity" class="form-label">Severity</label>
+            <select class="form-select" id="incidentSeverity" name="severity">
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+              <option value="Critical">Critical</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="incidentLead" class="form-label">Incident Lead</label>
+            <select class="form-select" id="incidentLead" name="lead_id">
+              {% for user in users %}
+              <option value="{{ user.id }}">{{ user.full_name or user.username }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="dateDetected" class="form-label">Date Detected</label>
+            <input type="date" class="form-control" id="dateDetected" name="date_detected" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">✅ Create Incident</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

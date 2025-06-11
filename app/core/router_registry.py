@@ -15,6 +15,7 @@ from app.web.sentineliq import sentineliq_view, sentineliq_search_view, sentinel
 from app.web.settings import settings_view, settings_yaml_view
 from app.web.sources import sources_view
 from app.web.users import users_view, auth_view
+from app.web.incident_manager import incident_manager_view
 
 router_registry = [
     # API routes
@@ -61,4 +62,6 @@ router_registry = [
     (cases_assets_view.router, "/web/v1"),
     (cases_evidence_view.router, "/web/v1"),
     (cases_playbooks_view.router, "/web/v1"),
+
+    (incident_manager_view.router, "/web/v1"),
 ]

@@ -1,0 +1,122 @@
+{% extends "_design.html" %}
+{% block title %}Incident #2024-0412 - Sentinel Commander{% endblock %}
+
+{% block content %}
+<div class="container-fluid my-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="tactical-heading-xl mb-0">🧯 Incident #2024-0412 – Phishing Attack on Finance Dept</h4>
+    <a href="/web/v1/incidents" class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-arrow-left"></i> Back to Incidents
+    </a>
+  </div>
+
+  <!-- Tabs -->
+  <ul class="nav nav-tabs modern-tabs mb-3" id="incidentTabs" role="tablist">
+    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#general">General</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#detection">Detection</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#analysis">Analysis</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#containment">Containment</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#eradication">Eradication</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#recovery">Recovery</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#lessons-learned">Lessons Learned</button></li>
+  </ul>
+
+  <!-- Tab Contents -->
+  <div class="tab-content" id="incidentTabsContent">
+
+    <!-- GENERAL -->
+    <div class="tab-pane fade show active" id="general">
+      <div class="row g-3">
+        <div class="col-md-6"><label class="form-label">Title</label><input class="form-control" value="Phishing Attack on Finance Dept" readonly></div>
+        <div class="col-md-3"><label class="form-label">Category</label><input class="form-control" value="Phishing" readonly></div>
+        <div class="col-md-3"><label class="form-label">Severity</label><input class="form-control" value="High" readonly></div>
+        <div class="col-md-4"><label class="form-label">TLP</label><input class="form-control" value="Amber" readonly></div>
+        <div class="col-md-4"><label class="form-label">Date Detected</label><input class="form-control" value="2025-06-10" readonly></div>
+        <div class="col-md-4"><label class="form-label">Date Resolved</label><input class="form-control" value="—" readonly></div>
+        <div class="col-md-6"><label class="form-label">Reported By</label><input class="form-control" value="security@company.com" readonly></div>
+        <div class="col-md-6"><label class="form-label">Incident Lead</label><input class="form-control" value="Morten Haugstad" readonly></div>
+      </div>
+    </div>
+
+    <!-- DETECTION -->
+    <div class="tab-pane fade" id="detection">
+      <div class="mb-3"><label class="form-label">Detection Methods</label><p class="form-control-plaintext">User Reported, Email Gateway Alert, SIEM Correlation</p></div>
+      <div class="mb-3">
+        <label class="form-label">Indicators of Compromise</label>
+        <ul class="list-group">
+          <li class="list-group-item">Domain: secure-login365.com</li>
+          <li class="list-group-item">IP: 185.203.118.27</li>
+          <li class="list-group-item">SHA256: 3b5c4a...0f9d1e</li>
+        </ul>
+      </div>
+      <div class="mb-3"><label class="form-label">Notifications Sent</label><p class="form-control-plaintext">IR Team, CISO, Helpdesk</p></div>
+    </div>
+
+    <!-- ANALYSIS -->
+    <div class="tab-pane fade" id="analysis">
+      <div class="row g-3">
+        <div class="col-md-4"><label class="form-label">Threat Actor</label><input class="form-control" value="UNC1878 (suspected)" readonly></div>
+        <div class="col-md-4"><label class="form-label">Motive</label><input class="form-control" value="Credential Theft, Financial Gain" readonly></div>
+        <div class="col-md-4"><label class="form-label">Confidence Level</label><input class="form-control" value="Medium" readonly></div>
+      </div>
+      <div class="mt-4">
+        <label class="form-label">MITRE ATT&CK Techniques</label>
+        <ul class="list-group">
+          <li class="list-group-item">Initial Access — Phishing: Spearphishing Attachment (T1566.001)</li>
+          <li class="list-group-item">Credential Access — Credential Dumping (T1003)</li>
+          <li class="list-group-item">Command and Control — Application Layer Protocol (T1071)</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- CONTAINMENT -->
+    <div class="tab-pane fade" id="containment">
+      <label class="form-label">Containment Strategy</label>
+      <p class="form-control-plaintext">Blocked malicious domains at perimeter; reset affected user passwords; isolated impacted endpoints.</p>
+      <label class="form-label mt-3">Effectiveness</label>
+      <p class="form-control-plaintext">Partial: 2 accounts had lateral movement before containment completed.</p>
+    </div>
+
+    <!-- ERADICATION -->
+    <div class="tab-pane fade" id="eradication">
+      <label class="form-label">Eradication Steps</label>
+      <p class="form-control-plaintext">Removed persistence mechanisms, re-imaged affected machines, revoked OAuth tokens.</p>
+      <label class="form-label mt-3">Success?</label>
+      <p class="form-control-plaintext">Yes — confirmed via endpoint telemetry and SIEM quieting.</p>
+    </div>
+
+    <!-- RECOVERY -->
+    <div class="tab-pane fade" id="recovery">
+      <label class="form-label">Recovered Assets</label>
+      <p class="form-control-plaintext">finance-server-01, finance-laptop-02</p>
+      <label class="form-label mt-3">Post-Recovery Monitoring</label>
+      <p class="form-control-plaintext">Enabled; 7-day close monitoring on all finance endpoints</p>
+    </div>
+
+    <!-- LESSONS LEARNED -->
+    <div class="tab-pane fade" id="lessons-learned">
+      <label class="form-label">Executive Summary</label>
+      <p class="form-control-plaintext">
+        A spearphishing campaign targeted the finance department. Early detection by a user led to prompt containment, though two accounts were accessed. No evidence of data exfiltration found.
+      </p>
+
+      <label class="form-label mt-4">Impact Assessment</label>
+      <ul class="list-group">
+        <li class="list-group-item">Business Operations: Minor disruption (email reset)</li>
+        <li class="list-group-item">Data Loss: None confirmed</li>
+        <li class="list-group-item">Reputation: Low</li>
+        <li class="list-group-item">Compliance/Legal: No reporting obligation</li>
+        <li class="list-group-item">Financial: <$5,000 response cost</li>
+      </ul>
+
+      <label class="form-label mt-4">Was the response effective?</label>
+      <p class="form-control-plaintext">Yes — early report helped minimize damage.</p>
+
+      <div class="mt-4">
+        <button class="btn btn-outline-success">📤 Export Report as PDF</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
