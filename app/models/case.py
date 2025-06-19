@@ -41,5 +41,4 @@ class Case(Base):
     evidence = relationship("CaseEvidence", back_populates="case", cascade="all, delete-orphan")
     iocs = relationship("CaseIOC", back_populates="case", cascade="all, delete-orphan")
     assets = relationship("Asset", secondary=case_asset_link, back_populates="linked_cases")
-    # playbooks = relationship("CasePlaybook", back_populates="case", cascade="all, delete-orphan")
     playbooks = relationship("CasePlaybook", back_populates="case", cascade="all, delete-orphan")

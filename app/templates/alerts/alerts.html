@@ -13,6 +13,9 @@
             <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#bulkModal">📦 Bulk
                 Actions
             </button>
+            <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#mergeModal">
+    🧩 Merge Alerts
+</button>
             <a href="/web/v1/alerts?{{ request.query_params }}" class="btn btn-sm btn-outline-primary">🔁 Refresh</a>
         </div>
     </div>
@@ -221,9 +224,47 @@
 
 {% include "alerts/_bulk_modal.html" %}
 {% include "alerts/_filter_modal.html" %}
-
+{% include "alerts/_merge_alerts.html" %}
 
 <script>
+document.getElementById("mergeActionSelect").addEventListener("change", function () {
+    const newFields = document.getElementById("newCaseFields");
+    const existingSelector = document.getElementById("existingCaseSelector");
+
+    const titleInput = document.getElementById("case_title");
+    const descriptionInput = document.getElementById("case_description");
+
+    if (this.value === "new_case") {
+        newFields.classList.remove("d-none");
+        existingSelector.classList.add("d-none");
+
+        titleInput.required = true;
+        descriptionInput.required = false;
+
+    } else if (this.value === "existing_case") {
+        newFields.classList.add("d-none");
+        existingSelector.classList.remove("d-none");
+
+        titleInput.required = false;
+        descriptionInput.required = false;
+    }
+});
+
+
+// Before submitting the merge form, inject selected alerts
+document.getElementById("merge-alerts-form").addEventListener("submit", function (e) {
+    const selected = Array.from(document.querySelectorAll(".alert-checkbox:checked"))
+        .map(cb => cb.value);
+
+    if (selected.length === 0) {
+        e.preventDefault();
+        alert("Please select at least one alert to merge.");
+        return;
+    }
+
+    document.getElementById("mergeAlertIds").value = selected.join(",");
+});
+
     /**
      * Submit filter form and log the constructed filter URL.
      */

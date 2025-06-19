@@ -1,0 +1,45 @@
+<!-- Merge Alerts Modal -->
+<div class="modal fade" id="mergeModal" tabindex="-1" aria-labelledby="mergeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <form id="merge-alerts-form" method="post" action="/web/v1/alerts/merge">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">🧩 Merge Selected Alerts</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+
+                    <input type="hidden" name="alert_ids" id="mergeAlertIds">
+
+                    <div class="mb-3">
+                        <label class="form-label">Action</label>
+                        <select class="form-select" name="action" id="mergeActionSelect" required>
+                            <option value="new_case">🆕 Create New Case</option>
+                            <option value="existing_case">📎 Attach to Existing Case</option>
+                        </select>
+                    </div>
+
+                    <div id="existingCaseSelector" class="mb-3 d-none">
+                        <label for="existing_case_id" class="form-label">Select Case</label>
+                        <select class="form-select" name="existing_case_id" id="existing_case_id">
+                            {% for case in cases %}
+                            <option value="{{ case.id }}">#{{ case.id }} - {{ case.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div id="newCaseFields" class="mb-3">
+                        <label for="case_title" class="form-label">Case Title</label>
+                        <input type="text" class="form-control" name="case_title" id="case_title" required>
+                        <label for="case_description" class="form-label mt-2">Case Description</label>
+                        <textarea class="form-control" name="case_description" id="case_description" rows="3"></textarea>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">✔️ Confirm</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
