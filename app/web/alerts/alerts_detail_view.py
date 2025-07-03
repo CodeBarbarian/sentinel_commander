@@ -50,6 +50,10 @@ def alert_detail_view(
             "parser_name": parsed.get("parser_name"),
             "matched": parsed.get("matched", False)
         }
+        print("PARSED:", parsed)
+        print("MAPPED:", parsed_fields)
+        print("TAGS:", parsed_tags)
+        print("ENRICH:", parsed_enrichment)
     except Exception as e:
         parsed_fields = {"error": f"Parser failed: {str(e)}"}
         parsed_tags = []

@@ -15,6 +15,11 @@ Template
 
 ### Fixed
 ```
+## [v0.2.4] - 2025-07-03
+### Added
+- Additional debug statements for help
+
+
 ## [v0.2.3] - 2025-06-19
 ### Added
 - Merge alert ability. Merge alerts into cases.

@@ -181,3 +181,7 @@ sentinel.db
 
 # Resources
 /app/resources/*
+
+# Parsers
+/app/parsers/alert/*
+/app/parsers/triage/*
