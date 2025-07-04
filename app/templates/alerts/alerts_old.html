@@ -1,0 +1,410 @@
+{% extends "_design.html" %}
+{% block title %}Alerts - Sentinel Commander{% endblock %}
+
+{% block content %}
+<div class="card alert-card px-4 py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="tactical-heading mb-0">🚨 Alert Center</h4>
+        <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#filterModal">🎯
+                Filters
+            </button>
+            <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#bulkModal">📦 Bulk
+                Actions
+            </button>
+            <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#mergeModal">
+    🧩 Merge Alerts
+</button>
+            <a href="/web/v1/alerts?{{ request.query_params }}" class="btn btn-sm btn-outline-primary">🔁 Refresh</a>
+        </div>
+    </div>
+
+    {% if alerts %}
+    <div class="d-flex justify-content-end">
+        <nav aria-label="Alert pagination">
+            <ul class="pagination justify-content-center">
+
+                {% if pagination.show_prev %}
+                <li class="page-item">
+                    <a class="page-link"
+                       href="?page={{ pagination.prev_page }}&{{ pagination.query_string }}">Previous</a>
+                </li>
+                {% endif %}
+
+                {% set max_visible = 5 %}
+                {% set current = pagination.page %}
+                {% set total = pagination.total_pages %}
+                {% set start_page = [1, current - 2] | max %}
+                {% set end_page = [start_page + max_visible - 1, total] | min %}
+                {% set start_page = [1, end_page - max_visible + 1] | max %}
+
+                {% if start_page > 1 %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1&{{ pagination.query_string }}">1</a>
+                </li>
+                <li class="page-item disabled"><span class="page-link">…</span></li>
+                {% endif %}
+
+                {% for p in range(start_page, end_page + 1) %}
+                <li class="page-item {% if p == current %}active{% endif %}">
+                    <a class="page-link" href="?page={{ p }}&{{ pagination.query_string }}">{{ p }}</a>
+                </li>
+                {% endfor %}
+
+                {% if end_page < total %}
+                <li class="page-item disabled"><span class="page-link">…</span></li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ total }}&{{ pagination.query_string }}">Last</a>
+                </li>
+                {% endif %}
+
+                {% if pagination.show_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ pagination.next_page }}&{{ pagination.query_string }}">Next</a>
+                </li>
+                {% endif %}
+
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+
+    <div class="d-flex justify-content-between align-items-center mb-3 w-100">
+
+        <!-- Left: Selected Count + Select All -->
+        <div class="d-flex align-items-center gap-3">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="select-all-visible">
+                <label class="form-check-label" for="select-all-visible">Select All</label>
+            </div>
+            <small class="tactical-muted" id="selected-count">0 alerts selected</small>
+
+        </div>
+
+        <!-- Center: Alert count -->
+        <div class="text-center flex-grow-1">
+            <small class="text-muted">🔍 {{ pagination.total_results }} results found</small>
+        </div>
+
+        <!-- Right: Per-page selector -->
+        <div>
+            <label for="limitSelect" class="form-label me-2">Alerts per page:</label>
+            <select id="limitSelect" class="form-select form-select-sm d-inline-block w-auto">
+                {% for option in [10, 20, 50, 100, 200, 500, 1000] %}
+                <option value="{{ option }}" {% if limit== option %}selected{% endif %}>{{ option }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+    </div>
+
+    {% if request.query_params %}
+    <div class="alert alert-dark d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <strong class="me-2">Filters:</strong>
+            {% for key in request.query_params %}
+            <span class="badge bg-secondary me-1">{{ key }}: {{ request.query_params[key] }}</span>
+            {% endfor %}
+        </div>
+        <div>
+            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#filterModal">Edit
+            </button>
+            <a id="clearFiltersBtn" class="btn btn-sm btn-outline-danger">Clear</a>
+        </div>
+    </div>
+    {% endif %}
+
+    <div id="alert-scroll-wrapper" style="max-height: 80vh; overflow-y: auto; padding-right: 5px;">
+        {% for alert in alerts %}
+        <div class="card alert-card shadow-sm border mb-3" id="card-{{ alert.id }}">
+            <div class="card-body alert-body d-flex flex-wrap justify-content-between align-items-center"
+                 onclick="toggleCollapse('{{ alert.id }}')">
+                <div class="form-check me-3">
+                    <input class="form-check-input alert-checkbox" type="checkbox" value="{{ alert.id }}"
+                           onclick="event.stopPropagation();">
+                </div>
+                <div class="flex-grow-1 me-3">
+                    <h5 class="mb-1">{{ alert.parsed_fields.title if alert.parsed_fields and alert.parsed_fields.title
+                        else
+                        alert.message }}</h5>
+                    <small class="tactical-muted">ID: {{ alert.id }} • Created: {{ alert.created_at_formatted }}</small>
+                    <span class="badge bg-secondary">{{ alert.parsed_fields.agent or alert.parsed_fields.agent_name or "-"}}</span>
+                </div>
+                <div>
+                    <span class="badge status-{{ alert.status|lower|replace('_', '-') }}">{{ alert.status.replace('_', ' ')|title }}</span>
+                </div>
+                {% if alert.severity_label %}
+                <div>
+                    <span class="badge severity-{{ alert.severity_label|lower }}">{{ alert.severity_label }}</span>
+                </div>
+                {% endif %}
+                <div class="toggle-icon">
+                    <i class="bi bi-chevron-down" id="toggle-icon-{{ alert.id }}"></i>
+                </div>
+            </div>
+
+            <div class="collapse px-4 pb-3" id="alert-{{ alert.id }}">
+                <hr>
+                <div class="row">
+                    <div class="col-md-4"><strong>Resolution:</strong> {{ alert.resolution.replace('_', ' ')|title if
+                        alert.resolution else '—' }}
+                    </div>
+                    <div class="col-md-4"><strong>Source:</strong> {{ alert.source or '—' }}</div>
+                </div>
+                <div class="mt-2"><strong>Resolution Comment:</strong> {{ alert.resolution_comment or '—' }}</div>
+                <div class="mt-2"><strong>Tags:</strong>
+                    {% if alert.tags %}
+                    {% for tag in alert.tags.split(',') %}
+                    <span class="badge bg-secondary me-1">{{ tag.strip() }}</span>
+                    {% endfor %}
+                    {% else %}—{% endif %}
+                </div>
+                <div class="mt-3 d-flex gap-2">
+                    <a href="/web/v1/alerts/{{ alert.id }}" class="btn btn-sm btn-outline-primary">🔍 View Full</a>
+                    <button class="btn btn-sm btn-outline-info"
+                            onclick="openEditModal('{{ alert.id }}'); event.stopPropagation();">✏️ Edit
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% if alerts %}
+    <div class="d-flex justify-content-end">
+        <nav aria-label="Alert pagination">
+            <ul class="pagination justify-content-center">
+
+                {% if pagination.show_prev %}
+                <li class="page-item">
+                    <a class="page-link"
+                       href="?page={{ pagination.prev_page }}&{{ pagination.query_string }}">Previous</a>
+                </li>
+                {% endif %}
+
+                {% set max_visible = 5 %}
+                {% set current = pagination.page %}
+                {% set total = pagination.total_pages %}
+                {% set start_page = [1, current - 2] | max %}
+                {% set end_page = [start_page + max_visible - 1, total] | min %}
+                {% set start_page = [1, end_page - max_visible + 1] | max %}
+
+                {% if start_page > 1 %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1&{{ pagination.query_string }}">1</a>
+                </li>
+                <li class="page-item disabled"><span class="page-link">…</span></li>
+                {% endif %}
+
+                {% for p in range(start_page, end_page + 1) %}
+                <li class="page-item {% if p == current %}active{% endif %}">
+                    <a class="page-link" href="?page={{ p }}&{{ pagination.query_string }}">{{ p }}</a>
+                </li>
+                {% endfor %}
+
+                {% if end_page < total %}
+                <li class="page-item disabled"><span class="page-link">…</span></li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ total }}&{{ pagination.query_string }}">Last</a>
+                </li>
+                {% endif %}
+
+                {% if pagination.show_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ pagination.next_page }}&{{ pagination.query_string }}">Next</a>
+                </li>
+                {% endif %}
+
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+
+</div>
+
+{% include "alerts/_bulk_modal.html" %}
+{% include "alerts/_filter_modal.html" %}
+{% include "alerts/_merge_alerts.html" %}
+
+<script>
+document.getElementById("mergeActionSelect").addEventListener("change", function () {
+    const newFields = document.getElementById("newCaseFields");
+    const existingSelector = document.getElementById("existingCaseSelector");
+
+    const titleInput = document.getElementById("case_title");
+    const descriptionInput = document.getElementById("case_description");
+
+    if (this.value === "new_case") {
+        newFields.classList.remove("d-none");
+        existingSelector.classList.add("d-none");
+
+        titleInput.required = true;
+        descriptionInput.required = false;
+
+    } else if (this.value === "existing_case") {
+        newFields.classList.add("d-none");
+        existingSelector.classList.remove("d-none");
+
+        titleInput.required = false;
+        descriptionInput.required = false;
+    }
+});
+
+
+// Before submitting the merge form, inject selected alerts
+document.getElementById("merge-alerts-form").addEventListener("submit", function (e) {
+    const selected = Array.from(document.querySelectorAll(".alert-checkbox:checked"))
+        .map(cb => cb.value);
+
+    if (selected.length === 0) {
+        e.preventDefault();
+        alert("Please select at least one alert to merge.");
+        return;
+    }
+
+    document.getElementById("mergeAlertIds").value = selected.join(",");
+});
+
+    /**
+     * Submit filter form and log the constructed filter URL.
+     */
+    document.querySelector("#filterModal form").addEventListener("submit", function (e) {
+        const form = e.target;
+        const params = new URLSearchParams(new FormData(form));
+        console.log("Submitting filter URL:", `/web/v1/alerts?${params.toString()}`);
+    });
+
+    /**
+     * Handle "alerts per page" selection changes.
+     * Resets page to 1 and updates the query params.
+     */
+    document.getElementById("limitSelect").addEventListener("change", function () {
+        const params = new URLSearchParams(window.location.search);
+        params.set('limit', this.value);
+        params.set('page', '1');
+        window.location.search = params.toString();
+    });
+
+    /**
+     * Update UI when alerts are selected or deselected.
+     * Highlights selected cards and updates the selected count.
+     */
+    function updateSelectionUI() {
+        const checkboxes = document.querySelectorAll(".alert-checkbox");
+        let selectedCount = 0;
+
+        checkboxes.forEach(cb => {
+            const card = cb.closest(".alert-card");
+            if (cb.checked) {
+                selectedCount++;
+                card.classList.add("border-warning", "selected-alert");
+            } else {
+                card.classList.remove("border-warning", "selected-alert", "bg-light"); // Remove any selection styles
+            }
+        });
+
+        document.getElementById("selected-count").textContent = `${selectedCount} alert${selectedCount === 1 ? '' : 's'} selected`;
+    }
+
+    /**
+     * Bind individual checkbox selection handlers.
+     */
+    document.querySelectorAll(".alert-checkbox").forEach(cb =>
+        cb.addEventListener("change", updateSelectionUI)
+    );
+
+    /**
+     * Handle "Select All" checkbox functionality.
+     * Selects/deselects all visible alert checkboxes.
+     */
+    document.getElementById("select-all-visible").addEventListener("change", function () {
+        const checked = this.checked;
+        document.querySelectorAll(".alert-checkbox").forEach(cb => {
+            cb.checked = checked;
+        });
+        updateSelectionUI();
+    });
+
+    /**
+     * Handle bulk action form submission.
+     * Validates selection and sets hidden input with alert IDs.
+     */
+    document.getElementById("bulkActionForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const selectedIds = Array.from(
+            document.querySelectorAll(".alert-checkbox:checked")
+        ).map(cb => cb.value);
+
+        if (selectedIds.length === 0) {
+            alert("No alerts selected.");
+            return;
+        }
+
+        document.getElementById("selectedAlertIds").value = selectedIds.join(",");
+        this.submit(); // Proceed with form submission
+    });
+
+    /**
+     * Clears filters by redirecting to the base alerts URL.
+     */
+    document.getElementById("clearFiltersBtn").addEventListener("click", function () {
+        window.location.href = '/web/v1/alerts';
+    });
+
+    /**
+     * Setup toggle arrow icon behavior for alert collapse elements.
+     */
+    document.querySelectorAll('.alert-card').forEach(card => {
+        const collapse = card.querySelector('.collapse');
+        const icon = card.querySelector('.toggle-icon i');
+
+        collapse.addEventListener('show.bs.collapse', () => {
+            icon.classList.remove('bi-chevron-down');
+            icon.classList.add('bi-chevron-up');
+        });
+
+        collapse.addEventListener('hide.bs.collapse', () => {
+            icon.classList.remove('bi-chevron-up');
+            icon.classList.add('bi-chevron-down');
+        });
+    });
+
+    /**
+     * Open edit modal for a single alert.
+     * Automatically checks the alert and updates modal content.
+     */
+    function openEditModal(alertId) {
+        document.querySelectorAll(".alert-checkbox").forEach(cb => {
+            cb.checked = cb.value === alertId;
+        });
+
+        document.getElementById("selectedAlertIds").value = alertId;
+        document.getElementById("selected-count").textContent = `1 alert selected`;
+
+        const bulkModal = new bootstrap.Modal(document.getElementById('bulkModal'));
+        bulkModal.show();
+    }
+
+    function smoothScrollToCard(cardElement) {
+        setTimeout(() => {
+            cardElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+        }, 10); // A small delay ensures transition timing
+    }
+
+    /**
+     * Collapse/expand an alert card and scroll it into view when expanded.
+     */
+    function toggleCollapse(alertId) {
+        const collapseElement = document.getElementById(`alert-${alertId}`);
+        const cardElement = document.getElementById(`card-${alertId}`);
+        const bsCollapse = bootstrap.Collapse.getOrCreateInstance(collapseElement);
+
+        // Toggle collapse
+        bsCollapse.toggle();
+    }
+
+</script>
+
+
+{% endblock %}

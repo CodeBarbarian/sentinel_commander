@@ -15,6 +15,19 @@ Template
 
 ### Fixed
 ```
+## [v0.2.5] - 2025-07-04 - Quality of life update nr 1 
+### Added
+- Promote to case from alert detail view
+- Agent View from dropdown alerts
+- Agent Detail view to show all alerts from that specific agent
+### Changed
+- Minor changes to the styles.css
+- The default alert view has been changed to a table view for testing
+### Fixed
+- Javascript bug on alert view
+- Fixed bug in operator dashboard due to severity mapping
+
+
 ## [v0.2.4] - 2025-07-03
 ### Added
 - Additional debug statements for help

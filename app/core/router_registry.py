@@ -15,6 +15,7 @@ from app.web.sentineliq import sentineliq_view, sentineliq_search_view, sentinel
 from app.web.settings import settings_view, settings_yaml_view
 from app.web.sources import sources_view
 from app.web.users import users_view, auth_view
+from app.web.agents import agent_view, agent_detail_view
 
 router_registry = [
     # API routes
@@ -28,6 +29,8 @@ router_registry = [
     #(publisher.router, "/api/v1"),
 
     # Web routes
+    (agent_view.router, "/web/v1"),
+    (agent_detail_view.router, "/web/v1"),
     (dashboard_view.router, "/web/v1"),
     (ws_dashboard.router, "/web/v1"),
     (alerts_categories_view.router, "/web/v1"),

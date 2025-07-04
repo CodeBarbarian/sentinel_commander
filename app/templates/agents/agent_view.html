@@ -1,0 +1,38 @@
+{% extends "_design.html" %}
+{% block title %}Agents - Sentinel Commander{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+  <h4 class="tactical-heading mb-3">👤 Agent Overview</h4>
+
+    <!-- Agents Table -->
+    <div class="table-responsive">
+        <table class="tactical-table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>IP</th>
+                <th>Total Alerts</th>
+                <th>Last Alert</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for agent in agents %}
+            <tr>
+                <td>{{ agent.id }}</td>
+                <td>
+                    <a href="/web/v1/agents/{{ agent.name | urlencode }}" class="badge bg-info">
+                        {{ agent.name }}
+                    </a>
+                </td>
+                <td>{{ agent.ip }}</td>
+                <td>{{ agent.total_alerts }}</td>
+                <td>{{ agent.last_alert_time.strftime('%Y-%m-%d %H:%M:%S') if agent.last_alert_time else '-' }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

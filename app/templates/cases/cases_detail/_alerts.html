@@ -22,7 +22,7 @@
           <tbody>
             {% for alert in alerts %}
             <tr class="{% if loop.index is even %}tactical-table-row{% else %}tactical-table-row-alt{% endif %} tactical-table-hover">
-              <td>{{ alert.id }}</td>
+              <td><a href="/web/v1/alerts/{{ alert.id }}">{{ alert.id }}</td>
               <td>{{ alert.message or "—" }}</td>
               <td>
                 <span class="badge

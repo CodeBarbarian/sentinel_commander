@@ -6,7 +6,9 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from app.core.database import SessionLocal
+from app.models import CaseTimelineEvent
 from app.models.alert import Alert
+from app.models.case import Case
 from app.utils import auth
 from app.utils.parser.general_parser_engine import run_parser_for_type
 import json
@@ -137,7 +139,7 @@ def alert_detail_view(
                 r.parsed_agent = "—"
 
         total_pages_msg = max((total_related_msg + msg_page_size - 1) // msg_page_size, 1)
-
+    cases = db.query(Case).order_by(Case.created_at.desc()).limit(20).all()
     return templates.TemplateResponse("alerts/alert_detail.html", {
         "request": request,
         "alert": alert,
@@ -157,6 +159,7 @@ def alert_detail_view(
         "mitre_ids": mitre_ids,
         "mitre_tactics": mitre_tactics,
         "mitre_info": mitre_info,
+        "cases": cases,
     })
 
 @router.post("/alerts/{alert_id}/update")
@@ -203,3 +206,155 @@ def quick_triage_action(alert_id: int, action: str, db: Session = Depends(get_db
     db.commit()
     return RedirectResponse(f"/web/v1/sentineliq/triage", status_code=303)
 
+@router.post("/alerts/{alert_id}/promote")
+def promote_alert_to_case(
+    alert_id: int,
+    action: str = Form(...),
+    existing_case_id: Optional[int] = Form(None),
+    case_title: Optional[str] = Form(None),
+    case_description: Optional[str] = Form(None),
+    db: Session = Depends(get_db),
+    user=Depends(auth.get_current_user)
+):
+    alert = db.query(Alert).filter(Alert.id == alert_id).first()
+    if not alert:
+        raise HTTPException(status_code=404, detail="Alert not found")
+
+    from app.models.case import Case
+    from app.models.case_timeline import CaseTimelineEvent
+
+    if action == "new_case":
+        if not case_title:
+            raise HTTPException(status_code=400, detail="Case title is required.")
+
+        new_case = Case(
+            title=case_title,
+            description=case_description or "",
+            state="new"
+        )
+        db.add(new_case)
+        db.flush()
+        alert.case_id = new_case.id
+
+        timeline_event = CaseTimelineEvent(
+            case_id=new_case.id,
+            actor_id=user.id,
+            event_type="alert_promoted",
+            message=f"Alert {alert.id} promoted to new case.",
+            details=alert.message[:255] if alert.message else None,
+        )
+        db.add(timeline_event)
+        db.commit()
+        return RedirectResponse(f"/web/v1/cases/{new_case.id}", status_code=303)
+
+    elif action == "existing_case":
+        if not existing_case_id:
+            raise HTTPException(status_code=400, detail="No existing case selected.")
+        alert.case_id = existing_case_id
+
+        timeline_event = CaseTimelineEvent(
+            case_id=existing_case_id,
+            actor_id=user.id,
+            event_type="alert_linked",
+            message=f"Alert {alert.id} attached to existing case.",
+            details=alert.message[:255] if alert.message else None,
+        )
+        db.add(timeline_event)
+        db.commit()
+        return RedirectResponse(f"/web/v1/cases/{existing_case_id}", status_code=303)
+
+    elif action == "bulk_promote":
+        if not alert.message:
+            raise HTTPException(status_code=400, detail="Alert message is required for bulk promote.")
+
+        # Try find existing open case matching the message
+        existing_case = db.query(Case).filter(
+            Case.state != "closed",
+            func.lower(Case.title).like(f"%{alert.message.lower()}%") |
+            func.lower(Case.description).like(f"%{alert.message.lower()}%")
+        ).first()
+
+        if existing_case:
+            target_case = existing_case
+        else:
+            new_case = Case(
+                title=f"Case for Message: {alert.message[:60]}",
+                description=f"Auto-created by Smart Bulk Promote: {alert.message}",
+                state="new"
+            )
+            db.add(new_case)
+            db.flush()
+            target_case = new_case
+
+        # Attach ALL alerts with same message
+        same_msg_alerts = db.query(Alert).filter(
+            Alert.message == alert.message
+        ).all()
+
+        for a in same_msg_alerts:
+            a.case_id = target_case.id
+            timeline_event = CaseTimelineEvent(
+                case_id=target_case.id,
+                actor_id=user.id,
+                event_type="alert_linked",
+                message=f"Alert {a.id} linked by Smart Bulk Promote.",
+                details=a.message[:255] if a.message else None,
+            )
+            db.add(timeline_event)
+
+        db.commit()
+        return RedirectResponse(f"/web/v1/cases/{target_case.id}", status_code=303)
+
+    raise HTTPException(status_code=400, detail="Invalid action.")
+
+
+@router.get("/alerts/{alert_id}/bulk_promote")
+def smart_bulk_promote(
+    alert_id: int,
+    db: Session = Depends(get_db),
+    user=Depends(auth.get_current_user)
+):
+    alert = db.query(Alert).filter(Alert.id == alert_id).first()
+    if not alert or not alert.message:
+        raise HTTPException(status_code=404, detail="Alert not found or no message to correlate.")
+
+    # 1) Try to find an existing open case with the same message in title or description
+    existing_case = db.query(Case).filter(
+        Case.state != "closed",
+        func.lower(Case.title).like(f"%{alert.message.lower()}%") |
+        func.lower(Case.description).like(f"%{alert.message.lower()}%")
+    ).first()
+
+    if existing_case:
+        target_case = existing_case
+    else:
+        # 2) Create new case
+        new_case = Case(
+            title=f"Case for Alert Message: {alert.message[:60]}",
+            description=f"Auto-created from alert #{alert.id} with message:\n\n{alert.message}",
+            state="new"
+        )
+        db.add(new_case)
+        db.flush()
+        target_case = new_case
+
+    # 3) Attach ALL alerts with same message
+    same_msg_alerts = db.query(Alert).filter(
+        Alert.message == alert.message,
+        Alert.case_id == None  # optional: only unlinked alerts
+    ).all()
+
+    for a in same_msg_alerts:
+        a.case_id = target_case.id
+        timeline_event = CaseTimelineEvent(
+            case_id=target_case.id,
+            actor_id=user.id,
+            event_type="alert_linked",
+            message=f"Alert {a.id} linked to case by Smart Bulk Promote.",
+            details=a.message[:255] if a.message else None,
+        )
+        db.add(timeline_event)
+
+    db.commit()
+
+    return RedirectResponse(f"/web/v1/cases/{target_case.id}", status_code=303)

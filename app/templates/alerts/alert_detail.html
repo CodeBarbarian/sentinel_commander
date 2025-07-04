@@ -19,10 +19,15 @@
         </a>
 
     </div>
-    <!-- Edit Modal Trigger -->
-    <div class="d-flex justify-content-end mt-4">
-        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editAlertModal">✏️ Edit
-            Alert
+    <div class="d-flex justify-content-end gap-2 mt-4">
+        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editAlertModal">
+            ✏️ Edit Alert
+        </button>
+        <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#promoteCaseModal">
+            🆕 Promote to Case
+        </button>
+        <button class="btn btn-sm btn-outline-warning" onclick="location.href='/web/v1/alerts/{{ alert.id }}/bulk_promote'">
+          ⚡ Smart Bulk Promote
         </button>
     </div>
     <!-- Tab Navigation -->
@@ -470,6 +475,54 @@
         </form>
     </div>
 </div>
+
+<!-- Promote or Attach to Case Modal -->
+<div class="modal fade" id="promoteCaseModal" tabindex="-1" aria-labelledby="promoteCaseModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form method="post" action="/web/v1/alerts/{{ alert.id }}/promote" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">🆕 Promote or Attach Alert #{{ alert.id }} to Case</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+
+        <div class="mb-3">
+          <label class="form-label">Action</label>
+            <select class="form-select" name="action" id="promoteActionSelect" required>
+                <option value="new_case">🆕 Create New Case</option>
+                <option value="existing_case">📎 Attach to Existing Case</option>
+                <option value="bulk_promote">⚡ Smart Bulk Promote</option>
+            </select>
+        </div>
+
+        <!-- Existing Case Selector -->
+        <div id="existingCaseSelector" class="mb-3 d-none">
+          <label class="form-label">Select Existing Case</label>
+          <select class="form-select" name="existing_case_id">
+            {% for case in cases %}
+            <option value="{{ case.id }}">#{{ case.id }} - {{ case.title }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- New Case Fields -->
+        <div id="newCaseFields" class="mb-3">
+          <label class="form-label">Case Title</label>
+          <input type="text" name="case_title" class="form-control" value="Case for Alert #{{ alert.id }}" required>
+          <label class="form-label mt-2">Case Description</label>
+          <textarea name="case_description" class="form-control" rows="3">{{ alert.message }}</textarea>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-success">✔️ Confirm</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
 <!-- Search Result Modal -->
 <div class="modal fade" id="searchResultModal" tabindex="-1" aria-labelledby="searchResultModalLabel"
      aria-hidden="true">
@@ -581,6 +634,29 @@
         document.getElementById("alertSearchButton")?.addEventListener("click", runSearch);
         document.getElementById("alertSearch")?.addEventListener("keypress", e => {
             if (e.key === "Enter") runSearch();
+        });
+    });
+    document.addEventListener("DOMContentLoaded", function () {
+        const actionSelect = document.getElementById("promoteActionSelect");
+        const newFields = document.getElementById("newCaseFields");
+        const existingSelector = document.getElementById("existingCaseSelector");
+        const titleInput = newFields.querySelector("input[name='case_title']");
+
+        actionSelect.addEventListener("change", function () {
+            if (this.value === "new_case") {
+                newFields.classList.remove("d-none");
+                existingSelector.classList.add("d-none");
+                titleInput.required = true;
+            } else if (this.value === "existing_case") {
+                newFields.classList.add("d-none");
+                existingSelector.classList.remove("d-none");
+                titleInput.required = false;
+            } else {
+                // bulk_promote
+                newFields.classList.add("d-none");
+                existingSelector.classList.add("d-none");
+                titleInput.required = false;
+            }
         });
     });
 </script>

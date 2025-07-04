@@ -38,6 +38,9 @@
                         <li>
                             <a class="dropdown-item {% if request.url.path.startswith('/web/v1/alerts/category') %}active{% endif %}"
                                href="/web/v1/alerts/category">By Category</a></li>
+                        <li>
+                            <a class="dropdown-item {% if request.url.path.startswith('/web/v1/agents') %}active{% endif %}"
+                               href="/web/v1/agents">By Agent</a></li>
                     </ul>
                 </li>
 

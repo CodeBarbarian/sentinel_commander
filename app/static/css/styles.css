@@ -681,3 +681,91 @@ textarea.form-control-sm {
     from { opacity: 0; }
     to   { opacity: 1; }
 }
+/* === TACTICAL TABLE OVERRIDE === */
+table.tactical-table,
+.tactical-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #0e1116; /* Dark base background */
+  color: #e0e0e0;
+}
+
+.tactical-table thead {
+  background-color: #161b22; /* Slightly darker header for contrast */
+}
+
+.tactical-table th,
+.tactical-table td {
+  border: 1px solid #30363d;
+  padding: 0.75rem 1rem;
+  vertical-align: top;
+}
+
+.tactical-table tr:nth-child(even) {
+  background-color: #101417;
+}
+
+.tactical-table tr:nth-child(odd) {
+  background-color: #0e1116;
+}
+
+.tactical-table tr:hover {
+  background-color: #1c1f24;
+}
+
+.tactical-table thead th {
+  color: #f0f0f0;
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 0.8rem;
+  letter-spacing: 0.5px;
+}
+
+/* === BADGES INSIDE TABLE === */
+.badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  border-radius: 0.3rem;
+  text-transform: uppercase;
+}
+
+.badge.severity-high {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+.badge.severity-medium {
+  background-color: #fd7e14;
+  color: #000;
+}
+
+.badge.severity-low {
+  background-color: #198754;
+  color: #fff;
+}
+
+.badge.status-new {
+  background-color: #6c757d;
+  color: #fff;
+}
+
+/* === TACTICAL LINKS === */
+.tactical-link {
+  color: #58a6ff;
+  text-decoration: none;
+}
+
+.tactical-link:hover {
+  color: #ff9933;
+  text-decoration: underline;
+}
+
+/* === FIX SELECTED ROW HIGHLIGHT === */
+tr.selected-alert {
+  background-color: #1a1a1a !important;
+  border-left: 4px solid #58a6ff;
+}
+tr.selected-alert {
+  background-color: #1a1f24 !important;
+  border-left: 4px solid #58a6ff;
+}
