@@ -8,6 +8,6 @@ async def websocket_dashboard(websocket: WebSocket):
     await register_client(websocket)
     try:
         while True:
-            await websocket.receive_text()  # optional: client pings
+            await websocket.receive_text()
     except WebSocketDisconnect:
         unregister_client(websocket)
