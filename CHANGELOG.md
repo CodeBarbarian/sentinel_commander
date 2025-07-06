@@ -15,6 +15,19 @@ Template
 
 ### Fixed
 ```
+## [0.2.8] - Database Migration - Performance update nr 1
+### Added
+- 4 new fields to the alerts model to easier be able to search through it
+- alembic for database migrations
+### Changed
+
+### Fixed
+- Namechanges in the HTML
+### Removed
+- The refresh button on the alert overview
+- Unused client side javascript
+- Debug print statements
+
 ## [0.2.7] - 2025-07-06 - Quality of life update nr 3
 ### Added
 - Auto refresh page options to the footer

@@ -11,7 +11,6 @@
       <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#filterModal">🎯 Filters</button>
       <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#bulkModal">📦 Bulk Actions</button>
       <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#mergeModal">🧩 Merge Alerts</button>
-      <a href="/web/v1/alerts?{{ request.query_params }}" class="btn btn-sm btn-outline-primary">🔁 Refresh</a>
     </div>
   </div>
 
@@ -292,24 +291,6 @@ document.getElementById("merge-alerts-form").addEventListener("submit", function
     });
 
     /**
-     * Setup toggle arrow icon behavior for alert collapse elements.
-     */
-    document.querySelectorAll('.alert-card').forEach(card => {
-        const collapse = card.querySelector('.collapse');
-        const icon = card.querySelector('.toggle-icon i');
-
-        collapse.addEventListener('show.bs.collapse', () => {
-            icon.classList.remove('bi-chevron-down');
-            icon.classList.add('bi-chevron-up');
-        });
-
-        collapse.addEventListener('hide.bs.collapse', () => {
-            icon.classList.remove('bi-chevron-up');
-            icon.classList.add('bi-chevron-down');
-        });
-    });
-
-    /**
      * Open edit modal for a single alert.
      * Automatically checks the alert and updates modal content.
      */
@@ -324,25 +305,6 @@ document.getElementById("merge-alerts-form").addEventListener("submit", function
         const bulkModal = new bootstrap.Modal(document.getElementById('bulkModal'));
         bulkModal.show();
     }
-
-    function smoothScrollToCard(cardElement) {
-        setTimeout(() => {
-            cardElement.scrollIntoView({behavior: 'smooth', block: 'start'});
-        }, 10); // A small delay ensures transition timing
-    }
-
-    /**
-     * Collapse/expand an alert card and scroll it into view when expanded.
-     */
-    function toggleCollapse(alertId) {
-        const collapseElement = document.getElementById(`alert-${alertId}`);
-        const cardElement = document.getElementById(`card-${alertId}`);
-        const bsCollapse = bootstrap.Collapse.getOrCreateInstance(collapseElement);
-
-        // Toggle collapse
-        bsCollapse.toggle();
-    }
-
 </script>
 
 

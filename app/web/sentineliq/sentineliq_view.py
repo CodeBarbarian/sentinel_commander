@@ -22,20 +22,16 @@ def get_eligible_triage_alerts(db: Session):
     for alert in alerts:
         try:
             payload = json.loads(alert.source_payload or "{}")
-            print(f"\n[TRIAGE] Alert ID: {alert.id}")
-            print(f"[TRIAGE] Raw Payload: {json.dumps(payload, indent=2)}")
+
             result = run_parser_for_type("triage", payload)
-            print(f"[TRIAGE] Parser Output: {json.dumps(result, indent=2)}")
+
 
             mapped = result.get("mapped_fields", {})
-            print(f"[TRIAGE] Mapped: {mapped}")
+
             if mapped.get("recommended_status") or mapped.get("recommended_resolution") or mapped.get("recommended_action"):
-                print(f"[TRIAGE] Eligible → YES")
                 eligible.append(alert.id)
-            else:
-                print(f"[TRIAGE] Eligible → NO")
         except Exception as e:
-            print(f"[TRIAGE] ERROR: {str(e)}")
+
             continue
     return eligible
 
@@ -82,7 +78,7 @@ def sentinel_iq_page(
             triage_result = run_parser_for_type("triage", payload)
             alert.triage_result = triage_result
             mapped = triage_result.get("mapped_fields", {})
-            print(triage_result)
+
             if mapped.get("recommended_status") or mapped.get("recommended_resolution"):
                 triage_eligible_count += 1
         except Exception as e:
@@ -165,7 +161,6 @@ def quick_apply_recommendation(alert_id: int, db: Session = Depends(get_db), use
     if not alert:
         raise HTTPException(status_code=404, detail="Alert not found")
 
-    print("inside statement")
     payload = json.loads(alert.source_payload) if alert.source_payload else {}
     triage_result = run_parser_for_type("triage", payload)
     fields = triage_result.get("mapped_fields", {})

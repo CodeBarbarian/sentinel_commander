@@ -21,6 +21,10 @@ router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
 def parse_query_terms(q: str):
+    """
+    Parse 'key:value' pairs and free terms.
+    Supports quoted values: e.g., user:"John Doe"
+    """
     kv_pattern = re.compile(r'(\w+):"([^"]+)"|(\w+):([^\s]+)')
     kv_matches = kv_pattern.findall(q)
 
@@ -30,25 +34,63 @@ def parse_query_terms(q: str):
         value = m[1] or m[3]
         kv_terms.append((key.lower(), value.lower()))
 
-    # Remove matched patterns from original query to extract free terms
     q_clean = kv_pattern.sub('', q)
     free_terms = [t.strip().lower() for t in q_clean.strip().split() if t.strip()]
 
     return kv_terms, free_terms
 
+
 def flatten_json(y, prefix=''):
-    """Flatten nested JSON, returning (key_path, value) pairs."""
+    """
+    Recursively flatten a nested dict/list JSON.
+    Returns list of (key_path, value) pairs.
+    """
     out = []
-    for k, v in y.items():
-        new_key = f"{prefix}.{k}" if prefix else k
-        if isinstance(v, dict):
+    if isinstance(y, dict):
+        for k, v in y.items():
+            new_key = f"{prefix}.{k}" if prefix else k
             out.extend(flatten_json(v, new_key))
-        elif isinstance(v, list):
-            for idx, item in enumerate(v):
-                out.append((f"{new_key}[{idx}]", item))
-        else:
-            out.append((new_key, v))
+    elif isinstance(y, list):
+        for idx, item in enumerate(y):
+            new_key = f"{prefix}[{idx}]"
+            out.extend(flatten_json(item, new_key))
+    else:
+        out.append((prefix, y))
     return out
+
+
+def match_with_wildcard(value: str, term: str) -> bool:
+    """
+    Supports simple * and ? wildcards.
+    """
+    pattern = '^' + re.escape(term).replace(r'\*', '.*').replace(r'\?', '.') + '$'
+    return re.match(pattern, value) is not None
+
+
+def unified_match(combined_fields, kv_terms, free_terms):
+    """
+    True if all kv_terms AND free_terms match against the combined flattened fields.
+    """
+    # Match kv terms
+    kv_matches = all(
+        any(
+            match_with_wildcard(field_k, kv_key) and match_with_wildcard(field_v, kv_val)
+            for field_k, field_v in combined_fields.items()
+        )
+        for kv_key, kv_val in kv_terms
+    ) if kv_terms else True
+
+    # Match free terms
+    free_matches = all(
+        any(
+            match_with_wildcard(field_k, term) or match_with_wildcard(field_v, term)
+            for field_k, field_v in combined_fields.items()
+        )
+        for term in free_terms
+    ) if free_terms else True
+
+    return kv_matches and free_matches
+
 
 @router.get("/sentineliq/search", response_class=HTMLResponse)
 def sentineliq_search(
@@ -66,16 +108,14 @@ def sentineliq_search(
     query = q.lower()
     kv_terms, free_terms = parse_query_terms(q)
 
-    # Convert date filters if present
-    start_dt = None
-    end_dt = None
+    start_dt, end_dt = None, None
     try:
         if start:
             start_dt = datetime.strptime(start, "%Y-%m-%d")
         if end:
             end_dt = datetime.strptime(end, "%Y-%m-%d")
     except Exception:
-        pass  # Ignore invalid date formats
+        pass
 
     tags_list = [t.strip().lower() for t in tags.split(",")] if tags else []
 
@@ -84,58 +124,39 @@ def sentineliq_search(
         alerts_query = db.query(Alert)
         alerts = alerts_query.limit(limit or 100).all()
         for alert in alerts:
-            match_field = None
             try:
                 parsed_payload = json.loads(alert.source_payload or "{}")
             except Exception:
                 parsed_payload = {}
 
-            flat_fields = flatten_json(parsed_payload)
             try:
                 parsed_fields = run_parser_for_type("alert", parsed_payload).get("mapped_fields", {})
             except Exception:
                 parsed_fields = {}
 
-            # Combine mapped + flattened fields
+            # Flatten + combine
+            flat_fields = flatten_json(parsed_payload)
             combined_fields = {str(k).lower(): str(v).lower() for k, v in parsed_fields.items()}
             for k, v in flat_fields:
-                combined_fields[str(k).lower()] = str(v).lower()
+                combined_fields[k.lower()] = str(v).lower()
 
-            # Match logic: ALL key:value pairs must match
-            kv_matches = all(
-                any(kv_key in field_k and kv_val in field_v for field_k, field_v in combined_fields.items())
-                for kv_key, kv_val in kv_terms
-            )
+            # Inject direct agent if you have one in the DB
+            if getattr(alert, "agent_name", None):
+                combined_fields["agent.name"] = alert.agent_name.lower()
 
-            # If no kv_terms, allow
-            if not kv_terms:
-                kv_matches = True
+            # Also ensure basic fields like message/tags are always included
+            combined_fields["message"] = (alert.message or "").lower()
+            combined_fields["tags"] = (alert.tags or "").lower()
 
-            # Free-term match (if any)
-            free_matches = True
-            if free_terms:
-                free_matches = any(
-                    term in field_k or term in field_v
-                    for term in free_terms
-                    for field_k, field_v in combined_fields.items()
-                )
-
-            if kv_matches and free_matches:
-                match_field = next(
-                    (f"{k}: {v}" for k, v in combined_fields.items()
-                     if any(kv[0] in k and kv[1] in v for kv in kv_terms) or
-                     any(t in k or t in v for t in free_terms)),
-                    None
-                )
-
-                if tags_list and not any(tag in (alert.tags or "").lower() for tag in tags_list):
+            if unified_match(combined_fields, kv_terms, free_terms):
+                if tags_list and not any(tag in combined_fields["tags"] for tag in tags_list):
                     continue
 
                 results.append({
                     "type": "alert",
                     "id": alert.id,
                     "title": alert.message[:60] or "Alert",
-                    "match": f"[payload] {match_field or 'Matched'}"
+                    "match": "Matched in alert payload"
                 })
 
     # === CASES ===
@@ -251,6 +272,7 @@ def sentineliq_search(
         "query": q,
         "results": results
     })
+
 
 @router.get("/sentineliq/search/advanced", response_class=HTMLResponse)
 def sentineliq_advanced_search(request: Request, db: Session = Depends(get_db), user=Depends(auth.get_current_user)):
