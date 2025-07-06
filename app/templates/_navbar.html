@@ -14,18 +14,6 @@
                        href="/web/v1/dashboard">Dashboard</a>
                 </li>
 
-                <!-- Customers -->
-                <li class="nav-item">
-                    <a class="nav-link {% if request.url.path.startswith('/web/v1/customers') %}active{% endif %}"
-                       href="/web/v1/customers">Customers</a>
-                </li>
-
-                <!-- Cases -->
-                <li class="nav-item">
-                    <a class="nav-link {% if request.url.path.startswith('/web/v1/cases') %}active{% endif %}"
-                       href="/web/v1/cases">Cases</a>
-                </li>
-
                 <!-- Alerts Dropdown -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle {% if request.url.path.startswith('/web/v1/alerts') %}active{% endif %}"
@@ -44,6 +32,11 @@
                     </ul>
                 </li>
 
+                <!-- Cases -->
+                <li class="nav-item">
+                    <a class="nav-link {% if request.url.path.startswith('/web/v1/cases') %}active{% endif %}"
+                       href="/web/v1/cases">Cases</a>
+                </li>
 
                 <!-- IRDB Dropdown -->
                 <li class="nav-item dropdown">
@@ -78,33 +71,20 @@
             <!-- Global Search Bar -->
             <form class="d-flex align-items-center flex-grow-1 mx-3" method="get" action="/web/v1/sentineliq/search">
                 <input class="form-control form-control-sm bg-dark text-light border-secondary me-2 w-100"
-                       type="search" name="q" placeholder="🔎 Search everything..." aria-label="Search"
-                       style="max-width: 400px;">
+                       type="search" name="q" placeholder="Search..." aria-label="Search"
+                       style="max-width: 400px;" id="global-search">
                 <button class="btn btn-sm btn-outline-primary" type="submit">Search</button>
             </form>
 
-            <!-- Current Time Display -->
-            <div class="navbar-text text-light small me-3" id="currentTime">
-                🕒 --
-            </div>
-
-            <!-- App Version -->
-            <div class="navbar-text text-light small me-3">
-                🛠 v{{ request.state.version }}
-                {% if request.state.version_outdated %}
-                <span class="badge bg-danger ms-1" role="button" data-bs-toggle="modal" data-bs-target="#updateModal">
-      Update Available
-    </span>
-                {% endif %}
-            </div>
 
         </div>
         <!-- User Profile Dropdown -->
         {% if request.session.user %}
-        <div class="dropdown">
+            <div class="dropdown">
             <a href="#" class="d-flex align-items-center text-light text-decoration-none dropdown-toggle"
                id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                <span class="me-2 small text-muted">👤 {{ request.session.user.username }}</span>
+                <!-- <span class="me-2 small text-muted">👤 {{ request.session.user.username }}</span> -->
+                <span class="me-2 small text-muted">👤</span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark text-small shadow"
                 aria-labelledby="userDropdown">
@@ -118,7 +98,7 @@
                 </li>
                 <li><a class="dropdown-item text-danger" href="/web/v1/logout">Logout</a></li>
             </ul>
-            {% endif %}
+        {% endif %}
         </div>
 
     </div>

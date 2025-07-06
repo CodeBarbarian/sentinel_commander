@@ -3,7 +3,7 @@
 All notable changes to **Sentinel Commander** will be documented in this file.  
 This project will adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-> 🚨 **Note:** Sentinel Commander is in **early alpha**. Breaking changes may occur at any time without notice.
+> 🚨 **Note:** Sentinel Commander is in **early beta**. Breaking changes may occur at any time without notice.
 
 ---
 Template
@@ -15,6 +15,16 @@ Template
 
 ### Fixed
 ```
+## [0.2.6] - 2025-07-06 - Quality of life update nr 2
+### Added
+- Keyboard shortcuts
+- Temporary footer to display version and clock
+- Placeholders for internal functions
+### Changed
+- navbar retrofit, moved some items to settings.
+### Notes
+- Preparing for the consolidation patch. This will be a big change before v1.0
+
 ## [v0.2.5] - 2025-07-04 - Quality of life update nr 1 
 ### Added
 - Promote to case from alert detail view

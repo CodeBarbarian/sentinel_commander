@@ -20,7 +20,11 @@
 {% endif %}
 <main class="container-fluid my-4 px-4">
     {% block content %}{% endblock %}
+{% include "_footer.html" %}
 </main>
+
+
+
 <!-- Optional: JS for Bootstrap -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
@@ -38,6 +42,45 @@
 
     setInterval(updateClock, 1000);
     updateClock();
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Avoid shortcuts in inputs/textareas
+    document.addEventListener('keydown', function (e) {
+        if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+
+        switch (e.key) {
+            case 'd':
+                window.location.href = "/web/v1/dashboard";
+                break;
+            case 'a':
+                window.location.href = "/web/v1/alerts";
+                break;
+            case 'c':
+                window.location.href = "/web/v1/cases";
+                break;
+            case '/':
+                e.preventDefault();
+                const search = document.getElementById("global-search");
+                if (search) search.focus();
+                break;
+            case '?':
+                if (e.shiftKey) {
+                    const modal = new bootstrap.Modal(document.getElementById('shortcutsModal'));
+                    modal.show();
+                }
+                break;
+            case 'Escape':
+                // Optional: close any modals if open
+                const openModal = document.querySelector('.modal.show');
+                if (openModal) {
+                    bootstrap.Modal.getInstance(openModal).hide();
+                }
+                break;
+        }
+    });
+});
+
 </script>
 
 <!-- Update Modal -->
@@ -63,6 +106,27 @@
           ⬇️ Update Instructions
         </a>
         <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Shortcuts Cheatsheet Modal -->
+<div class="modal fade" id="shortcutsModal" tabindex="-1" aria-labelledby="shortcutsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="shortcutsModalLabel">Keyboard Shortcuts</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <ul class="list-unstyled">
+          <li><kbd>d</kbd> — Go to Dashboard</li>
+          <li><kbd>a</kbd> — View Alerts</li>
+          <li><kbd>c</kbd> — View Cases</li>
+          <li><kbd>/</kbd> — Focus Global Search</li>
+          <li><kbd>Shift + ?</kbd> — Open this Cheatsheet</li>
+          <li><kbd>Esc</kbd> — Close open modals</li>
+        </ul>
       </div>
     </div>
   </div>

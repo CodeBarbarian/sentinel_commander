@@ -1,0 +1,17 @@
+<footer class="bg-dark text-light small py-3 mt-auto border-top">
+    <div class="container-fluid d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+
+        <!-- Left: App info -->
+        <div>
+            🛡️ Sentinel Commander &mdash; v{{ request.state.version }}
+            {% if request.state.version_outdated %}
+                <span class="badge bg-danger ms-1" role="button" data-bs-toggle="modal" data-bs-target="#updateModal">Update Available</span>
+            {% endif %}
+        </div>
+
+        <!-- Current Time Display -->
+        <div id="currentTime">
+            🕒 --
+        </div>
+    </div>
+</footer>
