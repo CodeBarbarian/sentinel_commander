@@ -8,7 +8,19 @@
                 <span class="badge bg-danger ms-1" role="button" data-bs-toggle="modal" data-bs-target="#updateModal">Update Available</span>
             {% endif %}
         </div>
-
+        <!-- Middle: Auto-Refresh Control -->
+        <div class="d-flex align-items-center gap-2">
+            🔄 Auto-Refresh:
+            <select id="refresh-interval" class="form-select form-select-sm bg-dark text-light border-secondary"
+                    style="width: auto;">
+                <option value="0">Off</option>
+                <option value="10">10s</option>
+                <option value="30">30s</option>
+                <option value="60">60s</option>
+                <option value="300">5 min</option>
+            </select>
+            <span id="refresh-countdown" class="text-muted small">--</span>
+        </div>
         <!-- Current Time Display -->
         <div id="currentTime">
             🕒 --

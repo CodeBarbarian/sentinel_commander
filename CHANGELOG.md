@@ -15,6 +15,16 @@ Template
 
 ### Fixed
 ```
+## [0.2.7] - 2025-07-06 - Quality of life update nr 3
+### Added
+- Auto refresh page options to the footer
+- Cleaned up the _design.html
+### Changed
+- autofocus for searchbar in alert detail view
+- agent badge color in agent overview
+### Fixed
+
+
 ## [0.2.6] - 2025-07-06 - Quality of life update nr 2
 ### Added
 - Keyboard shortcuts
@@ -24,6 +34,7 @@ Template
 - navbar retrofit, moved some items to settings.
 ### Notes
 - Preparing for the consolidation patch. This will be a big change before v1.0
+
 
 ## [v0.2.5] - 2025-07-04 - Quality of life update nr 1 
 ### Added

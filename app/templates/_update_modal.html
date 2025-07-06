@@ -1,0 +1,27 @@
+<!-- Update Modal -->
+<div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content bg-dark text-light border border-secondary">
+      <div class="modal-header">
+        <h5 class="modal-title" id="updateModalLabel">🚀 New Version Available</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        A new version of Sentinel Commander is available.
+        You're currently running <code>v{{ request.state.version }}</code>.
+        Visit the changelog for details on what's new.
+      </div>
+      <div class="modal-footer">
+        <a href="https://github.com/codebarbarian/sentinel_commander/blob/main/CHANGELOG.md"
+           class="btn btn-sm btn-outline-info" target="_blank">
+          📜 View Changelog
+        </a>
+        <a href="https://github.com/codebarbarian/sentinel_commander"
+           class="btn btn-sm btn-primary" target="_blank">
+          ⬇️ Update Instructions
+        </a>
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
