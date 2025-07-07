@@ -15,7 +15,7 @@ Template
 
 ### Fixed
 ```
-## [0.3.0] - 2025-07.07 - 
+## [0.3.0] - 2025-07.07 - The having fun update
 ### Added
 - Additional enrichment options for parser for threat analysis
 - model and pydantic scheme for alert enrichment
