@@ -20,9 +20,6 @@ Template
 - Additional enrichment options for parser for threat analysis
 - model and pydantic scheme for alert enrichment
 - Added options for enrichment in alert detail
-### Changed
-### Fixed
-
 
 ## [0.2.9] - 2025-07-07 - Module Update
 ### Added
