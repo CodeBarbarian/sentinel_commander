@@ -2,7 +2,7 @@ parser_name: suricata_parser
 parser_type: alert
 match:
   location: /var/log/suricata/eve.json
-
+priority: 100
 fields:
   # Default Parser Fields
   description: rule.description
@@ -37,5 +37,5 @@ enrichment:
   - type: geolocation
     field: data.src_ip
 
-  - type: misp_lookup
+  - type: host_threat_lookup
     field: data.src_ip

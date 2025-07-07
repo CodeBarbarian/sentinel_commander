@@ -1,6 +1,6 @@
 parser_name: eventchannel_triage
 parser_type: triage
-
+priority: 100
 match:
   location: EventChannel
 

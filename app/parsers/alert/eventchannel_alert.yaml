@@ -2,7 +2,7 @@ parser_name: eventchannel_parser
 parser_type: alert
 match:
   location: EventChannel
-
+priority: 100
 fields:
   # Default parser fields
   description: rule.description

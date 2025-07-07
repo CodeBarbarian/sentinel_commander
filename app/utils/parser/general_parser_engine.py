@@ -27,7 +27,10 @@ def run_parser_for_type(parser_type: str, source_payload: dict, db: Session = No
     }
 
     try:
-        # Load and apply default first
+        default_result = {}
+        matches = []
+
+        # Load default first, if it exists
         default_path = parser_dir / "default.yaml"
         if default_path.exists():
             default_yaml = load_yaml_file(default_path)
@@ -41,7 +44,7 @@ def run_parser_for_type(parser_type: str, source_payload: dict, db: Session = No
                 "raw_config": default_yaml
             })
 
-        # Look for matching override parser
+        # Find all matching override parsers
         for parser_path in parser_dir.glob("*.yaml"):
             if parser_path.name == "default.yaml":
                 continue
@@ -50,17 +53,27 @@ def run_parser_for_type(parser_type: str, source_payload: dict, db: Session = No
             parser_result = run_custom_parser(parser_yaml, source_payload, db)
 
             if parser_result.get("matched"):
-                result.update({
-                    "matched": True,
-                    "mapped_fields": parser_result.get("mapped_fields", {}),
-                    "tags": list(set(result["tags"] + parser_result.get("tags", []))),
-                    "enrichment": parser_result.get("enrichment", {}),
-                    "parser_name": parser_result.get("parser_name"),
+                matches.append({
+                    "priority": parser_yaml.get("priority", 0),
+                    "parser_result": parser_result,
                     "raw_config": parser_yaml
                 })
-                break
+
+        if matches:
+            # Pick the match with the highest priority
+            best_match = sorted(matches, key=lambda x: x["priority"], reverse=True)[0]
+
+            result.update({
+                "matched": True,
+                "mapped_fields": best_match["parser_result"].get("mapped_fields", {}),
+                "tags": list(set(result["tags"] + best_match["parser_result"].get("tags", []))),
+                "enrichment": best_match["parser_result"].get("enrichment", {}),
+                "parser_name": best_match["parser_result"].get("parser_name"),
+                "raw_config": best_match["raw_config"]
+            })
 
     except Exception as e:
         result["error"] = str(e)
 
     return result
+

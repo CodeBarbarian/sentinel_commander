@@ -3,7 +3,7 @@ parser_type: triage
 
 match:
   location: office365
-
+priority: 100
 fields:
   risk_score: rule.level
   description: rule.description
