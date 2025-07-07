@@ -43,10 +43,11 @@ router_registry = [
     (customers_view.router, "/web/v1"),
     (users_view.router, "/web/v1"),
     (auth_view.router, "/web/v1"),
+    (maxmind_module.router, "/web/v1"),
+    (modules_view.router, "/web/v1"),
     (settings_view.router, "/web/v1"),
     (settings_yaml_view.router, "/web/v1"),
-    (modules_view.router, "/web/v1"),
-    (maxmind_module.router, "/web/v1"),
+
 
     # SentinelIQ
     (sentineliq_view.router, "/web/v1"),

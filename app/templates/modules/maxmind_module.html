@@ -1,0 +1,64 @@
+{% extends "_design.html" %}
+{% block title %}MaxMind Configuration - Sentinel Commander{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+
+  <div class="card bg-dark border border-secondary shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">🌍 MaxMind Module Configuration</h5>
+      <a href="/web/v1/settings/modules" class="btn btn-sm btn-outline-secondary">
+        ← Back to Settings
+      </a>
+    </div>
+
+    <div class="card-body">
+
+      {% if is_configured %}
+        <div class="alert alert-success">✅ MaxMind Module is Configured!</div>
+      {% else %}
+        <div class="alert alert-warning">⚠️ MaxMind Module is not fully configured.</div>
+      {% endif %}
+
+      <!-- Form for User ID -->
+      <form method="post" action="/web/v1/modules/create" class="mb-4">
+        <h6 class="mb-2">👤 User ID</h6>
+        <input type="hidden" name="name" value="MaxMind-GeoIP-UserID">
+        <input type="hidden" name="is_local" value="true">
+        <div class="mb-3">
+          <input type="text" name="local_key" class="form-control"
+                 placeholder="Your MaxMind User ID"
+                 value="{{ user_id_entry.local_key if user_id_entry else '' }}" required>
+        </div>
+        <button type="submit" class="btn btn-success">Save User ID</button>
+      </form>
+
+      <!-- Form for License Key -->
+      <form method="post" action="/web/v1/modules/create">
+        <h6 class="mb-2">🔑 License Key</h6>
+        <input type="hidden" name="name" value="MaxMind-GeoIP-Key">
+        <input type="hidden" name="is_local" value="true">
+        <div class="mb-3">
+          <input type="text" name="local_key" class="form-control"
+                 placeholder="Your MaxMind License Key"
+                 value="{{ license_key_entry.local_key if license_key_entry else '' }}" required>
+        </div>
+        <button type="submit" class="btn btn-success">Save License Key</button>
+      </form>
+
+      <!-- DB Download Action -->
+      <a href="/web/v1/settings/modules/maxmind/download" class="btn btn-warning mt-3">⬇️ Download DB Now</a>
+
+
+
+    </div>
+{% if success %}
+  <div class="alert alert-success">{{ success }}</div>
+{% endif %}
+{% if error %}
+  <div class="alert alert-danger">{{ error }}</div>
+{% endif %}
+  </div>
+
+</div>
+{% endblock %}

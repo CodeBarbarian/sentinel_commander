@@ -1,4 +1,6 @@
 import os
+from urllib.parse import urlencode
+
 import geoip2.database
 import requests
 import tarfile
@@ -8,7 +10,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.models.module import Module
 from app.utils import auth
-
+from fastapi.responses import RedirectResponse
 router = APIRouter()
 
 # Path setup
@@ -49,12 +51,17 @@ def lookup_country(ip_address: str):
         }
 
 @router.get("/settings/modules/maxmind/download")
-def download_maxmind_geoip(request: Request, db: Session = Depends(get_db), user=Depends(auth.require_admin)):
+def download_maxmind_geoip(
+    request: Request,
+    db: Session = Depends(get_db),
+    user=Depends(auth.require_admin)
+):
     user_id_entry = db.query(Module).filter(Module.name == "MaxMind-GeoIP-UserID", Module.is_local == True).first()
     license_key_entry = db.query(Module).filter(Module.name == "MaxMind-GeoIP-Key", Module.is_local == True).first()
 
     if not user_id_entry or not license_key_entry:
-        return JSONResponse(status_code=400, content={"error": "MaxMind credentials not found in module config."})
+        params = urlencode({"error": "MaxMind credentials not found in module config."})
+        return RedirectResponse(f"/web/v1/settings/modules/maxmind?{params}")
 
     account_id = user_id_entry.local_key.strip()
     license_key = license_key_entry.local_key.strip()
@@ -64,10 +71,10 @@ def download_maxmind_geoip(request: Request, db: Session = Depends(get_db), user
     os.makedirs(RESOURCE_DIR, exist_ok=True)
 
     try:
-        # Download
         with requests.get(url, auth=(account_id, license_key), stream=True) as r:
             if r.status_code != 200:
-                return JSONResponse(status_code=r.status_code, content={"error": r.text})
+                params = urlencode({"error": r.text})
+                return RedirectResponse(f"/web/v1/settings/modules/maxmind?{params}")
             with open(GEOIP_TAR_PATH, "wb") as f:
                 for chunk in r.iter_content(chunk_size=8192):
                     f.write(chunk)
@@ -78,16 +85,22 @@ def download_maxmind_geoip(request: Request, db: Session = Depends(get_db), user
                 if member.name.endswith(".mmdb"):
                     tar.extract(member, RESOURCE_DIR)
                     extracted_path = os.path.join(RESOURCE_DIR, member.name)
+
+                    # Safely remove old DB if it exists
+                    if os.path.exists(GEOIP_DB_PATH):
+                        os.remove(GEOIP_DB_PATH)
+
                     os.rename(extracted_path, GEOIP_DB_PATH)
                     break
 
-        # Cleanup tar
         os.remove(GEOIP_TAR_PATH)
 
-        # Re-initialize reader
         global reader
         reader = geoip2.database.Reader(GEOIP_DB_PATH)
 
-        return {"status": "success", "path": GEOIP_DB_PATH}
+        params = urlencode({"success": "GeoIP database downloaded successfully!"})
+        return RedirectResponse(f"/web/v1/settings/modules/maxmind?{params}")
+
     except Exception as e:
-        return JSONResponse(status_code=500, content={"error": f"Download failed: {str(e)}"})
+        params = urlencode({"error": f"Download failed: {str(e)}"})
+        return RedirectResponse(f"/web/v1/settings/modules/maxmind?{params}")

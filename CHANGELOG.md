@@ -15,7 +15,12 @@ Template
 
 ### Fixed
 ```
-## [0.2.8] - Database Migration - Performance update nr 1
+## [0.2.9] - 2025-07-07 - Module Update
+### Added
+- Module page for MISP, Virustotal and MaxMind
+- Support for VirusTotal in SentinelIQ enrichment
+
+## [0.2.8] - 2025-07-06 - Database Migration - Performance update nr 1
 ### Added
 - 4 new fields to the alerts model to easier be able to search through it
 - alembic for database migrations
