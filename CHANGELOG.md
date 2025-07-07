@@ -15,6 +15,15 @@ Template
 
 ### Fixed
 ```
+## [0.3.0] - 2025-07.07 - 
+### Added
+- Additional enrichment options for parser for threat analysis
+- model and pydantic scheme for alert enrichment
+- Added options for enrichment in alert detail
+### Changed
+### Fixed
+
+
 ## [0.2.9] - 2025-07-07 - Module Update
 ### Added
 - Module page for MISP, Virustotal and MaxMind

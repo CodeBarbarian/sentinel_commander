@@ -214,6 +214,58 @@
                             <p class="text-muted">No matches in MISP.</p>
                             {% endif %}
 
+                            {% elif key == 'host_threat_lookup' %}
+                            <div class="tactical-note-card mb-3">
+                                <div class="tactical-heading mb-2">🔗 Threat Lookup: {{ value.value }}</div>
+                                <div class="mb-3">
+                                    <p>Hint: Hold CTRL and click the services you would like to use</p>
+                                </div>
+
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <button class="btn btn-sm btn-primary w-100"
+                                                onclick="window.open('{{ value.links.virustotal }}', '_blank')">
+                                            Open VirusTotal
+                                        </button>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <button class="btn btn-sm btn-success w-100"
+                                                onclick="window.open('{{ value.links.talos }}', '_blank')">
+                                            Open Talos Reputation
+                                        </button>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <button class="btn btn-sm btn-warning w-100"
+                                                onclick="window.open('{{ value.links.threatminer }}', '_blank')">
+                                            Open ThreatMiner
+                                                </button>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <button class="btn btn-sm btn-danger w-100"
+                                                onclick="window.open('{{ value.links.threatcrowd }}', '_blank')">
+                                            Open ThreatCrowd
+                                                </button>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <button class="btn btn-sm btn-secondary w-100"
+                                                onclick="window.open('{{ value.links.alienvault }}', '_blank')">
+                                            Open OTX AlienVault
+                                        </button>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <button class="btn btn-sm btn-secondary w-100"
+                                                onclick="window.open('{{ value.links.crowdsec }}', '_blank')">
+                                            Open CrowdSec
+                                                </button>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <button class="btn btn-sm btn-light w-100"
+                                                onclick="window.open('{{ value.links.abuseipdb }}', '_blank')">
+                                            Open AbuseIPDb
+                                                </button>
+                                    </div>
+                                </div>
+                            </div>
 
                             {% else %}
                             <!-- Fallback for any other enrichment -->
@@ -659,6 +711,7 @@
             }
         });
     });
+
 </script>
 
 {% endblock %}

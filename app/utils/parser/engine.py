@@ -162,6 +162,32 @@ def run_custom_parser(yaml_config, alert_input, db: Session = None):
                     if field not in parsed["mapped_fields"]:
                         parsed["mapped_fields"][field] = value
 
+            elif enrich_type == "host_threat_lookup":
+                field_path = enrich.get("field")
+                lookup_key = enrich.get("key", "host_threat_lookup")
+                value = extract_from_path(alert_source, field_path)
+
+                if value:
+                    vt_url = f"https://www.virustotal.com/gui/search/{value}"
+                    talos_url = f"http://talosintelligence.com/reputation_center/lookup?search={value}"
+                    abuseipdb_url = f"https://www.abuseipdb.com/check/{value}"
+                    threatminer_url = f"https://www.threatminer.org/host.php?q={value}"
+                    threatcrowd_url = f"http://ci-www.threatcrowd.org/ip.php?ip={value}"
+                    alienvault_url = f"https://otx.alienvault.com/indicator/ip/{value}"
+                    crowdsec_url = f"https://app.crowdsec.net/cti/{value}"
+
+                    parsed["enrichment"][lookup_key] = {
+                        "value": value,
+                        "links": {
+                            "virustotal": vt_url,
+                            "talos": talos_url,
+                            "abuseipdb": abuseipdb_url,
+                            "threatminer": threatminer_url,
+                            "threatcrowd": threatcrowd_url,
+                            "alienvault": alienvault_url,
+                            "crowdsec": crowdsec_url
+                        }
+                    }
         # Ensure tags are unique while preserving order
         parsed["tags"] = list(OrderedDict.fromkeys(parsed["tags"]))
 

@@ -35,3 +35,4 @@ class Alert(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     case = relationship("Case", back_populates="alerts")
+    enrichments = relationship("AlertEnrichment", back_populates="alert", cascade="all, delete-orphan")

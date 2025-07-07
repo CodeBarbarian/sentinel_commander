@@ -24,6 +24,7 @@ from app.models.customer import Customer
 from app.models.assets import Asset
 from app.models.iocs import IOC
 from app.models.publisher import PublisherList, PublisherEntry
+from app.models.alert_enrichment import AlertEnrichment
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata

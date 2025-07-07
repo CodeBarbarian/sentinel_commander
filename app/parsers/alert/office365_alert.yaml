@@ -52,3 +52,6 @@ enrichment:
 
   - type: geolocation
     field: data.office365.SenderIp
+
+  - type: host_threat_lookup
+    field: data.office365.SenderIp
