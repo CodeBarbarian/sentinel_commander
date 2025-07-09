@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.sql import func
 from app.core.database import Base
 from sqlalchemy.orm import relationship
@@ -23,7 +24,7 @@ class Alert(Base):
 
     tags = Column(String, default="")
     source_event_time = Column(DateTime, nullable=True)
-    source_payload = Column(String, nullable=True)
+    source_payload = Column(JSONB, nullable=True)
 
     agent_id = Column(String, index=True, nullable=True)
     agent_name = Column(String, index=True, nullable=True)

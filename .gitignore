@@ -185,3 +185,8 @@ sentinel.db
 # Parsers
 /app/parsers/alert/*
 /app/parsers/triage/*
+
+.env
+.env.local
+
+/docker/pg_data/*
