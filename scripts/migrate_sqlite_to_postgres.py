@@ -68,9 +68,10 @@ if __name__ == "__main__":
 
     try:
         # FK parents first!
+
+        migrate_table(Customer)
         migrate_table(CustomerDetail)
         migrate_table(Source)
-        migrate_table(Customer)
         migrate_table(User)
         migrate_table(Case)
         migrate_table(CaseNote)

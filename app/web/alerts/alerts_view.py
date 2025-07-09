@@ -148,31 +148,28 @@ def list_alerts_view(
     alerts = query.order_by(Alert.created_at.desc()).offset(offset).limit(limit).all()
     for alert in alerts:
         try:
-            payload = json.loads(alert.source_payload or "{}")
-            parsed = run_parser_for_type("alert", payload)
+            payload = alert.source_payload
+
+            # Defensive: handle str or dict
+            if isinstance(payload, dict):
+                payload_json = payload
+            else:
+                payload_json = json.loads(payload or "{}")
+
+            parsed = run_parser_for_type("alert", payload_json)
 
             mapped = parsed.get("mapped_fields", {}) or {}
 
-            # Ensure agent_name always exists
             if "agent_name" not in mapped:
-                agent_name = payload.get("agent", {}).get("name")
+                agent_name = payload_json.get("agent", {}).get("name")
                 if agent_name:
                     mapped["agent_name"] = agent_name
-                    mapped["agent"] = agent_name  # fallback display
+                    mapped["agent"] = agent_name
 
             alert.parsed_fields = mapped
 
-        except Exception as e:
-            # Fallback parse
-            try:
-                payload = json.loads(alert.source_payload or "{}")
-                agent_name = payload.get("agent", {}).get("name")
-                alert.parsed_fields = {
-                    "agent_name": agent_name,
-                    "agent": agent_name
-                }
-            except Exception:
-                alert.parsed_fields = {}
+        except Exception:
+            alert.parsed_fields = {}
 
     for alert in alerts:
         alert.created_at_formatted = alert.created_at.strftime("%Y-%m-%d %H:%M:%S") if alert.created_at else "-"

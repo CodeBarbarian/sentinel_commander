@@ -1,6 +1,6 @@
 from typing import Optional
 from starlette.responses import RedirectResponse
-from sqlalchemy import case, func
+from sqlalchemy import case, func, text
 from fastapi import APIRouter, Request, Depends, Query, HTTPException, Form
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -12,6 +12,7 @@ from app.models.case import Case
 from app.utils import auth
 from app.utils.parser.general_parser_engine import run_parser_for_type
 import json
+from sqlalchemy import Text
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -22,6 +23,21 @@ def get_db():
         yield db
     finally:
         db.close()
+
+def safe_get_agent_name(payload: dict) -> str:
+    if not isinstance(payload, dict):
+        return "—"
+    agent = payload.get("agent")
+    if isinstance(agent, dict):
+        return agent.get("name") or "—"
+    elif isinstance(agent, str):
+        return agent
+    host = payload.get("host")
+    if isinstance(host, dict):
+        return host.get("name") or "—"
+    elif isinstance(host, str):
+        return host
+    return "—"
 
 @router.get("/alerts/{alert_id}", response_class=HTMLResponse)
 def alert_detail_view(
@@ -36,13 +52,16 @@ def alert_detail_view(
     if not alert:
         return templates.TemplateResponse("404.html", {"request": request}, status_code=404)
 
-    # Load raw JSON from alert
     try:
-        source_payload_json = json.loads(alert.source_payload) if alert.source_payload else {}
+        if isinstance(alert.source_payload, str):
+            source_payload_json = json.loads(alert.source_payload)
+        elif isinstance(alert.source_payload, dict):
+            source_payload_json = alert.source_payload
+        else:
+            source_payload_json = {}
     except Exception as e:
         source_payload_json = {"error": f"Invalid JSON: {str(e)}"}
 
-    # === Parser Execution ===
     try:
         parsed = run_parser_for_type("alert", source_payload_json, db)
         parsed_fields = parsed.get("mapped_fields", {})
@@ -58,12 +77,10 @@ def alert_detail_view(
         parsed_enrichment = {}
         parser_metadata = {"parser_name": "unknown", "matched": False}
 
-    # === MITRE Extraction ===
     mitre_info = source_payload_json.get("rule", {}).get("mitre", {}) or {}
     mitre_ids = mitre_info.get("id", []) if isinstance(mitre_info, dict) else []
     mitre_tactics = mitre_info.get("tactic", []) if isinstance(mitre_info, dict) else []
 
-    # === Related Alerts by Agent ===
     page_size = 10
     offset = (page - 1) * page_size
 
@@ -77,7 +94,7 @@ def alert_detail_view(
     if agent_name:
         related_query = db.query(Alert).filter(
             Alert.id != alert.id,
-            func.lower(Alert.source_payload).like(f"%{agent_name.lower()}%")
+            func.lower(func.cast(Alert.source_payload, Text)).like(f"%{agent_name.lower()}%")
         )
 
         total_related = related_query.count()
@@ -89,23 +106,29 @@ def alert_detail_view(
 
         for r in related_alerts:
             try:
-                payload = json.loads(r.source_payload or "{}")
-                parsed = run_parser_for_type("alert", payload, db)
+                if isinstance(r.source_payload, dict):
+                    payload = r.source_payload
+                elif isinstance(r.source_payload, str):
+                    payload = json.loads(r.source_payload or "{}")
+                else:
+                    payload = {}
+
+                parsed_r = run_parser_for_type("alert", payload, db)
                 r.parsed_agent = (
-                    parsed.get("mapped_fields", {}).get("agent_name")
-                    or parsed.get("mapped_fields", {}).get("agent")
+                    parsed_r.get("mapped_fields", {}).get("agent_name")
+                    or parsed_r.get("mapped_fields", {}).get("agent")
                     or "—"
                 )
-            except Exception:
+            except Exception as e:
+                print(f"Failed to parse related alert {r.id}: {e}")
                 r.parsed_agent = "—"
 
         total_pages = max((total_related + page_size - 1) // page_size, 1)
 
-    # === Related Alerts by Message ===
     msg_page_size = 10
     msg_offset = (message_page - 1) * msg_page_size
 
-    related_alerts_by_message = []
+    related_alerts_by_message = []   # ✅ always initialized
     total_related_msg = 0
     total_pages_msg = 1
 
@@ -124,18 +147,27 @@ def alert_detail_view(
 
         for r in related_alerts_by_message:
             try:
-                payload = json.loads(r.source_payload or "{}")
-                parsed = run_parser_for_type("alert", payload, db)
+                if isinstance(r.source_payload, dict):
+                    payload = r.source_payload
+                elif isinstance(r.source_payload, str):
+                    payload = json.loads(r.source_payload or "{}")
+                else:
+                    payload = {}
+
+                parsed_r = run_parser_for_type("alert", payload, db)
                 r.parsed_agent = (
-                    parsed.get("mapped_fields", {}).get("agent_name")
-                    or parsed.get("mapped_fields", {}).get("agent")
+                    parsed_r.get("mapped_fields", {}).get("agent_name")
+                    or parsed_r.get("mapped_fields", {}).get("agent")
                     or "—"
                 )
-            except Exception:
+            except Exception as e:
+                print(f"Failed to parse related alert {r.id}: {e}")
                 r.parsed_agent = "—"
 
         total_pages_msg = max((total_related_msg + msg_page_size - 1) // msg_page_size, 1)
+
     cases = db.query(Case).order_by(Case.created_at.desc()).limit(20).all()
+
     return templates.TemplateResponse("alerts/alert_detail.html", {
         "request": request,
         "alert": alert,
@@ -157,6 +189,8 @@ def alert_detail_view(
         "mitre_info": mitre_info,
         "cases": cases,
     })
+
+
 
 @router.post("/alerts/{alert_id}/update")
 def update_alert_form(
@@ -181,6 +215,7 @@ def update_alert_form(
     db.commit()
     return RedirectResponse(f"/web/v1/alerts/{alert_id}", status_code=303)
 
+
 @router.get("/alerts/{alert_id}/quick/{action}")
 def quick_triage_action(alert_id: int, action: str, db: Session = Depends(get_db), user=Depends(auth.get_current_user)):
     alert = db.query(Alert).filter(Alert.id == alert_id).first()
@@ -202,6 +237,7 @@ def quick_triage_action(alert_id: int, action: str, db: Session = Depends(get_db
     db.commit()
     return RedirectResponse(f"/web/v1/sentineliq/triage", status_code=303)
 
+
 @router.post("/alerts/{alert_id}/promote")
 def promote_alert_to_case(
     alert_id: int,
@@ -215,9 +251,6 @@ def promote_alert_to_case(
     alert = db.query(Alert).filter(Alert.id == alert_id).first()
     if not alert:
         raise HTTPException(status_code=404, detail="Alert not found")
-
-    from app.models.case import Case
-    from app.models.case_timeline import CaseTimelineEvent
 
     if action == "new_case":
         if not case_title:
@@ -263,7 +296,6 @@ def promote_alert_to_case(
         if not alert.message:
             raise HTTPException(status_code=400, detail="Alert message is required for bulk promote.")
 
-        # Try find existing open case matching the message
         existing_case = db.query(Case).filter(
             Case.state != "closed",
             func.lower(Case.title).like(f"%{alert.message.lower()}%") |
@@ -282,7 +314,6 @@ def promote_alert_to_case(
             db.flush()
             target_case = new_case
 
-        # Attach ALL alerts with same message
         same_msg_alerts = db.query(Alert).filter(
             Alert.message == alert.message
         ).all()
@@ -314,7 +345,6 @@ def smart_bulk_promote(
     if not alert or not alert.message:
         raise HTTPException(status_code=404, detail="Alert not found or no message to correlate.")
 
-    # 1) Try to find an existing open case with the same message in title or description
     existing_case = db.query(Case).filter(
         Case.state != "closed",
         func.lower(Case.title).like(f"%{alert.message.lower()}%") |
@@ -324,7 +354,6 @@ def smart_bulk_promote(
     if existing_case:
         target_case = existing_case
     else:
-        # 2) Create new case
         new_case = Case(
             title=f"Case for Alert Message: {alert.message[:60]}",
             description=f"Auto-created from alert #{alert.id} with message:\n\n{alert.message}",
@@ -334,10 +363,9 @@ def smart_bulk_promote(
         db.flush()
         target_case = new_case
 
-    # 3) Attach ALL alerts with same message
     same_msg_alerts = db.query(Alert).filter(
         Alert.message == alert.message,
-        Alert.case_id == None  # optional: only unlinked alerts
+        Alert.case_id == None
     ).all()
 
     for a in same_msg_alerts:
