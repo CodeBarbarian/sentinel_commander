@@ -3,9 +3,7 @@ from app.web.alerts import alerts_view, alerts_detail_view, alerts_categories_vi
 from app.web.assets import assets_view
 from app.web.customers import customers_view
 from app.web.dashboard import dashboard_view, ws_dashboard
-from app.web.iocs import iocs_view
 from app.web.modules import modules_view, maxmind_module
-from app.web.playbooks import playbooks_view
 from app.web.sentineliq import sentineliq_view, sentineliq_search_view, sentineliq_publisher_view, sentineliq_enrichment_view
 from app.web.settings import settings_view, settings_yaml_view
 from app.web.sources import sources_view
@@ -33,8 +31,6 @@ router_registry = [
     (alerts_detail_view.router, "/web/v1"),
     (sources_view.router, "/web/v1"),
     (assets_view.router, "/web/v1"),
-    (iocs_view.router, "/web/v1"),
-    (playbooks_view.router, "/web/v1"),
     (customers_view.router, "/web/v1"),
     (users_view.router, "/web/v1"),
     (auth_view.router, "/web/v1"),

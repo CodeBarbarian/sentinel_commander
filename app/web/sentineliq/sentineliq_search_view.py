@@ -7,7 +7,6 @@ from app.utils import auth
 from app.models.alert import Alert
 from app.models.customer import Customer
 from app.models.assets import Asset
-from app.models.iocs import IOC
 from app.models.publisher import PublisherList, PublisherEntry
 from app.utils.parser.compat_parser_runner import run_parser_for_type
 from fastapi.templating import Jinja2Templates
@@ -194,24 +193,6 @@ def sentineliq_search(
                 "id": asset.id,
                 "title": asset.hostname or asset.name or asset.ip_address,
                 "match": "asset match"
-            })
-
-    # === IOCs ===
-    if not type or type == "ioc":
-        iocs = db.query(IOC).filter(
-            or_(
-                IOC.value.ilike(f"%{query}%"),
-                IOC.description.ilike(f"%{query}%"),
-                IOC.tags.ilike(f"%{query}%"),
-                IOC.source.ilike(f"%{query}%")
-            )
-        ).limit(limit or 20).all()
-        for ioc in iocs:
-            results.append({
-                "type": "ioc",
-                "id": ioc.id,
-                "title": ioc.value,
-                "match": f"type: {ioc.type}"
             })
 
     # === PUBLISHER LISTS ===

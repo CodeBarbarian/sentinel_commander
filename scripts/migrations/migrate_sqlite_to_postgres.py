@@ -16,7 +16,6 @@ from app.models.alert_enrichment import AlertEnrichment
 from app.models.assets import Asset
 from app.models.customer import Customer
 from app.models.customer_detail import CustomerDetail
-from app.models.iocs import IOC
 from app.models.module import Module
 from app.models.playbooks import Playbook
 from app.models.publisher import PublisherList, PublisherEntry
@@ -60,21 +59,10 @@ if __name__ == "__main__":
 
     try:
         # FK parents first!
-
         migrate_table(Customer)
         migrate_table(CustomerDetail)
         migrate_table(Source)
         migrate_table(User)
-        migrate_table(Case)
-        migrate_table(CaseNote)
-        migrate_table(CaseTag)
-        migrate_table(CaseTask)
-        migrate_table(CasePlaybook)
-        migrate_table(CaseEvidence)
-        migrate_table(IOC)
-        migrate_table(CaseIOC)
-        migrate_table(CaseTimelineEvent)
-
         migrate_table(Alert)
         migrate_table(AlertEnrichment)
 

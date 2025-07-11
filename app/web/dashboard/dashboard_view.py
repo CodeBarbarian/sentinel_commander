@@ -31,7 +31,7 @@ def dashboard_view(request: Request, user=Depends(auth.get_current_user), db: Se
 
     # Stats
     alerts_today = db.query(func.count(Alert.id)).filter(Alert.created_at >= start_of_day).scalar()
-    source_count = db.query(func.count(Source.id)).scalar()
+    source_count = db.query(func.count(Source.id)).filter(Source.is_active == True).scalar()
 
     # Count unique tags – assumes tags is a comma-separated string, adjust if tags are stored differently
     tag_query = db.query(Alert.tags).filter(Alert.tags.isnot(None)).all()
@@ -98,9 +98,16 @@ def dashboard_view(request: Request, user=Depends(auth.get_current_user), db: Se
     status_labels = [row[0] for row in status_counts]
     status_values = [row[1] for row in status_counts]
 
+    # Add this after your other stats
+    critical_new_alerts = db.query(func.count(Alert.id)).filter(
+        Alert.status == "new",
+        Alert.severity.in_(SEVERITY_MAP["Critical"])
+    ).scalar()
+
     return templates.TemplateResponse("dashboard/dashboard.html", {
         "request": request,
         "stats": {
+            "critical_new_alerts": critical_new_alerts,
             "alerts_today": alerts_today,
             "sources": source_count,
             "unique_tags": unique_tags
