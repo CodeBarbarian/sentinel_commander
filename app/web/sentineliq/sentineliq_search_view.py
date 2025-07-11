@@ -5,7 +5,6 @@ from sqlalchemy import or_
 from app.core.database import get_db
 from app.utils import auth
 from app.models.alert import Alert
-from app.models.case import Case
 from app.models.customer import Customer
 from app.models.assets import Asset
 from app.models.iocs import IOC
@@ -158,24 +157,6 @@ def sentineliq_search(
                     "title": alert.message[:60] or "Alert",
                     "match": "Matched in alert payload"
                 })
-
-    # === CASES ===
-    if not type or type == "case":
-        cases = db.query(Case).filter(
-            or_(
-                Case.title.ilike(f"%{query}%"),
-                Case.description.ilike(f"%{query}%"),
-                Case.classification.ilike(f"%{query}%"),
-                Case.state.ilike(f"%{query}%")
-            )
-        ).limit(limit or 20).all()
-        for case in cases:
-            results.append({
-                "type": "case",
-                "id": case.id,
-                "title": case.title,
-                "match": f"state: {case.state}"
-            })
 
     # === CUSTOMERS ===
     if not type or type == "customer":

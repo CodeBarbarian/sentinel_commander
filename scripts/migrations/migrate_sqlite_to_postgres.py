@@ -14,14 +14,6 @@ from app.core.database import Base  # same Base for both!
 from app.models.alert import Alert
 from app.models.alert_enrichment import AlertEnrichment
 from app.models.assets import Asset
-from app.models.case import Case
-from app.models.case_evidence import CaseEvidence
-from app.models.case_ioc import CaseIOC
-from app.models.case_note import CaseNote
-from app.models.case_playbooks import CasePlaybook
-from app.models.case_tag import CaseTag
-from app.models.case_tasks import CaseTask
-from app.models.case_timeline import CaseTimelineEvent
 from app.models.customer import Customer
 from app.models.customer_detail import CustomerDetail
 from app.models.iocs import IOC

@@ -10,7 +10,6 @@ class Alert(Base):
     id = Column(Integer, primary_key=True, index=True)
 
     source_id = Column(Integer, ForeignKey("sources.id"), nullable=True)
-    case_id = Column(Integer, ForeignKey("cases.id"), nullable=True)
 
     source = Column(String, index=True)
     source_ref_id = Column(String, index=True, nullable=True)
@@ -35,5 +34,4 @@ class Alert(Base):
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    case = relationship("Case", back_populates="alerts")
     enrichments = relationship("AlertEnrichment", back_populates="alert", cascade="all, delete-orphan")

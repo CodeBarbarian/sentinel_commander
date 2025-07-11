@@ -23,6 +23,3 @@ class Asset(Base):
     notes = Column(Text, nullable=True)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-
-    # Linked cases (many-to-many)
-    linked_cases = relationship("Case", secondary="case_asset_link", back_populates="assets")

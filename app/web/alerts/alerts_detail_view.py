@@ -6,9 +6,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from app.core.database import SessionLocal
-from app.models import CaseTimelineEvent
 from app.models.alert import Alert
-from app.models.case import Case
 from app.utils import auth
 from app.utils.parser.general_parser_engine import run_parser_for_type
 import json
@@ -166,7 +164,6 @@ def alert_detail_view(
 
         total_pages_msg = max((total_related_msg + msg_page_size - 1) // msg_page_size, 1)
 
-    cases = db.query(Case).order_by(Case.created_at.desc()).limit(20).all()
 
     return templates.TemplateResponse("alerts/alert_detail.html", {
         "request": request,
@@ -187,7 +184,7 @@ def alert_detail_view(
         "mitre_ids": mitre_ids,
         "mitre_tactics": mitre_tactics,
         "mitre_info": mitre_info,
-        "cases": cases,
+
     })
 
 
@@ -238,6 +235,7 @@ def quick_triage_action(alert_id: int, action: str, db: Session = Depends(get_db
     return RedirectResponse(f"/web/v1/sentineliq/triage", status_code=303)
 
 
+"""
 @router.post("/alerts/{alert_id}/promote")
 def promote_alert_to_case(
     alert_id: int,
@@ -382,3 +380,4 @@ def smart_bulk_promote(
     db.commit()
 
     return RedirectResponse(f"/web/v1/cases/{target_case.id}", status_code=303)
+"""

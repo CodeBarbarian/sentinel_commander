@@ -19,9 +19,6 @@ class Customer(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    # Relationships
-    cases = relationship("Case", back_populates="customer", cascade="all, delete-orphan")
-
     # Future expansion
     # alerts = relationship("Alert", back_populates="customer")
     # users = relationship("User", back_populates="customer")

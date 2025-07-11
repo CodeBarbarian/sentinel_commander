@@ -32,12 +32,6 @@
                     </ul>
                 </li>
 
-                <!-- Cases -->
-                <li class="nav-item">
-                    <a class="nav-link {% if request.url.path.startswith('/web/v1/cases') %}active{% endif %}"
-                       href="/web/v1/cases">Cases</a>
-                </li>
-
                 <!-- IRDB Dropdown -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle {% if request.url.path.startswith('/web/v1/assets') or request.url.path.startswith('/web/v1/iocs') or request.url.path.startswith('/web/v1/playbooks') %}active{% endif %}"

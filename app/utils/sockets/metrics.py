@@ -1,7 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from app.models.alert import Alert
-from app.models.case import Case
 from app.utils.severity import SEVERITY_MAP
 
 def get_current_metrics(db: Session):
@@ -13,7 +12,4 @@ def get_current_metrics(db: Session):
         "open_alerts_count": db.query(func.count(Alert.id))
             .filter(Alert.status == "new")
             .scalar(),
-        "open_cases_count": db.query(func.count(Case.id))
-            .filter(Case.state == "new")
-            .scalar()
     }

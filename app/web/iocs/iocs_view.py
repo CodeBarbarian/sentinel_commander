@@ -9,8 +9,6 @@ from app.models.iocs import IOC
 from fastapi.templating import Jinja2Templates
 from app.utils import auth
 from app.models.alert import Alert
-from app.models.case import Case
-from app.models.case_ioc import CaseIOC
 from app.models.publisher import PublisherList, PublisherEntry
 from app.web.modules.maxmind_module import lookup_country
 from app.utils.sockets.broadcast import broadcast_dashboard_event
@@ -106,16 +104,11 @@ def ioc_detail_view(
         Alert.source_payload.ilike(f"%{ioc.value}%")
     ).order_by(Alert.created_at.desc()).limit(20).all()
 
-    # Related cases via CaseIOC linking
-    related_case_iocs = db.query(CaseIOC).filter(CaseIOC.global_ioc_id == ioc.id).all()
-    related_cases = [ci.case for ci in related_case_iocs if ci.case]  # Avoid None if orphaned
-
     # Related SentinelIQ lists
     lists = db.query(PublisherList).join(PublisherEntry).filter(PublisherEntry.value == ioc.value).all()
 
     enrichment = None
     if ioc.type and ioc.type.lower() == "ip":
-
         enrichment = lookup_country(ioc.value)
 
     return templates.TemplateResponse("iocs/iocs_detail.html", {
@@ -123,7 +116,6 @@ def ioc_detail_view(
         "ioc": ioc,
         "ioc_json": serialize_ioc(ioc),
         "linked_alerts": alerts,
-        "linked_cases": related_cases,
         "linked_lists": lists,
         "enrichment": enrichment,
     })

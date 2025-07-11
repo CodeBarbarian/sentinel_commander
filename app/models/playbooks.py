@@ -15,6 +15,3 @@ class Playbook(Base):
     created_by = Column(Integer, nullable=True)     # Can link to user model if desired
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    # Relationships
-    cases = relationship("CasePlaybook", back_populates="playbook", cascade="all, delete-orphan")

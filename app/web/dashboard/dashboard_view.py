@@ -8,7 +8,6 @@ from fastapi import HTTPException
 from app.core.database import SessionLocal
 from app.models.alert import Alert
 from app.models.source import Source
-from app.models.case import Case
 from app.utils import auth
 import json
 from app.utils.parser.compat_parser_runner import run_parser_for_type
@@ -32,7 +31,6 @@ def dashboard_view(request: Request, user=Depends(auth.get_current_user), db: Se
 
     # Stats
     alerts_today = db.query(func.count(Alert.id)).filter(Alert.created_at >= start_of_day).scalar()
-    open_cases = db.query(func.count(Case.id)).filter(Case.state != "closed").scalar()
     source_count = db.query(func.count(Source.id)).scalar()
 
     # Count unique tags – assumes tags is a comma-separated string, adjust if tags are stored differently
@@ -104,7 +102,6 @@ def dashboard_view(request: Request, user=Depends(auth.get_current_user), db: Se
         "request": request,
         "stats": {
             "alerts_today": alerts_today,
-            "open_cases": open_cases,
             "sources": source_count,
             "unique_tags": unique_tags
         },
@@ -127,12 +124,8 @@ def operator_dashboard_view(request: Request, user=Depends(auth.get_current_user
     # Open Alerts (status != 'done' / 'closed')
     open_alerts = db.query(func.count(Alert.id)).filter(Alert.status.notin_(["done", "closed", "resolved"])).scalar()
 
-    # Open Cases (state != 'closed')
-    open_cases = db.query(func.count(Case.id)).filter(Case.state != "closed").scalar()
-
     return templates.TemplateResponse("dashboard/dashboard_operator.html", {
         "request": request,
         "critical_alerts_count": critical_alerts,
         "open_alerts_count": open_alerts,
-        "open_cases_count": open_cases,
     })

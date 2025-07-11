@@ -7,36 +7,17 @@ from sqlalchemy.orm import Session
 from starlette.responses import RedirectResponse
 from app.core.database import SessionLocal
 from app.models.alert import Alert
-from app.models.case import Case
 from urllib.parse import urlencode
 from app.utils.parser.compat_parser_runner import run_parser_for_type
 import json
 from app.utils import auth
 from collections import Counter
-from app.models.case_timeline import CaseTimelineEvent
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
 # Hacky to get it to work
 # @TODO: Fix this
-def log_timeline_event(
-    db: Session,
-    case_id: int,
-    event_type: str,
-    message: str,
-    actor_id: Optional[int] = None,
-    details: Optional[str] = None
-):
-    timeline_entry = CaseTimelineEvent(
-        case_id=case_id,
-        actor_id=actor_id,
-        event_type=event_type,
-        message=message,
-        details=details,
-    )
-    db.add(timeline_entry)
-
 SEVERITY_MAP = {
     "informational": [0],
     "low": [1, 2, 3, 4, 5, 6],
@@ -205,7 +186,6 @@ def list_alerts_view(
         "total_pages": total_pages,
         "query_string": query_base,
     }
-    cases = db.query(Case).order_by(Case.created_at.desc()).limit(20).all()
 
     return templates.TemplateResponse("alerts/alerts.html", {
         "request": request,
@@ -216,7 +196,6 @@ def list_alerts_view(
         "status": status or "",
         "severity": severity or "",
         "pagination": pagination,
-        "cases": cases
     })
 
 
@@ -271,68 +250,4 @@ def view_all_tags(request: Request, db: Session = Depends(get_db), user=Depends(
         "request": request,
         "tags": tags_data
     })
-
-@router.post("/alerts/merge", response_class=HTMLResponse)
-def merge_alerts(
-    request: Request,
-    user=Depends(auth.get_current_user),
-    db: Session = Depends(get_db),
-    alert_ids: str = Form(...),
-    action: str = Form(...),
-    existing_case_id: Optional[int] = Form(None),
-    case_title: Optional[str] = Form(None),
-    case_description: Optional[str] = Form(None)
-):
-    alert_id_list = [int(aid) for aid in alert_ids.split(",") if aid.strip().isdigit()]
-    alerts = db.query(Alert).filter(Alert.id.in_(alert_id_list)).all()
-
-    if not alerts:
-        raise HTTPException(status_code=400, detail="No valid alerts selected.")
-
-    if action == "new_case":
-        if not case_title:
-            raise HTTPException(status_code=400, detail="Case title is required.")
-
-        new_case = Case(
-            title=case_title,
-            description=case_description or "",
-            state="new",
-            created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow()
-        )
-        db.add(new_case)
-        db.flush()
-
-        for alert in alerts:
-            alert.case_id = new_case.id
-            log_timeline_event(
-                db=db,
-                case_id=new_case.id,
-                event_type="alert_linked",
-                message=f"Alert {alert.id} linked to new case from merge.",
-                details=alert.message[:255] if alert.message else None
-            )
-
-        db.commit()
-        return RedirectResponse(f"/web/v1/cases/{new_case.id}", status_code=303)
-
-    elif action == "existing_case":
-        if not existing_case_id:
-            raise HTTPException(status_code=400, detail="No existing case selected.")
-
-        for alert in alerts:
-            alert.case_id = existing_case_id
-            db.flush()
-            log_timeline_event(
-                db=db,
-                case_id=existing_case_id,
-                event_type="alert_linked",
-                message=f"Alert {alert.id} linked to existing case from merge.",
-                details=alert.message[:255] if alert.message else None
-            )
-
-        db.commit()
-        return RedirectResponse(f"/web/v1/cases/{existing_case_id}", status_code=303)
-
-    raise HTTPException(status_code=400, detail="Invalid action.")
 
