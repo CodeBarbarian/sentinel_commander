@@ -32,17 +32,6 @@
                     </ul>
                 </li>
 
-                <!-- IRDB Dropdown -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle {% if request.url.path.startswith('/web/v1/assets') or request.url.path.startswith('/web/v1/iocs') or request.url.path.startswith('/web/v1/playbooks') %}active{% endif %}"
-                       href="#" role="button" data-bs-toggle="dropdown">
-                        IRDB
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-dark">
-                        <li><a class="dropdown-item" href="/web/v1/assets">Assets</a></li>
-                    </ul>
-                </li>
-
                 <!-- SentinelIQ Dropdown -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle {% if request.url.path.startswith('/web/v1/sentineliq') or request.url.path.startswith('/web/v1/sentineliq') or request.url.path.startswith('/web/v1/sentineliq') %}active{% endif %}"
@@ -75,8 +64,7 @@
             <div class="dropdown">
             <a href="#" class="d-flex align-items-center text-light text-decoration-none dropdown-toggle"
                id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                <!-- <span class="me-2 small text-muted">👤 {{ request.session.user.username }}</span> -->
-                <span class="me-2 small text-muted">👤</span>
+                <span class="me-2 small text-muted">👤 {{ request.session.user.username }}</span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark text-small shadow"
                 aria-labelledby="userDropdown">

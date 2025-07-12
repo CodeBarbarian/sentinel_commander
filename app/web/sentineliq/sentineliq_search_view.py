@@ -6,7 +6,6 @@ from app.core.database import get_db
 from app.utils import auth
 from app.models.alert import Alert
 from app.models.customer import Customer
-from app.models.assets import Asset
 from app.models.publisher import PublisherList, PublisherEntry
 from app.utils.parser.compat_parser_runner import run_parser_for_type
 from fastapi.templating import Jinja2Templates
@@ -173,26 +172,6 @@ def sentineliq_search(
                 "id": customer.id,
                 "title": customer.name,
                 "match": "customer match"
-            })
-
-    # === ASSETS ===
-    if not type or type == "asset":
-        assets = db.query(Asset).filter(
-            or_(
-                Asset.hostname.ilike(f"%{query}%"),
-                Asset.ip_address.ilike(f"%{query}%"),
-                Asset.name.ilike(f"%{query}%"),
-                Asset.notes.ilike(f"%{query}%"),
-                Asset.tags.ilike(f"%{query}%"),
-                Asset.type.ilike(f"%{query}%")
-            )
-        ).limit(limit or 20).all()
-        for asset in assets:
-            results.append({
-                "type": "asset",
-                "id": asset.id,
-                "title": asset.hostname or asset.name or asset.ip_address,
-                "match": "asset match"
             })
 
     # === PUBLISHER LISTS ===

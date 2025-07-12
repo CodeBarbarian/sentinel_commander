@@ -1,6 +1,5 @@
-from app.api import alerts, sources, parsers, customers, users, publisher
+from app.api import alerts, sources, customers, users, publisher
 from app.web.alerts import alerts_view, alerts_detail_view, alerts_categories_view
-from app.web.assets import assets_view
 from app.web.customers import customers_view
 from app.web.dashboard import dashboard_view, ws_dashboard
 from app.web.modules import modules_view, maxmind_module
@@ -30,7 +29,6 @@ router_registry = [
     (alerts_view.router, "/web/v1"),
     (alerts_detail_view.router, "/web/v1"),
     (sources_view.router, "/web/v1"),
-    (assets_view.router, "/web/v1"),
     (customers_view.router, "/web/v1"),
     (users_view.router, "/web/v1"),
     (auth_view.router, "/web/v1"),
