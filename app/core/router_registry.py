@@ -1,4 +1,4 @@
-from app.api import alerts, sources, settings_parser, parsers, customers, users, publisher
+from app.api import alerts, sources, parsers, customers, users, publisher
 from app.web.alerts import alerts_view, alerts_detail_view, alerts_categories_view
 from app.web.assets import assets_view
 from app.web.customers import customers_view
