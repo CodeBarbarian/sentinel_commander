@@ -1,16 +1,8 @@
-from app.api import alerts, sources, settings_parser, parsers, cases, customers, users, publisher
+from app.api import alerts, sources, customers, users, publisher
 from app.web.alerts import alerts_view, alerts_detail_view, alerts_categories_view
-from app.web.assets import assets_view
-from app.web.cases import (
-    cases_view, cases_detail_view, cases_note_view, cases_task_view,
-    cases_ioc_view, cases_alerts_view, cases_assets_view,
-    cases_evidence_view, cases_playbooks_view
-)
 from app.web.customers import customers_view
 from app.web.dashboard import dashboard_view, ws_dashboard
-from app.web.iocs import iocs_view
 from app.web.modules import modules_view, maxmind_module
-from app.web.playbooks import playbooks_view
 from app.web.sentineliq import sentineliq_view, sentineliq_search_view, sentineliq_publisher_view, sentineliq_enrichment_view
 from app.web.settings import settings_view, settings_yaml_view
 from app.web.sources import sources_view
@@ -37,9 +29,6 @@ router_registry = [
     (alerts_view.router, "/web/v1"),
     (alerts_detail_view.router, "/web/v1"),
     (sources_view.router, "/web/v1"),
-    (assets_view.router, "/web/v1"),
-    (iocs_view.router, "/web/v1"),
-    (playbooks_view.router, "/web/v1"),
     (customers_view.router, "/web/v1"),
     (users_view.router, "/web/v1"),
     (auth_view.router, "/web/v1"),
@@ -54,15 +43,4 @@ router_registry = [
     (sentineliq_search_view.router, "/web/v1"),
     (sentineliq_publisher_view.router, "/web/v1"),
     (sentineliq_enrichment_view.router, "/web/v1"),
-
-    # Cases
-    (cases_view.router, "/web/v1"),
-    (cases_detail_view.router, "/web/v1"),
-    (cases_note_view.router, "/web/v1"),
-    (cases_task_view.router, "/web/v1"),
-    (cases_ioc_view.router, "/web/v1"),
-    (cases_alerts_view.router, "/web/v1"),
-    (cases_assets_view.router, "/web/v1"),
-    (cases_evidence_view.router, "/web/v1"),
-    (cases_playbooks_view.router, "/web/v1"),
 ]

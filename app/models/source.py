@@ -16,7 +16,7 @@ class Source(Base):
     parser_config = Column(String, nullable=True)              # For YAML/JSON parser later
     is_protected = Column(Boolean, default=False)
 
-    customer_id = Column(String, ForeignKey("customers.id"), nullable=True)
+    customer_id = Column(Integer, ForeignKey("customers.id"), nullable=True)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())

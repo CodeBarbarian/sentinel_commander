@@ -10,6 +10,8 @@ def extract_from_path(data, path):
     try:
         parts = re.split(r'\.(?![^\[]*\])', path)
         for part in parts:
+            if not isinstance(data, dict):
+                return None
             match = re.match(r'([^\[\]]+)(?:\[(\d+)\])?', part)
             if not match:
                 continue

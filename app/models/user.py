@@ -20,8 +20,3 @@ class User(Base):
 
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    cases_assigned = relationship("Case", back_populates="assigned_user", foreign_keys="Case.assigned_to")
-
-    # This is the part CaseNote will depend on:
-    notes = relationship("CaseNote", back_populates="author")

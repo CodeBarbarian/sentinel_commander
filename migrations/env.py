@@ -4,6 +4,9 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
+from dotenv import load_dotenv
+import os
+
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -19,12 +22,19 @@ from app.core.database import Base
 
 # Import your models so SQLAlchemy knows about them
 from app.models.alert import Alert
-from app.models.case import Case
-from app.models.customer import Customer
-from app.models.assets import Asset
-from app.models.iocs import IOC
-from app.models.publisher import PublisherList, PublisherEntry
 from app.models.alert_enrichment import AlertEnrichment
+from app.models.assets import Asset
+from app.models.customer import Customer
+from app.models.customer_detail import CustomerDetail
+from app.models.iocs import IOC
+from app.models.module import Module
+from app.models.playbooks import Playbook
+from app.models.publisher import PublisherList, PublisherEntry
+from app.models.saved_search import SavedSearch
+from app.models.source import Source
+from app.models.user import User
+
+
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata

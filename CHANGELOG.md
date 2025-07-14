@@ -15,6 +15,13 @@ Template
 
 ### Fixed
 ```
+## [0.5.0] - Reduction update
+### Removed
+- All models, schemas, backend and frontend code related to cases
+- All models, schemas, backend and frontend code related to Playbooks
+- All models, schemas, backend and frontend code related to IOCs
+- 
+
 ## [0.3.0] - 2025-07.07 - The having fun update
 ### Added
 - Additional enrichment options for parser for threat analysis

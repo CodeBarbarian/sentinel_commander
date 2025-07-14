@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.sql import func
 from app.core.database import Base
 from sqlalchemy.orm import relationship
@@ -9,7 +10,6 @@ class Alert(Base):
     id = Column(Integer, primary_key=True, index=True)
 
     source_id = Column(Integer, ForeignKey("sources.id"), nullable=True)
-    case_id = Column(Integer, ForeignKey("cases.id"), nullable=True)
 
     source = Column(String, index=True)
     source_ref_id = Column(String, index=True, nullable=True)
@@ -23,7 +23,7 @@ class Alert(Base):
 
     tags = Column(String, default="")
     source_event_time = Column(DateTime, nullable=True)
-    source_payload = Column(String, nullable=True)
+    source_payload = Column(JSONB, nullable=True)
 
     agent_id = Column(String, index=True, nullable=True)
     agent_name = Column(String, index=True, nullable=True)
@@ -34,5 +34,4 @@ class Alert(Base):
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    case = relationship("Case", back_populates="alerts")
     enrichments = relationship("AlertEnrichment", back_populates="alert", cascade="all, delete-orphan")

@@ -22,10 +22,7 @@ def get_eligible_triage_alerts(db: Session):
     for alert in alerts:
         try:
             payload = json.loads(alert.source_payload or "{}")
-
             result = run_parser_for_type("triage", payload)
-
-
             mapped = result.get("mapped_fields", {})
 
             if mapped.get("recommended_status") or mapped.get("recommended_resolution") or mapped.get("recommended_action"):
@@ -72,17 +69,36 @@ def sentinel_iq_page(
     # Triage processing
     triaged_alerts = []
     triage_eligible_count = 0
+
     for alert in alerts:
         try:
-            payload = json.loads(alert.source_payload) if alert.source_payload else {}
+            payload = alert.source_payload or {}
+
+            # Works for TEXT (string) or JSONB (dict)
+            if isinstance(payload, str):
+                payload = json.loads(payload)
+
             triage_result = run_parser_for_type("triage", payload)
-            alert.triage_result = triage_result
             mapped = triage_result.get("mapped_fields", {})
+
+            triage_result.setdefault("mapped_fields", {})
+            triage_result.setdefault("recommended_status", None)
+            triage_result.setdefault("recommended_resolution", None)
+            triage_result.setdefault("recommended_action", None)
 
             if mapped.get("recommended_status") or mapped.get("recommended_resolution"):
                 triage_eligible_count += 1
+
+            alert.triage_result = triage_result
+
         except Exception as e:
-            alert.triage_result = {"error": str(e)}
+            alert.triage_result = {
+                "error": str(e),
+                "mapped_fields": {},
+                "recommended_status": None,
+                "recommended_resolution": None,
+                "recommended_action": None
+            }
 
         triaged_alerts.append(alert)
 
@@ -114,7 +130,11 @@ def triage_all_alerts(
 
     for alert in alerts:
         try:
-            payload = json.loads(alert.source_payload or "{}")
+            payload = alert.source_payload or {}
+
+            if isinstance(payload, str):
+                payload = json.loads(payload)
+
             result = run_parser_for_type("triage", payload)
             mapped = result.get("mapped_fields", {})
 
@@ -125,11 +145,13 @@ def triage_all_alerts(
                     alert.resolution = mapped["recommended_resolution"]
                 if mapped.get("recommended_action"):
                     alert.resolution_comment = f"Auto-applied: {mapped['recommended_action']}"
-        except:
+        except Exception as e:
+            print(f"[Triage All] Failed to process alert {alert.id}: {e}")
             continue
 
     db.commit()
     return RedirectResponse(url="/web/v1/sentineliq/triage", status_code=303)
+
 
 @router.get("/alerts/{alert_id}/quick/res/{res_key}")
 def quick_resolution_action(alert_id: int, res_key: str, db: Session = Depends(get_db), user=Depends(auth.get_current_user)):
@@ -156,12 +178,20 @@ def quick_resolution_action(alert_id: int, res_key: str, db: Session = Depends(g
     return RedirectResponse(f"/web/v1/sentineliq/triage", status_code=303)
 
 @router.get("/sentineliq/triage/{alert_id}/quick/apply")
-def quick_apply_recommendation(alert_id: int, db: Session = Depends(get_db), user=Depends(auth.get_current_user)):
+def quick_apply_recommendation(
+    alert_id: int,
+    db: Session = Depends(get_db),
+    user=Depends(auth.get_current_user)
+):
     alert = db.query(Alert).filter(Alert.id == alert_id).first()
     if not alert:
         raise HTTPException(status_code=404, detail="Alert not found")
 
-    payload = json.loads(alert.source_payload) if alert.source_payload else {}
+    payload = alert.source_payload or {}
+
+    if isinstance(payload, str):
+        payload = json.loads(payload)
+
     triage_result = run_parser_for_type("triage", payload)
     fields = triage_result.get("mapped_fields", {})
 

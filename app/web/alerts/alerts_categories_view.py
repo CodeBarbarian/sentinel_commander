@@ -10,6 +10,9 @@ import json
 from app.utils.parser.general_parser_engine import run_parser_for_type
 from fastapi.templating import Jinja2Templates
 from collections import defaultdict
+from sqlalchemy.dialects import postgresql
+from sqlalchemy import literal
+
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -20,6 +23,14 @@ def get_db():
         yield db
     finally:
         db.close()
+
+def safe_parse_payload(raw):
+    if isinstance(raw, dict):
+        return raw
+    if isinstance(raw, str):
+        return json.loads(raw or "{}")
+    return {}
+
 
 @router.get("/alerts/category", response_class=HTMLResponse)
 def alerts_category_index(
@@ -32,6 +43,16 @@ def alerts_category_index(
     Based on active alerts only.
     """
 
+    def safe_parse_payload(raw):
+        if isinstance(raw, dict):
+            return raw
+        if isinstance(raw, str):
+            try:
+                return json.loads(raw or "{}")
+            except json.JSONDecodeError:
+                return {}
+        return {}
+
     alerts = db.query(Alert).filter(
         Alert.status.in_(["new", "in_progress"])
     ).all()
@@ -40,7 +61,8 @@ def alerts_category_index(
 
     for alert in alerts:
         try:
-            payload = json.loads(alert.source_payload or "{}")
+            payload = safe_parse_payload(alert.source_payload)
+
             mitre_tactics = payload.get("rule", {}).get("mitre", {}).get("tactic", [])
             if mitre_tactics:
                 for tactic in mitre_tactics:
@@ -49,10 +71,11 @@ def alerts_category_index(
                 groups = payload.get("rule", {}).get("groups", [])
                 if groups:
                     category_counts[groups[-1]] += 1
-        except Exception:
+
+        except Exception as e:
+            print(f"Failed to parse alert {alert.id}: {e}")
             continue
 
-    # Optional: sort by name or count
     categories = sorted(category_counts.items(), key=lambda item: item[0].lower())
 
     return templates.TemplateResponse("alerts/category_index.html", {
@@ -61,59 +84,47 @@ def alerts_category_index(
     })
 
 
-@router.get("/alerts/category/{category}", response_class=HTMLResponse)
-def alerts_by_category_view(
-    category: str,
+
+
+@router.get("/alerts/category", response_class=HTMLResponse)
+def alerts_category_index(
     request: Request,
-    page: int = Query(1, ge=1),
-    page_size: int = Query(25, le=100),
     db: Session = Depends(get_db),
     user=Depends(auth.get_current_user)
 ):
     """
-    Show alerts grouped by MITRE tactic or fallback group.
-    Only shows alerts in 'new' or 'in_progress' state.
+    Show unique alert categories derived from MITRE tactics or fallback to rule.groups[-1].
+    Based on active alerts only.
     """
+    alerts = db.query(Alert).filter(
+        Alert.status.in_(["new", "in_progress"])
+    ).all()
 
-    offset = (page - 1) * page_size
+    category_counts = defaultdict(int)
 
-    alerts_query = db.query(Alert).filter(
-        Alert.status.in_(["new", "in_progress"]),
-        func.lower(Alert.source_payload).like(f'%{category.lower()}%')
-    )
-
-    total_alerts = alerts_query.count()
-    alerts = alerts_query.order_by(
-        case((Alert.status == "in_progress", 1), else_=0),
-        Alert.created_at.desc()
-    ).offset(offset).limit(page_size).all()
-
-    # Parse each alert to extract a preview field (agent, message, etc.)
-    for a in alerts:
+    for alert in alerts:
         try:
-            payload = json.loads(a.source_payload or "{}")
-            parsed = run_parser_for_type("alert", payload)
-            a.parsed_agent = (
-                parsed.get("mapped_fields", {}).get("agent_name")
-                or parsed.get("mapped_fields", {}).get("agent")
-                or "—"
-            )
-            a.parsed_message = parsed.get("mapped_fields", {}).get("message") or a.message
-        except Exception:
-            a.parsed_agent = "—"
-            a.parsed_message = a.message or "—"
+            if isinstance(alert.source_payload, dict):
+                payload = alert.source_payload
+            elif isinstance(alert.source_payload, str):
+                payload = json.loads(alert.source_payload or "{}")
+            else:
+                payload = {}
 
-    total_pages = max((total_alerts + page_size - 1) // page_size, 1)
+            tactics = payload.get("rule", {}).get("mitre", {}).get("tactic", [])
+            # etc...
 
-    return templates.TemplateResponse("alerts/alerts_by_category.html", {
+        except Exception as e:
+            print(f"Failed to parse alert {alert.id}: {e}")
+            continue
+
+    categories = sorted(category_counts.items(), key=lambda item: item[0])
+
+    return templates.TemplateResponse("alerts/category_index.html", {
         "request": request,
-        "alerts": alerts,
-        "category": category,
-        "page": page,
-        "page_size": page_size,
-        "total": total_alerts,
-        "pages": total_pages
+        "categories": categories
     })
+
 
 @router.get("/alerts/category/{category}/all", response_class=HTMLResponse)
 def alerts_by_category_all_view(

@@ -1,5 +1,3 @@
-# === agent_detail_view.py ===
-
 from fastapi import APIRouter, Request, Depends, Query
 from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
@@ -31,16 +29,16 @@ def agent_detail_view(
     user=Depends(auth.get_current_user)
 ):
     """
-    Show all alerts for a given agent.
+    Show all alerts for a given agent (PostgreSQL JSONB safe).
     """
     offset = (page - 1) * limit
 
-    # SQLite: use JSON1 to extract agent name from payload
+    # PostgreSQL: use JSONB extraction instead of SQLite JSON1
     agent_expr = func.lower(
         func.trim(
             func.coalesce(
-                func.json_extract(Alert.source_payload, '$.agent.name'),
-                func.json_extract(Alert.source_payload, '$.agent_name')
+                func.jsonb_extract_path_text(Alert.source_payload, 'agent', 'name'),
+                func.jsonb_extract_path_text(Alert.source_payload, 'agent_name')
             )
         )
     )
