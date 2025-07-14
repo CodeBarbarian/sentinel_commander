@@ -13,11 +13,9 @@ from app.core.database import Base  # same Base for both!
 # Import all models
 from app.models.alert import Alert
 from app.models.alert_enrichment import AlertEnrichment
-from app.models.assets import Asset
 from app.models.customer import Customer
 from app.models.customer_detail import CustomerDetail
 from app.models.module import Module
-from app.models.playbooks import Playbook
 from app.models.publisher import PublisherList, PublisherEntry
 from app.models.saved_search import SavedSearch
 from app.models.source import Source
@@ -66,10 +64,7 @@ if __name__ == "__main__":
         migrate_table(Alert)
         migrate_table(AlertEnrichment)
 
-
-        migrate_table(Asset)
         migrate_table(Module)
-        migrate_table(Playbook)
         migrate_table(PublisherList)
         migrate_table(PublisherEntry)
         migrate_table(SavedSearch)
