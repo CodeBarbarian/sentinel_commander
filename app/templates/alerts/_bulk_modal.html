@@ -1,28 +1,33 @@
 <div class="modal fade" id="bulkModal" tabindex="-1" aria-labelledby="bulkModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-md">
-    <form id="bulkActionForm" method="post" action="/web/v1/alerts/bulk_update" class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">⚙️ Bulk Alert Action</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <form id="bulkActionForm" method="post" action="/web/v1/alerts/bulk_update" class="modal-content bg-dark text-light">
+
+      <!-- Modal Header -->
+      <div class="modal-header border-0">
+        <h5 class="modal-title fw-semibold" id="bulkModalLabel">⚙️ Bulk Alert Action</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
+      <!-- Modal Body -->
       <div class="modal-body">
-        <!-- Hidden Alert ID Field -->
+        <!-- Selected Alert IDs (hidden) -->
         <input type="hidden" name="alert_ids" id="selectedAlertIds">
 
+        <!-- Status -->
         <div class="mb-3">
-          <label for="bulkStatus" class="form-label">Set Status</label>
-          <select class="form-select form-select-sm" id="bulkStatus" name="status">
+          <label for="bulkStatus" class="form-label fw-medium">🔄 Set Status</label>
+          <select class="form-select form-select-sm bg-dark text-light border-secondary" id="bulkStatus" name="status">
             <option value="">— No Change —</option>
-            <option value="new">New</option>
-            <option value="in_progress">In Progress</option>
-            <option value="done">Done</option>
+            <option value="new">🆕 New</option>
+            <option value="in_progress">🚧 In Progress</option>
+            <option value="done">✅ Done</option>
           </select>
         </div>
 
+        <!-- Resolution -->
         <div class="mb-3">
-          <label for="bulkResolution" class="form-label">Set Resolution</label>
-          <select class="form-select form-select-sm" id="bulkResolution" name="resolution">
+          <label for="bulkResolution" class="form-label fw-medium">🧠 Set Resolution</label>
+          <select class="form-select form-select-sm bg-dark text-light border-secondary" id="bulkResolution" name="resolution">
             <option value="">— No Change —</option>
             <option value="not_applicable">📎 Not Applicable</option>
             <option value="false_positive">🚫 False Positive</option>
@@ -34,16 +39,22 @@
           </select>
         </div>
 
+        <!-- Comment -->
         <div class="mb-3">
-          <label for="bulkComment" class="form-label">Resolution Comment</label>
-          <textarea class="form-control form-control-sm" id="bulkComment" name="comment" rows="3" placeholder="Optional comment to apply..."></textarea>
+          <label for="bulkComment" class="form-label fw-medium">💬 Resolution Comment</label>
+          <textarea class="form-control form-control-sm bg-dark text-light border-secondary" id="bulkComment" name="comment" rows="3" placeholder="Optional comment..."></textarea>
         </div>
       </div>
+
+      <!-- Redirect on submit -->
       <input type="hidden" name="return_to" value="{{ request.url.query }}">
-      <div class="modal-footer">
-        <button type="submit" class="btn btn-sm btn-outline-success">✅ Apply Changes</button>
-        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer border-0">
+        <button type="submit" class="btn btn-sm btn-success">✅ Apply Changes</button>
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
       </div>
+
     </form>
   </div>
 </div>

@@ -34,7 +34,7 @@ async def broadcast_new_alerts_loop():
                         latest_seen_id = max(latest_seen_id, alert.id)
 
         except Exception as e:
-            logger.error("❌ Error broadcasting new alerts:", e)
+            logger.error("Error broadcasting new alerts:", e)
         finally:
             db.close()
 

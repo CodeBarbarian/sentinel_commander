@@ -1,29 +1,44 @@
-{# === agent_detail_view.html === #}
 {% extends "_design.html" %}
 {% block title %}Agent: {{ agent_name }} - Alerts{% endblock %}
 
 {% block content %}
 <div class="container-fluid my-4">
-  <h4 class="tactical-heading-xl mb-3">👤 Alerts for Agent: {{ agent_name }}</h4>
+  <h4 class="mb-4">👤 Alerts for Agent: <span class="text-success">{{ agent_name }}</span></h4>
 
   <div class="table-responsive mb-4">
-    <table class="tactical-table">
-      <thead>
+    <table class="table table-dark table-hover table-bordered align-middle mb-0">
+      <thead class="table-light text-dark">
         <tr>
-          <th>ID</th>
-          <th>Severity</th>
-          <th>Status</th>
-          <th>Message</th>
-          <th>Created</th>
-          <th>Actions</th>
+          <th scope="col">ID</th>
+          <th scope="col">Severity</th>
+          <th scope="col">Status</th>
+          <th scope="col">Message</th>
+          <th scope="col">Created</th>
+          <th scope="col">Actions</th>
         </tr>
       </thead>
       <tbody>
         {% for alert in alerts %}
         <tr>
-          <td><a href="/web/v1/alerts/{{ alert.id }}" class="tactical-link">#{{ alert.id }}</a></td>
-          <td><span class="badge severity-{{ alert.parsed_fields.severity|lower }}">{{ alert.severity }}</span></td>
-          <td><span class="badge status-{{ alert.status|replace('_','-') }}">{{ alert.status }}</span></td>
+          <td>
+            <a href="/web/v1/alerts/{{ alert.id }}" class="text-decoration-none text-primary">#{{ alert.id }}</a>
+          </td>
+          <td>
+            {% set severity_map = {
+              'critical': 'danger',
+              'high': 'warning',
+              'medium': 'info',
+              'low': 'success'
+            } %}
+            <span class="badge bg-{{ severity_map.get(alert.parsed_fields.severity|lower, 'secondary') }}">
+              {{ alert.severity }}
+            </span>
+          </td>
+          <td>
+            <span class="badge bg-secondary">
+              {{ alert.status.replace('_', ' ') | title }}
+            </span>
+          </td>
           <td>{{ alert.message | truncate(60) }}</td>
           <td>{{ alert.created_at_formatted }}</td>
           <td>
@@ -32,72 +47,65 @@
         </tr>
         {% else %}
         <tr>
-          <td colspan="6">No alerts found for this agent.</td>
+          <td colspan="6" class="text-center">No alerts found for this agent.</td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
 
-    {% if pagination.total_pages > 1 %}
-    <nav>
-        <ul class="pagination justify-content-center">
+  {% if pagination.total_pages > 1 %}
+  <nav>
+    <ul class="pagination justify-content-center">
 
-            {# First page #}
-            {% if pagination.page > 1 %}
-            <li class="page-item">
-                <a class="page-link" href="?page=1">First</a>
-            </li>
-            {% endif %}
+      {% if pagination.page > 1 %}
+      <li class="page-item">
+        <a class="page-link" href="?page=1">First</a>
+      </li>
+      {% endif %}
 
-            {# Previous page #}
-            {% if pagination.show_prev %}
-            <li class="page-item">
-                <a class="page-link" href="?page={{ pagination.prev_page }}">Previous</a>
-            </li>
-            {% endif %}
+      {% if pagination.show_prev %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ pagination.prev_page }}">Previous</a>
+      </li>
+      {% endif %}
 
-            {# Page numbers window #}
-            {% set max_visible = 5 %}
-            {% set current = pagination.page %}
-            {% set total = pagination.total_pages %}
-            {% set start_page = [1, current - 2] | max %}
-            {% set end_page = [start_page + max_visible - 1, total] | min %}
-            {% set start_page = [1, end_page - max_visible + 1] | max %}
+      {% set max_visible = 5 %}
+      {% set current = pagination.page %}
+      {% set total = pagination.total_pages %}
+      {% set start_page = [1, current - 2] | max %}
+      {% set end_page = [start_page + max_visible - 1, total] | min %}
+      {% set start_page = [1, end_page - max_visible + 1] | max %}
 
-            {# Ellipsis if start page > 1 #}
-            {% if start_page > 1 %}
-            <li class="page-item disabled"><span class="page-link">...</span></li>
-            {% endif %}
+      {% if start_page > 1 %}
+      <li class="page-item disabled"><span class="page-link">...</span></li>
+      {% endif %}
 
-            {% for p in range(start_page, end_page + 1) %}
-            <li class="page-item {% if p == current %}active{% endif %}">
-                <a class="page-link" href="?page={{ p }}">{{ p }}</a>
-            </li>
-            {% endfor %}
+      {% for p in range(start_page, end_page + 1) %}
+      <li class="page-item {% if p == current %}active{% endif %}">
+        <a class="page-link" href="?page={{ p }}">{{ p }}</a>
+      </li>
+      {% endfor %}
 
-            {# Ellipsis if end page < total #}
-            {% if end_page < total %}
-            <li class="page-item disabled"><span class="page-link">...</span></li>
-            {% endif %}
+      {% if end_page < total %}
+      <li class="page-item disabled"><span class="page-link">...</span></li>
+      {% endif %}
 
-            {# Next page #}
-            {% if pagination.show_next %}
-            <li class="page-item">
-                <a class="page-link" href="?page={{ pagination.next_page }}">Next</a>
-            </li>
-            {% endif %}
+      {% if pagination.show_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ pagination.next_page }}">Next</a>
+      </li>
+      {% endif %}
 
-            {# Last page #}
-            {% if pagination.page < total %}
-            <li class="page-item">
-                <a class="page-link" href="?page={{ total }}">Last</a>
-            </li>
-            {% endif %}
+      {% if pagination.page < total %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ total }}">Last</a>
+      </li>
+      {% endif %}
 
-        </ul>
-    </nav>
-    {% endif %}
+    </ul>
+  </nav>
+  {% endif %}
 
 </div>
 {% endblock %}

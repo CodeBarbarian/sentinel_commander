@@ -2,31 +2,33 @@
 {% block title %}Tactical Dashboard - Sentinel Commander{% endblock %}
 
 {% block content %}
-<div class="container-fluid tactical-dashboard mt-3">
-<!-- Dashboard Navigation -->
-<div class="d-flex justify-content-start align-items-center gap-3 mb-4">
-  <a href="/web/v1/dashboard" class="btn btn-sm btn-outline-primary {% if request.url.path.endswith('/dashboard') %}active{% endif %}">
-    Tactical Dashboard
-  </a>
-  <a href="/web/v1/dashboard/operator" class="btn btn-sm btn-outline-secondary {% if request.url.path.endswith('/dashboard/operator') %}active{% endif %}">
-    Operator Dashboard
-  </a>
-</div>
-  <!-- Top Grid: Status Overview -->
+<div class="container-fluid mt-4">
+
+  <!-- Dashboard Navigation -->
+  <div class="d-flex gap-2 mb-4">
+    <a href="/web/v1/dashboard" class="btn btn-sm btn-outline-primary {% if request.url.path.endswith('/dashboard') %}active{% endif %}">
+      Tactical Dashboard
+    </a>
+    <a href="/web/v1/dashboard/operator" class="btn btn-sm btn-outline-danger {% if request.url.path.endswith('/dashboard/operator') %}active{% endif %}">
+      Operator Dashboard
+    </a>
+  </div>
+
+  <!-- Status Cards -->
   <div class="row g-3 mb-4">
-{% for card in [
-  {'label': 'Critical Alerts', 'value': stats.critical_new_alerts, 'color': 'danger', 'link': '/web/v1/alerts?severity=Critical&status=new', 'text': 'Investigate'},
-  {'label': 'Alerts Today', 'value': stats.alerts_today, 'color': 'warning', 'link': '/web/v1/alerts', 'text': 'View All'},
-  {'label': 'Sources Active', 'value': stats.sources, 'color': 'success', 'link': '/web/v1/sources', 'text': 'Manage'},
-  {'label': 'Unique Tags', 'value': stats.unique_tags, 'color': 'info', 'link': '/web/v1/alerts/tags', 'text': 'Explore'}
-] %}
+    {% for card in [
+      {'label': 'Critical Alerts', 'value': stats.critical_new_alerts, 'color': 'danger', 'link': '/web/v1/alerts?severity=Critical&status=new', 'text': 'Investigate'},
+      {'label': 'Alerts Today', 'value': stats.alerts_today, 'color': 'warning', 'link': '/web/v1/alerts', 'text': 'View All'},
+      {'label': 'Sources Active', 'value': stats.sources, 'color': 'success', 'link': '/web/v1/sources', 'text': 'Manage'},
+      {'label': 'Unique Tags', 'value': stats.unique_tags, 'color': 'info', 'link': '/web/v1/alerts/tags', 'text': 'Explore'}
+    ] %}
     <div class="col-md-3">
-      <div class="card stat-card border-start border-{{ card.color }} border-4 shadow-sm">
-        <div class="card-body text-center">
-          <h6 class="text-uppercase text-muted">{{ card.label }}</h6>
-          <h2 class="display-5 fw-bold text-{{ card.color }}">{{ card.value }}</h2>
-          <div><a href="{{ card.link }}" class="small tactical-link">{{ card.text }}</a></div>
-        </div>
+      <div class="card border-start border-{{ card.color }} border-4 shadow-sm">
+<div class="card-body text-center">
+  <div class="card-label">{{ card.label }}</div>
+  <h2 class="text-{{ card.color }} fw-bold">{{ card.value }}</h2>
+  <a href="{{ card.link }}" class="text-decoration-none small">{{ card.text }}</a>
+</div>
       </div>
     </div>
     {% endfor %}
@@ -35,7 +37,7 @@
   <!-- Chart Grid -->
   <div class="row g-4 mb-4">
     <div class="col-lg-6">
-      <div class="card h-100">
+      <div class="card h-100 shadow-sm">
         <div class="card-body">
           <h5 class="card-title">Severity Distribution (Today)</h5>
           <div id="severityChart"></div>
@@ -43,45 +45,14 @@
       </div>
     </div>
     <div class="col-lg-6">
-      <div class="card h-100">
+      <div class="card h-100 shadow-sm">
         <div class="card-body">
           <h5 class="card-title">Alerts Over Time (Week)</h5>
           <div id="timelineChart"></div>
         </div>
       </div>
     </div>
-</div>
-  <!-- Recent Alerts Table -->
-<div class="tactical-note-card">
-  <h5 class="tactical-heading g-4 mb-4">Recent Alerts</h5>
-  <div class="table-responsive">
-    <table class="tactical-table">
-        <thead class="table-dark">
-          <tr>
-            <th>#</th>
-            <th>Source</th>
-            <th>Severity</th>
-            <th>Status</th>
-            <th>Message</th>
-            <th>Created</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for alert in recent_alerts %}
-          <tr class="{{ 'tactical-table-row' if loop.index is even else 'tactical-table-row-alt' }} tactical-table-hover">
-            <td><a href="/web/v1/alerts/{{ alert.id }}" class="tactical-link">{{ alert.id }}</a></td>
-            <td>{{ alert.source_display_name or "Unknown" }}</td>
-            <td><span class="badge severity-badge severity-{{ alert.severity }}">{{ alert.severity }}</span></td>
-            <td><span class="badge status-badge status-{{ alert.status }}">{{ alert.status }}</span></td>
-            <td>{{ alert.message | default("N/A") | truncate(40) }}</td>
-            <td>{{ alert.created_at.strftime('%Y-%m-%d %H:%M:%S') if alert.created_at else "Unknown" }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
   </div>
-
 </div>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script>

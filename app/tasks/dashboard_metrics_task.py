@@ -6,6 +6,7 @@ from app.utils.sockets.metrics import get_current_metrics
 import logging
 
 async def broadcast_metrics_loop():
+
     logger = logging.getLogger(__name__)
     while True:
         try:
@@ -14,7 +15,7 @@ async def broadcast_metrics_loop():
             metrics = get_current_metrics(db)
             await broadcast_dashboard_event(metrics)
         except Exception as e:
-            logger.error("❌ Error broadcasting metrics:", e)
+            logger.error("Error broadcasting metrics:", e)
         finally:
             db.close()
 

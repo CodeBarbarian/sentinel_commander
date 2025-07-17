@@ -1,85 +1,71 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
-    <div class="container-fluid">
-        <a class="navbar-brand fw-bold" href="/web/v1/dashboard">Sentinel Commander</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom shadow-sm px-3">
+  <div class="container-fluid px-4">
+    <!-- Branding -->
+    <a class="navbar-brand fw-bold" href="/web/v1/dashboard">
+      <i class="bi bi-shield-lock-fill me-2"></i>Sentinel Commander
+    </a>
 
-        <div class="collapse navbar-collapse" id="navMenu">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+    <!-- Mobile Toggle -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
 
-                <!-- Dashboard -->
-                <li class="nav-item">
-                    <a class="nav-link {% if request.url.path.startswith('/web/v1/dashboard') %}active{% endif %}"
-                       href="/web/v1/dashboard">Dashboard</a>
-                </li>
+    <!-- Main Nav -->
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <!-- Dashboard -->
+        <li class="nav-item">
+          <a class="nav-link {% if request.url.path.startswith('/web/v1/dashboard') %}active{% endif %}" href="/web/v1/dashboard">Dashboard</a>
+        </li>
 
-                <!-- Alerts Dropdown -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle {% if request.url.path.startswith('/web/v1/alerts') %}active{% endif %}"
-                       href="#" id="alertsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Alerts
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="alertsDropdown">
-                        <li><a class="dropdown-item {% if request.url.path == '/web/v1/alerts' %}active{% endif %}"
-                               href="/web/v1/alerts">All Alerts</a></li>
-                        <li>
-                            <a class="dropdown-item {% if request.url.path.startswith('/web/v1/alerts/category') %}active{% endif %}"
-                               href="/web/v1/alerts/category">By Category</a></li>
-                        <li>
-                            <a class="dropdown-item {% if request.url.path.startswith('/web/v1/agents') %}active{% endif %}"
-                               href="/web/v1/agents">By Agent</a></li>
-                    </ul>
-                </li>
+        <!-- Alerts -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle {% if request.url.path.startswith('/web/v1/alerts') %}active{% endif %}" href="#" data-bs-toggle="dropdown">
+            Alerts
+          </a>
+          <ul class="dropdown-menu dropdown-menu-dark">
+            <li><a class="dropdown-item {% if request.url.path == '/web/v1/alerts' %}active{% endif %}" href="/web/v1/alerts">All Alerts</a></li>
+            <li><a class="dropdown-item {% if request.url.path.startswith('/web/v1/alerts/category') %}active{% endif %}" href="/web/v1/alerts/category">By Category</a></li>
+            <li><a class="dropdown-item {% if request.url.path.startswith('/web/v1/agents') %}active{% endif %}" href="/web/v1/agents">By Agent</a></li>
+          </ul>
+        </li>
 
-                <!-- SentinelIQ Dropdown -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle {% if request.url.path.startswith('/web/v1/sentineliq') or request.url.path.startswith('/web/v1/sentineliq') or request.url.path.startswith('/web/v1/sentineliq') %}active{% endif %}"
-                       href="#" role="button" data-bs-toggle="dropdown">
-                        SentinelIQ
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-dark">
-                        <li><a class="dropdown-item" href="/web/v1/sentineliq/triage">SentinelIQ - Triage</a></li>
-                        <li><a class="dropdown-item" href="/web/v1/sentineliq/search/advanced">SentinelIQ - Search</a>
-                        </li>
-                        <li><a class="dropdown-item" href="/web/v1/sentineliq/publisher">SentinelIQ - Publisher</a></li>
-                        <li><a class="dropdown-item" href="/web/v1/sentineliq/enrichment">SentinelIQ - Enrichment</a>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
+        <!-- SentinelIQ -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle {% if request.url.path.startswith('/web/v1/sentineliq') %}active text-info{% endif %}" href="#" data-bs-toggle="dropdown">
+            SentinelIQ
+          </a>
+          <ul class="dropdown-menu dropdown-menu-dark">
+            <li><a class="dropdown-item" href="/web/v1/sentineliq/triage">Triage</a></li>
+            <li><a class="dropdown-item" href="/web/v1/sentineliq/search/advanced">Search</a></li>
+            <li><a class="dropdown-item" href="/web/v1/sentineliq/publisher">Publisher</a></li>
+            <li><a class="dropdown-item" href="/web/v1/sentineliq/enrichment">Enrichment</a></li>
+          </ul>
+        </li>
+      </ul>
 
-            <!-- Global Search Bar -->
-            <form class="d-flex align-items-center flex-grow-1 mx-3" method="get" action="/web/v1/sentineliq/search">
-                <input class="form-control form-control-sm bg-dark text-light border-secondary me-2 w-100"
-                       type="search" name="q" placeholder="Search..." aria-label="Search"
-                       style="max-width: 400px;" id="global-search">
-                <button class="btn btn-sm btn-outline-primary" type="submit">Search</button>
-            </form>
+      <!-- Search and User Profile -->
+      <div class="d-flex align-items-center">
+        <form class="d-flex align-items-center me-4" method="get" action="/web/v1/sentineliq/search">
+          <input class="form-control form-control-sm border-secondary me-2" type="search" name="q" placeholder="Search..." style="max-width: 300px;">
+          <button class="btn btn-sm btn-outline-info" type="submit">Search</button>
+        </form>
 
-
-        </div>
-        <!-- User Profile Dropdown -->
         {% if request.session.user %}
-            <div class="dropdown">
-            <a href="#" class="d-flex align-items-center text-light text-decoration-none dropdown-toggle"
-               id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                <span class="me-2 small text-muted">👤 {{ request.session.user.username }}</span>
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark text-small shadow"
-                aria-labelledby="userDropdown">
-                <li><a class="dropdown-item" href="/web/v1/users/profile">Profile</a></li>
-                <li>
-                    <hr class="dropdown-divider">
-                </li>
-                <li><a class="dropdown-item" href="/web/v1/settings">System Settings</a></li>
-                <li>
-                    <hr class="dropdown-divider">
-                </li>
-                <li><a class="dropdown-item text-danger" href="/web/v1/logout">Logout</a></li>
-            </ul>
-        {% endif %}
+        <div class="dropdown">
+          <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <span class="me-2 small">👤 {{ request.session.user.username }}</span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark text-small shadow" aria-labelledby="userDropdown">
+            <li><a class="dropdown-item" href="/web/v1/users/profile">Profile</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="/web/v1/settings">System Settings</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="/web/v1/logout">Logout</a></li>
+          </ul>
         </div>
-
+        {% endif %}
+      </div>
     </div>
+  </div>
 </nav>

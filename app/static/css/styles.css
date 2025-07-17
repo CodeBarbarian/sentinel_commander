@@ -1,788 +1,220 @@
-/* === GLOBALS === */
-body.sc-body {
-    background-color: #0e1116;
-    color: #e0e0e0;
-    font-family: "Segoe UI", Roboto, Helvetica, sans-serif;
-    font-size: 15px;
-    transition: background-color 0.3s ease, color 0.3s ease;
+/* styles.css — Refined Modern Dark Dashboard */
+
+body {
+  background-color: #0f1115;
+  color: #e6e6e6;
+  font-family: "Segoe UI", Roboto, sans-serif;
+  font-size: 0.95rem;
 }
 
-a {
-    color: #58a6ff;
-    text-decoration: none;
+/* Navigation Buttons */
+.btn-outline-primary,
+.btn-outline-secondary {
+  border-width: 1px;
+  transition: all 0.2s ease-in-out;
 }
 
-a:hover {
-    text-decoration: underline;
-}
-
-/* === CONTAINERS === */
-.container,
-.container-fluid {
-    padding-left: 2rem;
-    padding-right: 2rem;
-}
-
-/* === NAVBAR === */
-.navbar {
-    background-color: #161b22 !important;
-    border-bottom: 1px solid #30363d;
-}
-
-.nav-link {
-    color: #e0e0e0 !important;
-    font-weight: 500;
-}
-
-.nav-link.active {
-    color: #58a6ff !important;
-    font-weight: 600;
-    text-decoration: underline;
-}
-
-/* === CARDS === */
-.card {
-    background-color: #1c2128;
-    border: 1px solid #30363d;
-    border-radius: 0.5rem;
-    padding: 1rem;
-    transition: background-color 0.2s ease;
-}
-
-.card:hover {
-    background-color: #22272e;
-}
-
-.card-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #f0f0f0;
-}
-
-/* === STAT CARDS === */
-.stat-card {
-    text-align: center;
-    padding: 1rem 0.5rem;
-}
-
-.stat-card h6 {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: #999;
-}
-
-.stat-card h2 {
-    font-size: 2.25rem;
-    color: #e0e0e0;
-}
-
-/* === TABLES === */
-.table {
-    color: #e0e0e0;
-    background-color: #1c2128;
-}
-
-.table thead {
-    background-color: #2c3138;
-}
-
-.table-hover tbody tr:hover {
-    background-color: #20252b;
-}
-
-.table th,
-.table td {
-    border-color: #3a3f45;
-    vertical-align: middle;
-}
-
-/* === BADGES === */
-.badge {
-    padding: 0.4em 0.75em;
-    font-size: 0.75rem;
-    border-radius: 0.35rem;
-    font-weight: 600;
-    text-transform: uppercase;
-}
-
-/* Status badge styling */
-.status-badge {
-    color: #fff;
-}
-
-.status-new {
-    background-color: #6c757d;
-}
-
-.status-in_progress {
-    background-color: #0dcaf0;
-    color: #000;
-}
-
-.status-done {
-    background-color: #20c997;
-}
-
-/* Severity badge styling */
-.severity-critical {
-    background-color: #b91c1c;
-}
-
-.severity-high {
-    background-color: #dc3545;
-}
-
-.severity-medium {
-    background-color: #fd7e14;
-}
-
-.severity-low {
-    background-color: #198754;
-}
-
-.severity-informational {
-    background-color: #6c757d;
-}
-
-.stat-card.bg-info {
-    background-color: rgba(13, 202, 240, 0.08) !important;
-    color: #0dcaf0 !important;
-}
-
-.stat-card.bg-danger {
-    background-color: rgba(220, 53, 69, 0.08) !important;
-    color: #dc3545 !important;
-}
-
-.stat-card.bg-warning {
-    background-color: rgba(253, 193, 7, 0.08) !important;
-    color: #fdc107 !important;
-}
-
-.stat-card.bg-success {
-    background-color: rgba(25, 135, 84, 0.08) !important;
-    color: #198754 !important;
-}
-
-
-/* === CHART ZONE === */
-canvas {
-    max-width: 100%;
-    background-color: #1c1c1c;
-    border-radius: 0.5rem;
-}
-
-/* === BUTTONS === */
-.btn {
-    font-weight: 500;
-}
-
-.btn-outline-light {
-    color: #e0e0e0;
-    border-color: #555;
-}
-
-.btn-outline-light:hover {
-    background-color: #555;
-    color: #fff;
-}
-
-.btn-outline-primary {
-    color: #58a6ff;
-    border-color: #58a6ff;
-}
-
+.btn-outline-primary.active,
 .btn-outline-primary:hover {
-    background-color: #58a6ff;
-    color: #000;
-}
-
-/* === ACCORDION === */
-.accordion-body {
-    background-color: #1c2128;
-    color: #e0e0e0;
-    padding: 1rem;
-}
-
-/* === MODALS === */
-.modal-content {
-    background-color: #1c2128;
-    color: #e0e0e0;
-}
-
-.modal-header,
-.modal-footer {
-    border-color: #30363d;
-}
-
-/* === FORM ELEMENTS === */
-input,
-select,
-textarea {
-    background-color: #0e1116;
-    color: #e0e0e0;
-    border: 1px solid #333;
-    padding: 0.5rem;
-}
-
-input::placeholder {
-    color: #888;
-}
-
-/* === VISUAL INTERACTIONS === */
-tr.selected-row {
-    background-color: #2a2a2a !important;
-}
-
-.alert-card {
-    transition: 0.2s ease all;
-}
-
-.alert-card:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    transform: scale(1.01);
-}
-
-/* === TABS === */
-.modern-tabs .nav-link {
-    font-weight: 500;
-    border: none;
-    background-color: transparent;
-    color: #999;
-}
-
-.modern-tabs .nav-link.active {
-    color: #58a6ff;
-    border-bottom: 2px solid #58a6ff;
-}
-
-/* === CUSTOM UTILITIES === */
-.tactical-link {
-    color: #58a6ff;
-    font-size: 0.85rem;
-}
-
-.tactical-link:hover {
-    text-decoration: underline;
-}
-
-.text-muted {
-    color: #999 !important;
-}
-
-/* Custom tactical table styles */
-.tactical-table {
-    width: 100%;
-    border-collapse: collapse;
-    background-color: #1c2128;
-    color: #e0e0e0;
-}
-
-.tactical-table th,
-.tactical-table td {
-    padding: 0.75rem 1rem;
-    border: 1px solid #3a3f45;
-    vertical-align: middle;
-}
-
-.tactical-table-header {
-    background-color: #2c3138;
-    color: #f0f0f0;
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.85rem;
-}
-
-.tactical-table-row {
-    background-color: #1c2128;
-}
-
-.tactical-table-row-alt {
-    background-color: #1a1f24;
-}
-
-/* Badges */
-.severity-critical {
-    background-color: #800080; /* Purple */
-    color: white;
-}
-
-.severity-high {
-    background-color: #dc3545; /* Red */
-    color: white;
-}
-
-.severity-medium {
-    background-color: #fdc107; /* Yellow */
-    color: black;
-}
-
-.severity-low {
-    background-color: #198754; /* Green */
-    color: white;
-}
-
-.severity-info,
-.severity-informational {
-    background-color: #6c757d; /* Gray */
-    color: white;
-}
-
-
-.status-new {
-    background-color: #6c757d;
-    color: white;
-}
-
-.status-in-progress {
-    background-color: #0dcaf0;
-    color: black;
-}
-
-.status-investigating {
-    background-color: #f0c30d;
-    color: black;
-}
-
-.status-critical {
-    background-color: #b91c1c;
-    color: white;
-}
-
-.status-done {
-    background-color: #20c997;
-    color: black;
-}
-
-/* Optional wizard styles */
-.wizard-step {
-    background-color: #1c2128;
-    border: 1px solid #3a3f45;
-    padding: 1.5rem;
-    border-radius: 0.5rem;
-    margin-bottom: 1.5rem;
-}
-
-.form-label {
-    color: #e0e0e0 !important;
-    font-weight: 500;
-    font-size: 0.9rem;
-    margin-bottom: 0.3rem;
-    letter-spacing: 0.25px;
-}
-
-/* Case closing note */
-.tactical-note {
-    background-color: #1c1c1c;
-    color: #ccc;
-    border-left: 4px solid #0dcaf0;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    border-radius: 4px;
-}
-
-/* Tab content box */
-.tactical-tab-content {
-    background-color: #1c2128;
-    border: 1px solid #3a3f45;
-    padding: 1.5rem;
-    border-radius: 0.5rem;
-    margin-top: 1rem;
-}
-
-/* GLOBAL TEXT COLOR ENFORCEMENT */
-body.sc-body,
-body.sc-body {
-    color: #e0e0e0 !important;
-}
-
-/* Ensure border-based containers look correct */
-.card,
-.alert-card,
-.tactical-tab-content,
-.tab-pane,
-.nav-tabs .nav-link,
-.form-control,
-.form-select {
-    color: #e0e0e0 !important;
-    background-color: #1c2128 !important;
-    border-color: #3a3f45 !important;
-}
-
-/* Fix Bootstrap tab header active state */
-.nav-tabs .nav-link.active {
-    background-color: #1c2128 !important;
-    border-color: #3a3f45 #3a3f45 transparent !important;
-    color: #58a6ff !important;
-}
-
-/* Optional: lighten all <label> and <h*> globally */
-label, h1, h2, h3, h4, h5, h6 {
-    color: #f0f0f0 !important;
-}
-
-/* Tactical UI elements */
-.tactical-heading {
-    color: #f0f0f0;
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-}
-
-.tactical-subheading {
-    color: #ccc;
-    font-size: 0.95rem;
-    font-weight: 500;
-    margin-bottom: 0.3rem;
-}
-
-.tactical-muted {
-    color: #999;
-    font-size: 0.95rem;
-}
-
-.tactical-code {
-    background-color: #101417;
-    color: #58a6ff;
-    padding: 0.2rem 0.4rem;
-    border-radius: 4px;
-    font-family: "Fira Code", monospace;
-    font-size: 0.9rem;
-}
-
-.tactical-divider {
-    height: 1px;
-    background-color: #2a2f34;
-    border: none;
-    width: 100%;
-    margin: 1.5rem 0;
-}
-
-.gap-sm {
-    gap: 0.25rem;
-}
-
-.gap-md {
-    gap: 0.5rem;
-}
-
-.gap-lg {
-    gap: 1rem;
-}
-
-.tactical-tab-section {
-    margin-top: 0.5rem;
-    padding-top: 0.5rem;
-}
-
-/* Ensures consistent outer tab padding area */
-.tactical-tab-wrapper {
-    background-color: #1c2128;
-    border: 1px solid #3a3f45;
-    border-radius: 0.5rem;
-    margin-top: 1rem;
-}
-
-/* Inner tab content layout */
-.tactical-tab-inner {
-    padding: 1.5rem;
-}
-
-.tactical-note-card {
-    background-color: #1c2128;
-    border: 1px solid #3a3f45;
-    padding: 1rem;
-    border-radius: 0.5rem;
-}
-
-.tactical-timeline-item {
-    background-color: #1c2128;
-    border: 1px solid #3a3f45;
-    padding: 1rem;
-    border-radius: 0.5rem;
-}
-
-.timeline-actor-badge {
-    background-color: #555;
-    color: white;
-    font-size: 0.75rem;
-    padding: 0.2rem 0.6rem;
-    border-radius: 4px;
-    display: inline-block;
-    margin-top: 0.5rem;
-}
-
-.tactical-task-card {
-    background-color: #1c2128;
-    border: 1px solid #3a3f45;
-    border-radius: 0.5rem;
-    padding: 1rem;
-}
-
-textarea.form-control-sm {
-    font-size: 0.85rem;
-    padding: 0.4rem;
-    line-height: 1.4;
-    height: 32px;
-}
-
-.sc-body input::placeholder,
-.sc-body textarea::placeholder {
-    color: #bbb !important;
-}
-
-.tactical-playbook-card {
-    background-color: #1c2128;
-    border: 1px solid #3a3f45;
-    border-radius: 0.5rem;
-    padding: 1rem;
-}
-
-.tactical-markdown-block {
-    background-color: #101417 !important;
-    color: #e0e0e0 !important;
-    border: 1px solid #333;
-    border-radius: 6px;
-    padding: 1rem;
-}
-
-.tactical-heading-xl {
-    font-size: 1.75rem;
-    font-weight: 600;
-    color: #f0f0f0;
-}
-
-.tactical-metadata-card {
-    background-color: #1c2128;
-    border: 1px solid #3a3f45;
-    border-radius: 0.5rem;
-    padding: 1rem;
-}
-
-
-.badge.status- * {
-    text-transform: capitalize;
-}
-
-.modern-tabs .nav-link {
-    padding: 0.5rem 1rem;
-    border-radius: 0;
-    transition: color 0.2s ease, border-bottom 0.2s ease;
-}
-
-.modern-tabs .nav-link:hover {
-    color: #58a6ff;
-}
-
-.modern-tabs .nav-item {
-    margin-right: 0.5rem;
-}
-
-.modal-body {
-    padding: 1.25rem;
-}
-
-.modal-footer {
-    padding: 1rem 1.25rem;
-}
-
-.modal.fade .modal-dialog {
-    transition: transform 0.3s ease-out;
-}
-
-.form-label {
-    color: #e0e0e0 !important;
-}
-
-textarea.form-control {
-    background-color: #0e1116;
-}
-
-canvas {
-    height: 160px !important;
-    width: 100% !important;
-}
-
-.alert-scroll-wrapper::-webkit-scrollbar {
-    width: 6px;
-}
-
-.alert-scroll-wrapper::-webkit-scrollbar-thumb {
-    background-color: #444;
-    border-radius: 3px;
-}
-
-.alert-card:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    transform: scale(1.01);
-}
-
-
-textarea.form-control-sm {
-    height: 32px !important;
-    resize: none;
-    overflow: hidden;
-}
-
-.tab-pane:not(.active) {
-    display: none !important;
-}
-
-/* Fix hover behavior for SentinelIQ card */
-.alert-card:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-    transform: none; /* Remove zoom effect */
-}
-
-/* Fix table row hover from expanding too far */
-.tactical-table-hover:hover {
-    background-color: #20252b !important;
-    z-index: auto !important;
-    transform: none !important;
-    box-shadow: none !important;
-}
-
-.tactical-table-header th {
-    background-color: #2c3138 !important;
-    color: #f0f0f0 !important;
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.85rem;
-}
-
-.mitre-matrix {
-    display: grid;
-    grid-template-columns: repeat(11, 1fr);
-    gap: 4px;
-    font-size: 12px;
-    text-align: center;
-}
-
-.mitre-cell {
-    border: 1px solid #444;
-    padding: 8px;
-    background-color: #1f1f1f;
-    color: white;
-    border-radius: 4px;
-}
-
-.mitre-highlight {
-    background-color: #c0392b;
-    color: #fff;
-    font-weight: bold;
-}
-
-#intel-feed div {
-    animation: fadeIn 0.5s ease-in;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-}
-/* === TACTICAL TABLE OVERRIDE === */
-table.tactical-table,
-.tactical-table {
-  width: 100%;
-  border-collapse: collapse;
-  background-color: #0e1116; /* Dark base background */
-  color: #e0e0e0;
-}
-
-.tactical-table thead {
-  background-color: #161b22; /* Slightly darker header for contrast */
-}
-
-.tactical-table th,
-.tactical-table td {
-  border: 1px solid #30363d;
-  padding: 0.75rem 1rem;
-  vertical-align: top;
-}
-
-.tactical-table tr:nth-child(even) {
-  background-color: #101417;
-}
-
-.tactical-table tr:nth-child(odd) {
-  background-color: #0e1116;
-}
-
-.tactical-table tr:hover {
-  background-color: #1c1f24;
-}
-
-.tactical-table thead th {
-  color: #f0f0f0;
-  text-transform: uppercase;
-  font-weight: 600;
-  font-size: 0.8rem;
-  letter-spacing: 0.5px;
-}
-
-/* === BADGES INSIDE TABLE === */
-.badge {
-  font-size: 0.7rem;
-  font-weight: 600;
-  border-radius: 0.3rem;
-  text-transform: uppercase;
-}
-
-.badge.severity-high {
-  background-color: #dc3545;
+  background-color: #0d6efd;
   color: #fff;
 }
 
-.badge.severity-medium {
-  background-color: #fd7e14;
-  color: #000;
-}
-
-.badge.severity-low {
-  background-color: #198754;
-  color: #fff;
-}
-
-.badge.status-new {
+.btn-outline-secondary.active,
+.btn-outline-secondary:hover {
   background-color: #6c757d;
   color: #fff;
 }
 
-/* === TACTICAL LINKS === */
-.tactical-link {
-  color: #58a6ff;
-  text-decoration: none;
+/* CARD STYLING */
+.card {
+  background: linear-gradient(135deg, #1a1d21, #20242a);
+  border-radius: 0.75rem;
+  border: none;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.03),
+              0 6px 18px rgba(0, 0, 0, 0.5);
+  color: #f5f5f5;
 }
 
-.tactical-link:hover {
-  color: #ff9933;
+.card h6 {
+  color: #9ca3af;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.5rem;
+}
+
+.card h2 {
+  font-size: 2.4rem;
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+
+.card a {
+  color: #0dcaf0;
+  font-weight: 500;
+}
+
+.card a:hover {
+  color: #66e0ff;
   text-decoration: underline;
 }
 
-/* === FIX SELECTED ROW HIGHLIGHT === */
-tr.selected-alert {
-  background-color: #1a1a1a !important;
-  border-left: 4px solid #58a6ff;
-}
-tr.selected-alert {
-  background-color: #1a1f24 !important;
-  border-left: 4px solid #58a6ff;
+/* Charts */
+#severityChart, #timelineChart {
+  padding-top: 0.5rem;
 }
 
-html, body {
-  height: 100%;
+/* Table */
+.table {
+  background-color: transparent;
+  color: #f1f1f1;
 }
 
-body {
-  display: flex;
-  flex-direction: column;
+.table th,
+.table td {
+  vertical-align: middle;
+  border-color: #2c2f34;
 }
 
-main {
-  flex: 1 0 auto;
+.table thead {
+  background-color: #1c1e23;
+  color: #ffffff;
 }
 
-footer {
-  flex-shrink: 0;
+.table-hover tbody tr:hover {
+  background-color: #1d1f24;
 }
+
+/* Responsive tables */
+.table-responsive {
+  border-radius: 0.5rem;
+  overflow: auto;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+/* Badges */
+.badge {
+  font-size: 0.75rem;
+  padding: 0.4em 0.6em;
+  border-radius: 0.4rem;
+}
+
+.badge-danger {
+  background-color: #dc3545;
+}
+
+.badge-warning {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.badge-success {
+  background-color: #198754;
+}
+
+.badge-info {
+  background-color: #0dcaf0;
+  color: #212529;
+}
+
+.badge-secondary {
+  background-color: #6c757d;
+}
+
+/* Fix contrast for h5 titles */
+.card-title {
+  color: #ffffff;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.card-label {
+  font-size: 0.75rem;
+  color: #a0aec0; /* Light gray with contrast */
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+
+/* Footer note contrast */
+footer, .footer {
+  color: #6c757d;
+  font-size: 0.75rem;
+}
+
+.navbar {
+  background-color: #1a1d21 !important;
+  color: #f8f9fa;
+}
+
+/* Better contrast for nav items */
+.navbar .nav-link {
+  color: #ced4da !important;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link.active {
+  color: #0dcaf0 !important;
+}
+
+/* Align search box and user dropdown on large screens */
+@media (min-width: 992px) {
+  .navbar .form-control {
+    min-width: 250px;
+  }
+
+  .navbar .dropdown {
+    margin-left: 1rem;
+  }
+}
+
+
+.navbar .nav-link,
+.navbar .navbar-brand {
+  color: #f8f9fa !important;
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link.active {
+  color: #0dcaf0 !important;
+}
+
+.navbar .dropdown-menu {
+  background-color: #1f1f1f;
+  border: 1px solid #2c2c2c;
+}
+
+.navbar .dropdown-item {
+  color: #f8f9fa;
+}
+
+.navbar .dropdown-item:hover,
+.navbar .dropdown-item.active {
+  background-color: #0dcaf0;
+  color: #000;
+}
+
+.alert-card {
+  background: #1a1d21;
+  border-left-width: 5px !important;
+  border-radius: 0.75rem;
+}
+
+.border-critical {
+  border-left-color: #dc3545 !important;
+}
+.border-high {
+  border-left-color: #ffc107 !important;
+}
+.border-medium {
+  border-left-color: #0dcaf0 !important;
+}
+.border-low {
+  border-left-color: #6c757d !important;
+}
+

@@ -1,4 +1,4 @@
-from app.api import alerts, sources, customers, users, publisher
+from app.api import alerts, publisher
 from app.web.alerts import alerts_view, alerts_detail_view, alerts_categories_view
 from app.web.customers import customers_view
 from app.web.dashboard import dashboard_view, ws_dashboard
@@ -11,14 +11,8 @@ from app.web.agents import agent_view, agent_detail_view
 
 router_registry = [
     # API routes
-    #(alerts.router, "/api/v1"),
-    #(sources.router, "/api/v1"),
-    #(settings_parser.router, "/api/v1"),
-    #(parsers.router, "/api/v1"),
-    #(cases.router, "/api/v1"),
-    #(customers.router, "/api/v1"),
-    #(users.router, "/api/v1"),
-    #(publisher.router, "/api/v1"),
+    (alerts.router, "/api/v1"),
+    (publisher.router, "/api/v1"),
 
     # Web routes
     (agent_view.router, "/web/v1"),

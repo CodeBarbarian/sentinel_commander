@@ -10,6 +10,6 @@ def get_current_metrics(db: Session):
             .filter(Alert.severity.in_(SEVERITY_MAP["Critical"]), Alert.status == "new")
             .scalar(),
         "open_alerts_count": db.query(func.count(Alert.id))
-            .filter(Alert.status == "new")
+            .filter(Alert.status != "done")
             .scalar(),
     }

@@ -2,7 +2,7 @@ from typing import List, Optional
 from fastapi import APIRouter, Request, Depends, Query
 from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
-from sqlalchemy import case, func
+from sqlalchemy import cast, func, text
 from app.core.database import SessionLocal
 from app.models.alert import Alert
 from app.utils import auth
@@ -142,12 +142,12 @@ def alerts_by_category_all_view(
     offset = (page - 1) * page_size
 
     alerts_query = db.query(Alert).filter(
-        func.lower(Alert.source_payload).like(f'%{category.lower()}%')
+        func.lower(cast(Alert.source_payload, text)).like(f'%{category.lower()}%')
     )
 
     total_alerts = alerts_query.count()
     alerts = alerts_query.order_by(
-        case((Alert.status == "done", 1), else_=0),
+        cast((Alert.status == "done", 1), else_=0),
         Alert.created_at.desc()
     ).offset(offset).limit(page_size).all()
 
