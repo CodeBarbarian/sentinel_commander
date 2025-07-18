@@ -1,0 +1,39 @@
+    <div class="d-grid gap-1">
+        <a href="/web/v1/alerts/{{ alert.id }}" class="btn btn-sm btn-outline-primary">🔍 View</a>
+
+        {% if triage.recommended_status or triage.recommended_resolution or triage.recommended_action %}
+        <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal"
+                data-bs-target="#applyModal{{ alert.id }}">💡 Apply Recommendation
+        </button>
+        {% endif %}
+
+        {% set res = triage.recommended_resolution %}
+        {% if res == "legitimate" %}
+        <a href="/web/v1/alerts/{{ alert.id }}/quick/legit" class="btn btn-sm btn-success">✅ Mark Legit</a>
+        {% elif res == "false_positive" %}
+        <a href="/web/v1/alerts/{{ alert.id }}/quick/fp" class="btn btn-sm btn-warning">🚫 False Positive</a>
+        {% elif res == "true_positive_with_impact" %}
+        <a href="/web/v1/alerts/{{ alert.id }}/quick/escalate" class="btn btn-sm btn-danger">⚠️ Escalate</a>
+        {% else %}
+        <div class="btn-group">
+            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                Set Resolution
+            </button>
+            <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                <li><a class="dropdown-item" href="/web/v1/alerts/{{ alert.id }}/quick/res/unknown">❓ Unknown</a></li>
+                <li><a class="dropdown-item" href="/web/v1/alerts/{{ alert.id }}/quick/res/under_investigation">🔍 Under
+                    Investigation</a></li>
+                <li><a class="dropdown-item" href="/web/v1/alerts/{{ alert.id }}/quick/res/false_positive">🚫 False
+                    Positive</a></li>
+                <li><a class="dropdown-item" href="/web/v1/alerts/{{ alert.id }}/quick/res/true_positive_no_impact">✅ TP
+                    (No Impact)</a></li>
+                <li><a class="dropdown-item" href="/web/v1/alerts/{{ alert.id }}/quick/res/true_positive_with_impact">⚠️
+                    TP (Impact)</a></li>
+                <li><a class="dropdown-item" href="/web/v1/alerts/{{ alert.id }}/quick/res/not_applicable">📎 Not
+                    Applicable</a></li>
+                <li><a class="dropdown-item" href="/web/v1/alerts/{{ alert.id }}/quick/res/legitimate">✅ Legitimate</a>
+                </li>
+            </ul>
+        </div>
+        {% endif %}
+    </div>

@@ -1,0 +1,31 @@
+<div class="tab-pane fade" id="parsed">
+  {% if parsed_fields %}
+  <div class="row g-4">
+
+    {% for key, value in parsed_fields.items() %}
+    <div class="col-md-6">
+      <div class="p-3 bg-dark border border-secondary rounded h-100">
+        <label class="form-label fw-semibold text-uppercase small text-light mb-2">{{ key }}</label>
+        <pre class="mb-0 text-light"><code>{{ value }}</code></pre>
+      </div>
+    </div>
+    {% endfor %}
+
+    <!-- Full JSON Dump -->
+    <div class="col-12">
+      <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse"
+              data-bs-target="#parsedFieldsCollapse" aria-expanded="false" aria-controls="parsedFieldsCollapse">
+        🧬 Show Parsed Data (Full JSON)
+      </button>
+
+      <div class="collapse mt-3" id="parsedFieldsCollapse">
+        <label class="form-label fw-semibold text-uppercase small text-light">Parsed Data (Raw Full Dump)</label>
+        <pre class="p-3 bg-dark border border-secondary rounded text-light"><code>{{ parsed_fields | tojson(indent=2) }}</code></pre>
+      </div>
+    </div>
+
+  </div>
+  {% else %}
+  <p class="fst-italic">No parsed fields available.</p>
+  {% endif %}
+</div>

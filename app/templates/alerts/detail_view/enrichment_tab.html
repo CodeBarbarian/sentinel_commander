@@ -1,0 +1,105 @@
+<div class="tab-pane fade" id="enrichment">
+  {% if parsed_enrichment %}
+  <div class="row g-4">
+
+    {% for key, value in parsed_enrichment.items() %}
+    <div class="col-md-6">
+      <div class="card bg-dark border border-secondary shadow-sm h-100">
+        <div class="card-body">
+          <h6 class="text-uppercase text-light small mb-3">{{ key }}</h6>
+
+          {% if key == 'geolocation' %}
+          <h6 class="text-light mb-3">🌍 Geolocation Details</h6>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="bg-black p-3 rounded border border-secondary">
+                <div class="small text-white-50">🌐 IP</div>
+                <strong class="text-info">{{ value.ip }}</strong>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="bg-black p-3 rounded border border-secondary">
+                <div class="small text-white-50">🏳️ Country</div>
+                <strong class="text-success">{{ value.country }}</strong>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="bg-black p-3 rounded border border-secondary">
+                <div class="small text-white-50">🏁 ISO Code</div>
+                <strong class="text-warning">{{ value.iso_code }}</strong>
+              </div>
+            </div>
+          </div>
+
+          {% elif key == 'MISP' %}
+            {% if value.matches > 0 %}
+              {% for item in value.data %}
+              <div class="bg-black p-3 rounded border border-secondary mb-3">
+                <h6 class="mb-2 text-light">🔗 MISP Attribute: {{ item.type }}</h6>
+                <div class="row g-2">
+                  <div class="col-md-6">
+                    <div><span class="small text-white-50">🧬 Value</span><br><strong class="text-info">{{ item.value }}</strong></div>
+                  </div>
+                  <div class="col-md-6">
+                    <div><span class="small text-white-50">📂 Category</span><br><strong class="text-warning">{{ item.category }}</strong></div>
+                  </div>
+                  <div class="col-md-6">
+                    <div><span class="small text-white-50">🛡️ To IDS</span><br><strong class="text-success">{{ item.to_ids }}</strong></div>
+                  </div>
+                  <div class="col-md-6">
+                    <div><span class="small text-white-50">🔢 Attribute ID</span><br><strong class="text-secondary">{{ item.attribute_id }}</strong></div>
+                  </div>
+                </div>
+
+                <div class="row g-2 mt-3">
+                  <div class="col-md-6">
+                    <div><span class="small text-white-50">📄 Event Title</span><br><strong>{{ item.event.info }}</strong></div>
+                  </div>
+                  <div class="col-md-6">
+                    <div><span class="small text-white-50">🏢 Org</span><br><strong>{{ item.event.org }}</strong></div>
+                  </div>
+                  <div class="col-md-6">
+                    <div><span class="small text-white-50">📅 Date</span><br><strong>{{ item.event.date }}</strong></div>
+                  </div>
+                  <div class="col-md-6">
+                    <div><span class="small text-white-50">🏷️ Tags</span><br>
+                      {% if item.event.tags %}
+                        <strong>{{ item.event.tags | join(", ") }}</strong>
+                      {% else %}
+                        <span class="fst-italic">None</span>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            {% else %}
+              <p class="fst-italic">No matches in MISP.</p>
+            {% endif %}
+
+          {% elif key == 'host_threat_lookup' %}
+          <h6 class="text-light mb-2">🔗 Threat Lookup: {{ value.value }}</h6>
+          <p class="small text-white-50">Hold CTRL to open multiple services in new tabs:</p>
+          <div class="row g-2">
+            <div class="col-md-6"><button class="btn btn-sm btn-primary w-100" onclick="window.open('{{ value.links.virustotal }}', '_blank')">Open VirusTotal</button></div>
+            <div class="col-md-6"><button class="btn btn-sm btn-success w-100" onclick="window.open('{{ value.links.talos }}', '_blank')">Open Talos</button></div>
+            <div class="col-md-6"><button class="btn btn-sm btn-warning w-100" onclick="window.open('{{ value.links.threatminer }}', '_blank')">Open ThreatMiner</button></div>
+            <div class="col-md-6"><button class="btn btn-sm btn-danger w-100" onclick="window.open('{{ value.links.threatcrowd }}', '_blank')">Open ThreatCrowd</button></div>
+            <div class="col-md-6"><button class="btn btn-sm btn-secondary w-100" onclick="window.open('{{ value.links.alienvault }}', '_blank')">Open OTX AlienVault</button></div>
+            <div class="col-md-6"><button class="btn btn-sm btn-dark w-100" onclick="window.open('{{ value.links.crowdsec }}', '_blank')">Open CrowdSec</button></div>
+            <div class="col-md-6"><button class="btn btn-sm btn-light w-100" onclick="window.open('{{ value.links.abuseipdb }}', '_blank')">Open AbuseIPDb</button></div>
+          </div>
+
+          {% else %}
+          <pre class="bg-black text-light p-3 border border-secondary rounded small"><code>{{ value | tojson(indent=2) }}</code></pre>
+          {% endif %}
+
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="fst-italic">No enrichment data for this alert.</p>
+  {% endif %}
+</div>

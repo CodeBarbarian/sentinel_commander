@@ -40,12 +40,11 @@ def sentinel_iq_page(
     q: Optional[str] = None,
     min_severity: Optional[str] = None,
     status: Optional[str] = None,
+    only_eligible: bool = False,
     page: int = 1,
     page_size: int = 50,
 ):
-    query = db.query(Alert)
-    query = query.filter(Alert.status.in_(["new", "in_progress"]))
-    toggle = False
+    query = db.query(Alert).filter(Alert.status.in_(["new", "in_progress",]))
 
     if q:
         query = query.filter(Alert.message.ilike(f"%{q.lower()}%"))
@@ -56,25 +55,13 @@ def sentinel_iq_page(
     if status:
         query = query.filter(Alert.status == status)
 
-
-    # Total count before pagination
-    total_alerts = query.count()
-    total_pages = max(1, (total_alerts + page_size - 1) // page_size)
-    page = max(1, min(page, total_pages))
-
-    # Paginated query
-    offset = (page - 1) * page_size
-    alerts = query.order_by(Alert.severity.desc()).offset(offset).limit(page_size).all()
-
-    # Triage processing
+    all_alerts = query.order_by(Alert.severity.desc()).all()
     triaged_alerts = []
     triage_eligible_count = 0
 
-    for alert in alerts:
+    for alert in all_alerts:
         try:
             payload = alert.source_payload or {}
-
-            # Works for TEXT (string) or JSONB (dict)
             if isinstance(payload, str):
                 payload = json.loads(payload)
 
@@ -86,10 +73,16 @@ def sentinel_iq_page(
             triage_result.setdefault("recommended_resolution", None)
             triage_result.setdefault("recommended_action", None)
 
-            if mapped.get("recommended_status") or mapped.get("recommended_resolution"):
+            eligible = mapped.get("recommended_status") or mapped.get("recommended_resolution") or mapped.get("recommended_action")
+            if eligible:
                 triage_eligible_count += 1
 
             alert.triage_result = triage_result
+
+            if only_eligible and not eligible:
+                continue
+
+            triaged_alerts.append(alert)
 
         except Exception as e:
             alert.triage_result = {
@@ -99,13 +92,22 @@ def sentinel_iq_page(
                 "recommended_resolution": None,
                 "recommended_action": None
             }
+            if not only_eligible:
+                triaged_alerts.append(alert)
 
-        triaged_alerts.append(alert)
+    # Pagination after filtering
+    total_alerts = len(triaged_alerts)
+    total_pages = max(1, (total_alerts + page_size - 1) // page_size)
+    page = max(1, min(page, total_pages))
+    start = (page - 1) * page_size
+    end = start + page_size
+    paginated_alerts = triaged_alerts[start:end]
 
     return templates.TemplateResponse("sentinel_iq/sentinel_iq.html", {
         "request": request,
-        "alerts": triaged_alerts,
+        "alerts": paginated_alerts,
         "triage_eligible_count": triage_eligible_count,
+        "only_eligible": only_eligible,
         "pagination": {
             "total_alerts": total_alerts,
             "total_pages": total_pages,
@@ -113,6 +115,7 @@ def sentinel_iq_page(
             "page_size": page_size,
         }
     })
+
 
 
 

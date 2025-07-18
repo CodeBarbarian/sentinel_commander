@@ -1,0 +1,41 @@
+<div class="modal fade" id="addModuleModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-md modal-dialog-centered">
+    <div class="modal-content bg-dark text-white">
+      <form method="post" action="/web/v1/modules/create">
+        <div class="modal-header border-secondary">
+          <h5 class="modal-title">➕ Add Module</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Name</label>
+            <input type="text" name="name" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Module Type</label>
+            <select name="is_local" class="form-select" onchange="toggleAddFields(this.value)">
+              <option value="true" selected>Local</option>
+              <option value="false">Remote API</option>
+            </select>
+          </div>
+          <div class="mb-3 add-local">
+            <label class="form-label">Local Key</label>
+            <input type="text" name="local_key" class="form-control">
+          </div>
+          <div class="mb-3 add-remote" style="display:none">
+            <label class="form-label">Remote URL</label>
+            <input type="url" name="remote_url" class="form-control">
+          </div>
+          <div class="mb-3 add-remote" style="display:none">
+            <label class="form-label">Remote API Key</label>
+            <input type="text" name="remote_api_key" class="form-control">
+          </div>
+        </div>
+        <div class="modal-footer border-secondary">
+          <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-sm btn-success">Create</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

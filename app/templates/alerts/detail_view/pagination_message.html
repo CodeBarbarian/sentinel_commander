@@ -1,0 +1,29 @@
+{% if related_pages_msg > 1 %}
+<nav class="mt-3">
+  <ul class="pagination pagination-sm justify-content-center">
+    <li class="page-item {% if related_page_msg == 1 %}disabled{% endif %}">
+      <a class="page-link" href="?message_page=1#related-by-message">First</a>
+    </li>
+    <li class="page-item {% if related_page_msg == 1 %}disabled{% endif %}">
+      <a class="page-link" href="?message_page={{ related_page_msg - 1 }}#related-by-message">Prev</a>
+    </li>
+
+    {% set start = [related_page_msg - 2, 1] | max %}
+    {% set end = [start + 4, related_pages_msg] | min %}
+    {% set start = [end - 4, 1] | max %}
+
+    {% for p in range(start, end + 1) %}
+    <li class="page-item {% if p == related_page_msg %}active{% endif %}">
+      <a class="page-link" href="?message_page={{ p }}#related-by-message">{{ p }}</a>
+    </li>
+    {% endfor %}
+
+    <li class="page-item {% if related_page_msg == related_pages_msg %}disabled{% endif %}">
+      <a class="page-link" href="?message_page={{ related_page_msg + 1 }}#related-by-message">Next</a>
+    </li>
+    <li class="page-item {% if related_page_msg == related_pages_msg %}disabled{% endif %}">
+      <a class="page-link" href="?message_page={{ related_pages_msg }}#related-by-message">Last</a>
+    </li>
+  </ul>
+</nav>
+{% endif %}

@@ -1,0 +1,29 @@
+{% if related_pages > 1 %}
+<nav class="mt-3">
+  <ul class="pagination pagination-sm justify-content-center">
+    <li class="page-item {% if related_page == 1 %}disabled{% endif %}">
+      <a class="page-link" href="?page=1#related-by-agent">First</a>
+    </li>
+    <li class="page-item {% if related_page == 1 %}disabled{% endif %}">
+      <a class="page-link" href="?page={{ related_page - 1 }}#related-by-agent">Prev</a>
+    </li>
+
+    {% set start = [related_page - 2, 1] | max %}
+    {% set end = [start + 4, related_pages] | min %}
+    {% set start = [end - 4, 1] | max %}
+
+    {% for p in range(start, end + 1) %}
+    <li class="page-item {% if p == related_page %}active{% endif %}">
+      <a class="page-link" href="?page={{ p }}#related-by-agent">{{ p }}</a>
+    </li>
+    {% endfor %}
+
+    <li class="page-item {% if related_page == related_pages %}disabled{% endif %}">
+      <a class="page-link" href="?page={{ related_page + 1 }}#related-by-agent">Next</a>
+    </li>
+    <li class="page-item {% if related_page == related_pages %}disabled{% endif %}">
+      <a class="page-link" href="?page={{ related_pages }}#related-by-agent">Last</a>
+    </li>
+  </ul>
+</nav>
+{% endif %}

@@ -1,0 +1,94 @@
+  {% set status_color = {
+    'new': 'danger',
+    'in_progress': 'warning',
+    'done': 'success'
+  }[alert.status.lower()] %}
+
+<div class="tab-pane fade show active" id="details">
+  <div class="row g-4">
+
+    <!-- Status -->
+    <div class="col-md-4">
+      <label class="form-label text-uppercase small">Status</label><br>
+      <span class="badge bg-{{ status_color }} text-dark">{{ alert.status.replace('_', ' ')|capitalize }}</span>
+    </div>
+
+    <!-- Severity -->
+    <div class="col-md-4">
+      <label class="form-label text-uppercase small">Severity</label><br>
+                {% set sev = alert.severity or 0 %}
+                {% set severity_label =
+                  'danger' if sev >= 15 else
+                  'warning' if sev >= 12 else
+                  'info' if sev >= 7 else
+                  'success' if sev >= 1 else
+                  'secondary' %}
+                <span class="badge bg-{{ severity_label }}">{{ alert.severity }}</span>
+    </div>
+
+    <!-- Resolution -->
+    <div class="col-md-4">
+      <label class="form-label text-uppercase small">Resolution</label><br>
+          {% set resolution_labels = {
+    'not_applicable': 'Not Applicable',
+    'false_positive': 'False Positive',
+    'true_positive_no_impact': 'True Positive (No Impact)',
+    'true_positive_without_impact': 'True Positive (No Impact)',
+    'true_positive_with_impact': 'True Positive (With Impact)',
+    'legitimate': 'Legitimate',
+    'unknown': 'Unknown',
+    'under_investigation': 'Under Investigation'
+  } %}
+                  <span>
+              {{ resolution_labels[alert.resolution] if alert.resolution in resolution_labels else '—' }}
+            </span>
+    </div>
+
+    <!-- Source -->
+    <div class="col-md-4">
+      <label class="form-label text-uppercase small">Source</label><br>
+      <span>{{ alert.source or "—" }}</span>
+    </div>
+
+    <!-- Agent -->
+    <div class="col-md-4">
+      <label class="form-label text-uppercase small">Agent</label><br>
+      <span>{{ parsed_fields.get("agent_name") or parsed_fields.get("agent") or "—" }}</span>
+    </div>
+
+    <!-- Created -->
+    <div class="col-md-4">
+      <label class="form-label text-uppercase small">Created</label><br>
+      <span>{{ alert.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+    </div>
+
+    <!-- Message -->
+    <div class="col-md-12">
+      <label class="form-label text-uppercase small">Message</label>
+      <div class="p-3 rounded border bg-dark text-light">
+        {{ alert.message or "—" }}
+      </div>
+    </div>
+
+    <!-- Tags -->
+    <div class="col-md-12">
+      <label class="form-label text-uppercase small">Tags</label><br>
+      {% if parsed_tags %}
+        {% for tag in parsed_tags %}
+          <span class="badge bg-secondary me-1">{{ tag }}</span>
+        {% endfor %}
+      {% else %}
+        <span class="fst-italic">No tags</span>
+      {% endif %}
+    </div>
+
+    <!-- Resolution Comment -->
+    <div class="col-md-12">
+      <label class="form-label text-uppercase small">Resolution Comment</label>
+      <div class="p-3 rounded border bg-dark text-light">
+        {{ alert.resolution_comment or "—" }}
+      </div>
+    </div>
+
+  </div>
+</div>

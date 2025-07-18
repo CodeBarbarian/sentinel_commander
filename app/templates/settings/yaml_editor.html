@@ -10,14 +10,14 @@
 {% block content %}
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4 class="tactical-heading mb-0">🧬 YAML Editor</h4>
+        <h4 class="mb-0">🧬 YAML Editor</h4>
         <a href="/web/v1/settings" class="btn btn-sm btn-outline-secondary">← Back to Settings</a>
     </div>
 
     <div class="row">
         <!-- Sidebar: File List -->
         <div class="col-md-3">
-            <h6 class="tactical-heading mb-2">📁 Triage Files</h6>
+            <h6 class="mb-2">📁 Triage Files</h6>
             <div class="d-grid gap-2 mb-4">
                 {% for file in files.triage %}
                 <button type="button" class="btn btn-outline-light btn-sm text-start"
@@ -25,7 +25,7 @@
                 </button>
                 {% endfor %}
             </div>
-            <h6 class="tactical-heading mb-2">📁 Alert Files</h6>
+            <h6 class="mb-2">📁 Alert Files</h6>
             <div class="d-grid gap-2">
                 {% for file in files.alert %}
                 <button type="button" class="btn btn-outline-light btn-sm text-start"
@@ -35,19 +35,19 @@
             </div>
         </div>
 
-        <!-- Main: Editor -->
+        <!-- Main Editor Area -->
         <div class="col-md-9">
             <form id="yamlForm" method="post" action="/web/v1/settings/yaml/save">
                 <div class="d-flex align-items-center mb-2">
-                    <input type="text" class="form-control me-2" name="filename" id="filenameInput"
+                    <input type="text" class="form-control me-2 text-light border-secondary"
+                           name="filename" id="filenameInput"
                            placeholder="example_alert.yaml" required>
-                    <select class="form-select w-auto me-2" name="file_type" id="fileTypeSelect">
+                    <select class="form-select w-auto me-2 bg-dark text-light border-secondary" name="file_type" id="fileTypeSelect">
                         <option value="alert">Alert</option>
                         <option value="triage">Triage</option>
                     </select>
-                    <button type="submit" class="btn btn-sm btn-outline-success">💾 Save</button>
-                    <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="deleteFile()">🗑 Delete
-                    </button>
+                    <button type="submit" class="btn btn-sm btn-success">💾 Save</button>
+                    <button type="button" class="btn btn-sm btn-danger ms-2" onclick="deleteFile()">🗑 Delete</button>
                 </div>
 
                 <textarea id="editor" name="content"></textarea>
@@ -55,7 +55,6 @@
         </div>
     </div>
 </div>
-
 
 <!-- CodeMirror JS -->
 <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.13/lib/codemirror.min.js"></script>
@@ -81,13 +80,9 @@
         const form = document.getElementById("yamlForm");
         if (form) {
             form.addEventListener("submit", function (e) {
-                e.preventDefault(); // stop immediate form submission
-
+                e.preventDefault();
                 textarea.value = cmEditor.getValue();
-
-                setTimeout(() => {
-                    form.submit();
-                }, 0); // allow browser to apply value change before submit
+                setTimeout(() => form.submit(), 0);
             });
         }
     });
@@ -111,22 +106,18 @@
         const form = document.createElement("form");
         form.method = "POST";
         form.action = "/web/v1/settings/yaml/delete";
-
         form.appendChild(newHidden("file_type", file_type));
         form.appendChild(newHidden("filename", filename));
-
         document.body.appendChild(form);
         form.submit();
     }
 
     function newHidden(name, value) {
-        const i = document.createElement("input");
-        i.type = "hidden";
-        i.name = name;
-        i.value = value;
-        return i;
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = name;
+        input.value = value;
+        return input;
     }
 </script>
-
-
 {% endblock %}

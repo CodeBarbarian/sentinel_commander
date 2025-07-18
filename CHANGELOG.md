@@ -15,12 +15,29 @@ Template
 
 ### Fixed
 ```
+## [0.6.0] - 2025-07-18 - Design Update
+### Added
+- New design for the alert detail view
+- Enhanced styling for the navigation bar
+- Added tooltips for better user guidance across the application
+
+### Changed
+- Updated color scheme for better accessibility
+- Redesigned dashboard layout for improved usability
+- Refactored CSS files to reduce redundancy and improve maintainability
+- Adjusted font sizes and spacing for better readability
+
+### Fixed
+- Resolved alignment issues in the agent overview page
+- Fixed inconsistent button styling across pages
+- Corrected layout bugs in the settings module
+
+
 ## [0.5.0] - Reduction update
 ### Removed
 - All models, schemas, backend and frontend code related to cases
 - All models, schemas, backend and frontend code related to Playbooks
 - All models, schemas, backend and frontend code related to IOCs
-- 
 
 ## [0.3.0] - 2025-07.07 - The having fun update
 ### Added

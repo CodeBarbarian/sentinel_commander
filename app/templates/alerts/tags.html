@@ -3,16 +3,25 @@
 
 {% block content %}
 <div class="container mt-4">
-  <h2 class="mb-4">🔖 Tag Overview</h2>
-  <div class="tag-cloud">
-    {% for tag in tags %}
-      <a href="/web/v1/alerts?alert_id=&source=&status=&severity=&tags={{ tag.tag}}&start_event_time=&end_event_time=&start_time=&end_time=&search=" class="badge bg-primary m-1"
-         style="font-size: {{ 0.8 + (tag.count / tags[0].count) * 1.5 }}em;">
-        {{ tag.tag }} <span class="small text-light">({{ tag.count }})</span>
-      </a>
-    {% else %}
-      <p>No tags available.</p>
-    {% endfor %}
+  <div class="card bg-dark border border-secondary shadow-sm">
+    <div class="card-body">
+      <h4 class="mb-4 text-light">🔖 Tag Overview</h4>
+
+      {% if tags %}
+      <div class="d-flex flex-wrap justify-content-start">
+        {% for tag in tags %}
+          <a href="/web/v1/alerts?alert_id=&source=&status=&severity=&tags={{ tag.tag }}&start_event_time=&end_event_time=&start_time=&end_time=&search=&status=new,in_progress,done"
+             class="badge bg-primary text-light m-1 px-3 py-2 rounded-pill text-decoration-none"
+             style="font-size: {{ 0.85 + (tag.count / tags[0].count) * 1.2 }}em;">
+            {{ tag.tag }}
+            <span class="small ms-1 text-light opacity-75">({{ tag.count }})</span>
+          </a>
+        {% endfor %}
+      </div>
+      {% else %}
+        <p class="fst-italic text-secondary">No tags available.</p>
+      {% endif %}
+    </div>
   </div>
 </div>
 {% endblock %}

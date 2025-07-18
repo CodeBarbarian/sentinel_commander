@@ -1,14 +1,17 @@
 <footer class="bg-dark text-light small py-3 mt-auto border-top">
-    <div class="container-fluid d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+    <div class="container-fluid d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
 
-        <!-- Left: App info -->
+        <!-- App Info -->
         <div>
-            🛡️ Sentinel Commander &mdash; v{{ request.state.version }}
+            🛡️ <strong>Sentinel Commander</strong> — v{{ request.state.version }}
             {% if request.state.version_outdated %}
-                <span class="badge bg-danger ms-1" role="button" data-bs-toggle="modal" data-bs-target="#updateModal">Update Available</span>
+            <span class="badge bg-danger ms-2" role="button" data-bs-toggle="modal" data-bs-target="#updateModal">
+          Update Available
+        </span>
             {% endif %}
         </div>
-        <!-- Middle: Auto-Refresh Control -->
+
+        <!-- Auto-Refresh -->
         <div class="d-flex align-items-center gap-2">
             🔄 Auto-Refresh:
             <select id="refresh-interval" class="form-select form-select-sm bg-dark text-light border-secondary"
@@ -19,9 +22,10 @@
                 <option value="60">60s</option>
                 <option value="300">5 min</option>
             </select>
-            <span id="refresh-countdown" class="text-muted small">--</span>
+            <span id="refresh-countdown">--</span>
         </div>
-        <!-- Current Time Display -->
+
+        <!-- Clock -->
         <div id="currentTime">
             🕒 --
         </div>

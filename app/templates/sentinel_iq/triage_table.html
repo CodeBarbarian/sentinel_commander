@@ -1,0 +1,126 @@
+<div class="table-responsive" style="overflow: visible;">
+
+    <table class="table table-dark table-hover table-sm align-middle border border-secondary mb-0">
+        <thead class="bg-body-tertiary text-light border-bottom border-secondary">
+
+        <tr>
+            <th>#</th>
+            <th>Title</th>
+            <th>Severity</th>
+            <th>Tags</th>
+            <th>Timestamp</th>
+            <th>Triage Suggestions</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for alert in alerts %}
+        {% set triage = alert.triage_result.mapped_fields %}
+        <tr>
+            <!-- ID -->
+            <td class="text-light"><a href="/web/v1/alerts/{{ alert.id }}">#{{ alert.id }}</a></td>
+
+            <!-- Title -->
+            <td class="text-light">{{ alert.title or alert.message[:60] }}</td>
+
+            <!-- Severity -->
+            <td>
+                {% set sev = alert.severity or 0 %}
+                {% set severity_label =
+                'danger' if sev >= 15 else
+                'warning' if sev >= 12 else
+                'info' if sev >= 7 else
+                'success' if sev >= 1 else
+                'secondary' %}
+                <span class="badge bg-{{ severity_label }}">
+            {{ alert.severity }}
+          </span>
+            </td>
+
+            <!-- Tags -->
+            <td>
+                {% if alert.triage_result.tags %}
+                {% for tag in alert.triage_result.tags %}
+                <span class="badge bg-secondary me-1">{{ tag }}</span>
+                {% endfor %}
+                {% else %}
+                <span class="fst-italic text-secondary">—</span>
+                {% endif %}
+            </td>
+
+            <!-- Timestamp -->
+            <td>{{ alert.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+
+            <!-- Triage Suggestions -->
+            <td>
+                {% if triage.recommended_status or triage.recommended_action %}
+                <div><strong>Status:</strong> {{ triage.recommended_status or '—' }}</div>
+                <div><strong>Resolution:</strong> {{ triage.recommended_resolution or '—' }}</div>
+                <div><strong>Action:</strong> {{ triage.recommended_action or '—' }}</div>
+                {% else %}
+                <span class="fst-italic text-secondary">No action needed</span>
+                {% endif %}
+            </td>
+
+            <!-- Alert Status -->
+            <td>
+                {% set status_color = {
+                'new': 'danger',
+                'in_progress': 'warning',
+                'done': 'success'
+                }[alert.status.lower()] %}
+                <span class="badge bg-{{ status_color }} text-dark">{{ alert.status.replace('_', ' ')|capitalize }}</span>
+            </td>
+
+            <!-- Actions -->
+            <td class="text-end">
+                {% include 'sentinel_iq/triage_actions.html' %}
+            </td>
+        </tr>
+
+        <!-- Modal (unchanged) -->
+        {% include 'sentinel_iq/apply_modal.html' %}
+        {% endfor %}
+        </tbody>
+                    {% if pagination.total_pages > 1 %}
+            <nav aria-label="Triage pagination" class="mt-4">
+                <ul class="pagination justify-content-center">
+
+                    {# First and Prev #}
+                    <li class="page-item {% if pagination.current_page == 1 %}disabled{% endif %}">
+                        <a class="page-link"
+                           href="?page=1&page_size={{ pagination.page_size }}{{ '&q=' ~ request.query_params.q if request.query_params.q }}{{ '&min_severity=' ~ request.query_params.min_severity if request.query_params.min_severity }}{{ '&status=' ~ request.query_params.status if request.query_params.status }}">First</a>
+                    </li>
+                    <li class="page-item {% if pagination.current_page == 1 %}disabled{% endif %}">
+                        <a class="page-link"
+                           href="?page={{ pagination.current_page - 1 }}&page_size={{ pagination.page_size }}{{ '&q=' ~ request.query_params.q if request.query_params.q }}{{ '&min_severity=' ~ request.query_params.min_severity if request.query_params.min_severity }}{{ '&status=' ~ request.query_params.status if request.query_params.status }}">Previous</a>
+                    </li>
+
+                    {# Page numbers (max 5 visible) #}
+                    {% set start_page = 1 if (pagination.current_page - 2) < 1 else (pagination.current_page - 2) %}
+                    {% set end_page = pagination.total_pages if (start_page + 4) > pagination.total_pages else
+                    (start_page + 4) %}
+                    {% set start_page = 1 if (end_page - 4) < 1 else (end_page - 4) %}
+                    {% for p in range(start_page, end_page + 1) %}
+                    <li class="page-item {% if p == pagination.current_page %}active{% endif %}">
+                        <a class="page-link"
+                           href="?page={{ p }}&page_size={{ pagination.page_size }}{{ '&q=' ~ request.query_params.q if request.query_params.q }}{{ '&min_severity=' ~ request.query_params.min_severity if request.query_params.min_severity }}{{ '&status=' ~ request.query_params.status if request.query_params.status }}">{{
+                            p }}</a>
+                    </li>
+                    {% endfor %}
+
+                    {# Next and Last #}
+                    <li class="page-item {% if pagination.current_page == pagination.total_pages %}disabled{% endif %}">
+                        <a class="page-link"
+                           href="?page={{ pagination.current_page + 1 }}&page_size={{ pagination.page_size }}{{ '&q=' ~ request.query_params.q if request.query_params.q }}{{ '&min_severity=' ~ request.query_params.min_severity if request.query_params.min_severity }}{{ '&status=' ~ request.query_params.status if request.query_params.status }}">Next</a>
+                    </li>
+                    <li class="page-item {% if pagination.current_page == pagination.total_pages %}disabled{% endif %}">
+                        <a class="page-link"
+                           href="?page={{ pagination.total_pages }}&page_size={{ pagination.page_size }}{{ '&q=' ~ request.query_params.q if request.query_params.q }}{{ '&min_severity=' ~ request.query_params.min_severity if request.query_params.min_severity }}{{ '&status=' ~ request.query_params.status if request.query_params.status }}">Last</a>
+                    </li>
+                </ul>
+            </nav>
+            {% endif %}
+    </table>
+</div>

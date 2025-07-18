@@ -13,7 +13,7 @@ import asyncio
 
 from app.tasks.version_check_task import refresh_version_task
 from app.tasks.dashboard_metrics_task import broadcast_metrics_loop
-from app.tasks.dashboard_new_alerts_task import broadcast_new_alerts_loop
+from app.tasks.dashboard_new_alerts_task import broadcast_open_alerts_loop
 
 from app.core.version import get_local_version
 
@@ -26,7 +26,7 @@ init_data()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     asyncio.create_task(broadcast_metrics_loop())
-    asyncio.create_task(broadcast_new_alerts_loop())
+    asyncio.create_task(broadcast_open_alerts_loop())
     asyncio.create_task(refresh_version_task(app))
     yield
 

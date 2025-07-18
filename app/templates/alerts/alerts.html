@@ -2,39 +2,19 @@
 {% block title %}Alerts - Sentinel Commander{% endblock %}
 
 {% block content %}
-<div class="container-fluid tactical-alerts">
+<div class="container-fluid my-4">
 
   <!-- Toolbar -->
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h4 class="tactical-heading mb-0">🚨 Alert Center</h4>
-    <div class="d-flex gap-2">
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <h4 class="mb-0">🚨 Alert Center</h4>
+    <div class="btn-group">
       <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#filterModal">🎯 Filters</button>
       <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#bulkModal">📦 Bulk Actions</button>
-      <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#mergeModal">🧩 Merge Alerts</button>
+      <!--<button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#mergeModal">🧩 Merge Alerts</button>-->
     </div>
   </div>
 
-  <!-- Bulk selection -->
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <div class="d-flex align-items-center gap-3">
-      <div class="form-check">
-        <input class="form-check-input" type="checkbox" id="select-all-visible">
-        <label class="form-check-label" for="select-all-visible">Select All</label>
-      </div>
-      <small class="tactical-muted" id="selected-count">0 alerts selected</small>
-    </div>
-    <small class="tactical-muted">🔍 {{ pagination.total_results }} results</small>
-    <div>
-      <label for="limitSelect" class="form-label me-2">Per page:</label>
-      <select id="limitSelect" class="form-select form-select-sm d-inline-block w-auto">
-        {% for option in [10, 20, 50, 100, 200, 500, 1000] %}
-        <option value="{{ option }}" {% if limit == option %}selected{% endif %}>{{ option }}</option>
-        {% endfor %}
-      </select>
-    </div>
-  </div>
-
-  <!-- Active filters -->
+  <!-- Filters Summary -->
   {% if request.query_params %}
   <div class="alert alert-dark d-flex justify-content-between align-items-center mb-4">
     <div>
@@ -43,80 +23,136 @@
       <span class="badge bg-secondary me-1">{{ key }}: {{ request.query_params[key] }}</span>
       {% endfor %}
     </div>
-    <div>
+    <div class="btn-group">
       <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#filterModal">Edit</button>
       <a id="clearFiltersBtn" class="btn btn-sm btn-outline-danger">Clear</a>
     </div>
   </div>
   {% endif %}
+<!-- Bulk Selection & Pagination Info -->
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2 px-1">
+  <div class="d-flex align-items-center gap-3">
+    <div class="form-check mb-0">
+      <input class="form-check-input" type="checkbox" id="select-all-visible">
+      <label class="form-check-label" for="select-all-visible">Select All</label>
+    </div>
+    <small id="selected-count" class="text-light-emphasis">0 alerts selected</small>
+  </div>
+  <small class="text-light-emphasis">🔍 {{ pagination.total_results }} results</small>
+  <div class="d-flex align-items-center">
+    <label for="limitSelect" class="form-label me-2 mb-0">Per page:</label>
+    <select id="limitSelect" class="form-select form-select-sm w-auto bg-dark text-light border-secondary">
+      {% for option in [10, 20, 50, 100, 200, 500, 1000] %}
+      <option value="{{ option }}" {% if limit == option %}selected{% endif %}>{{ option }}</option>
+      {% endfor %}
+    </select>
+  </div>
+</div>
+<!-- Alerts as Cards -->
+<div class="row g-4">
+  {% for alert in alerts %}
+  {% set severity_color = {
+    'critical': 'danger',
+    'high': 'warning',
+    'medium': 'info',
+    'low': 'success'
+  }[alert.severity_label.lower()] %}
 
-  <!-- Tactical Table -->
-  <div class="table-responsive mb-4">
-    <table class="tactical-table">
-      <thead>
-        <tr>
-          <th></th>
-          <th>ID</th>
-          <th>Message</th>
-          <th>Severity</th>
-          <th>Status</th>
-          <th>Resolution</th>
-          <th>Agent</th>
-          <th>Tags</th>
-          <th>Created</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for alert in alerts %}
-        <tr id="card-{{ alert.id }}">
-          <td>
+  {% set status_color = {
+    'new': 'danger',
+    'in_progress': 'warning',
+    'done': 'success'
+  }[alert.status.lower()] %}
+
+  {% set severity_icon = {
+    'critical': '🔴',
+    'high': '🟠',
+    'medium': '🔵',
+    'low': '🟢'
+  }[alert.severity_label.lower()] %}
+
+  {% set resolution_labels = {
+    'not_applicable': 'Not Applicable',
+    'false_positive': 'False Positive',
+    'true_positive_without_impact': 'True Positive (No Impact)',
+    'true_positive_with_impact': 'True Positive (With Impact)',
+    'legitimate': 'Legitimate',
+    'unknown': 'Unknown',
+    'under_investigation': 'Under Investigation'
+  } %}
+  <div class="col-12">
+    <div class="card shadow-sm border-start border-{{ severity_color }} border-4">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div>
+            <h6 class="mb-0">
+              {{ severity_icon }}
+              <a href="/web/v1/alerts/{{ alert.id }}" class="text-decoration-none text-{{ severity_color }}">#{{ alert.id }}</a>
+              — {{ alert.message }}
+            </h6>
+          </div>
+          <div>
             <input class="form-check-input alert-checkbox" type="checkbox" value="{{ alert.id }}">
-          </td>
-          <td>
-            <a href="/web/v1/alerts/{{ alert.id }}" class="tactical-link">#{{ alert.id }}</a>
-          </td>
-          <td>{{ alert.message }}</td>
-          <td>
-            <span class="badge severity-{{ alert.severity_label|lower }}">{{ alert.severity_label }}</span>
-          </td>
-          <td>
-            <span class="badge status-{{ alert.status|lower }}">{{ alert.status.replace('_', ' ')|title }}</span>
-          </td>
-          <td>{{ alert.resolution.replace('_', ' ') if alert.resolution else '—' }}</td>
-            <td>
-                {% if alert.parsed_fields.agent or alert.parsed_fields.agent_name %}
-                <a href="/web/v1/agents/{{ alert.parsed_fields.agent or alert.parsed_fields.agent_name }}"
-                   class="badge agent-badge">
-                    {{ alert.parsed_fields.agent or alert.parsed_fields.agent_name }}
-                </a>
-                {% else %}
-                <span class="text-muted">—</span>
-                {% endif %}
-            </td>
-          <td>
+          </div>
+        </div>
+
+        <div class="row gy-2 small">
+          <div class="col-md-3">
+            <strong>Severity:</strong>
+            <span class="badge bg-{{ severity_color }}">{{ alert.severity_label }}</span>
+          </div>
+          <div class="col-md-3">
+            <strong>Status:</strong>
+            <span class="badge bg-{{ status_color }}">{{ alert.status.replace('_', ' ')|title }}</span>
+          </div>
+          <div class="col-md-3">
+            <strong>Resolution:</strong>
+            <span>
+              {{ resolution_labels[alert.resolution] if alert.resolution in resolution_labels else '—' }}
+            </span>
+          </div>
+          <div class="col-md-3">
+            <strong>Created:</strong> {{ alert.created_at_formatted }}
+          </div>
+          <div class="col-md-3">
+            <strong>Agent:</strong>
+            {% if alert.parsed_fields.agent or alert.parsed_fields.agent_name %}
+              <a href="/web/v1/agents/{{ alert.parsed_fields.agent or alert.parsed_fields.agent_name }}"
+                 class="badge bg-dark text-light text-decoration-none">
+                {{ alert.parsed_fields.agent or alert.parsed_fields.agent_name }}
+              </a>
+            {% else %}
+              <span>—</span>
+            {% endif %}
+          </div>
+          <div class="col-md-9">
+            <strong>Tags:</strong>
             {% if alert.tags %}
               {% for tag in alert.tags.split(',') %}
-              <span class="badge bg-secondary">{{ tag.strip() }}</span>
+                <span class="badge bg-secondary me-1">{{ tag.strip() }}</span>
               {% endfor %}
             {% else %}
               —
             {% endif %}
-          </td>
-          <td>{{ alert.created_at_formatted }}</td>
-          <td>
-            <a href="/web/v1/alerts/{{ alert.id }}" class="btn btn-sm btn-outline-primary">🔍 View</a>
-            <button class="btn btn-sm btn-outline-info" onclick="openEditModal('{{ alert.id }}')">✏️ Edit</button>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end mt-3">
+          <div class="btn-group btn-group-sm">
+            <a href="/web/v1/alerts/{{ alert.id }}" class="btn btn-outline-primary">🔍 View</a>
+            <button class="btn btn-outline-info" onclick="openEditModal('{{ alert.id }}')">✏️ Edit</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
+  {% endfor %}
+</div>
+
 
   <!-- Pagination -->
   {% if alerts %}
-  <nav aria-label="Pagination">
+  <nav class="mt-4" aria-label="Pagination">
     <ul class="pagination justify-content-center">
       {% if pagination.show_prev %}
       <li class="page-item">
@@ -144,9 +180,7 @@
 
       {% if end_page < total %}
       <li class="page-item disabled"><span class="page-link">…</span></li>
-      <li class="page-item">
-        <a class="page-link" href="?page={{ total }}&{{ pagination.query_string }}">Last</a>
-      </li>
+      <li class="page-item"><a class="page-link" href="?page={{ total }}&{{ pagination.query_string }}">Last</a></li>
       {% endif %}
 
       {% if pagination.show_next %}
@@ -160,152 +194,142 @@
 
 </div>
 
+
+
+
 {% include "alerts/_bulk_modal.html" %}
 {% include "alerts/_filter_modal.html" %}
 {% include "alerts/_merge_alerts.html" %}
 
-
 <script>
-document.getElementById("mergeActionSelect").addEventListener("change", function () {
+  // Case merging logic
+  document.getElementById("mergeActionSelect").addEventListener("change", function () {
     const newFields = document.getElementById("newCaseFields");
     const existingSelector = document.getElementById("existingCaseSelector");
-
     const titleInput = document.getElementById("case_title");
     const descriptionInput = document.getElementById("case_description");
 
     if (this.value === "new_case") {
-        newFields.classList.remove("d-none");
-        existingSelector.classList.add("d-none");
-
-        titleInput.required = true;
-        descriptionInput.required = false;
-
-    } else if (this.value === "existing_case") {
-        newFields.classList.add("d-none");
-        existingSelector.classList.remove("d-none");
-
-        titleInput.required = false;
-        descriptionInput.required = false;
+      newFields.classList.remove("d-none");
+      existingSelector.classList.add("d-none");
+      titleInput.required = true;
+    } else {
+      newFields.classList.add("d-none");
+      existingSelector.classList.remove("d-none");
+      titleInput.required = false;
     }
-});
+  });
 
-
-// Before submitting the merge form, inject selected alerts
-document.getElementById("merge-alerts-form").addEventListener("submit", function (e) {
+  // Merge alerts form submit handler
+  document.getElementById("merge-alerts-form").addEventListener("submit", function (e) {
     const selected = Array.from(document.querySelectorAll(".alert-checkbox:checked"))
-        .map(cb => cb.value);
+      .map(cb => cb.value);
 
     if (selected.length === 0) {
-        e.preventDefault();
-        alert("Please select at least one alert to merge.");
-        return;
+      e.preventDefault();
+      alert("Please select at least one alert to merge.");
+      return;
     }
 
     document.getElementById("mergeAlertIds").value = selected.join(",");
-});
+  });
 
-    /**
-     * Submit filter form and log the constructed filter URL.
-     */
-    document.querySelector("#filterModal form").addEventListener("submit", function (e) {
-        const form = e.target;
-        const params = new URLSearchParams(new FormData(form));
-        console.log("Submitting filter URL:", `/web/v1/alerts?${params.toString()}`);
+  // Submit filter form with logging
+  document.querySelector("#filterModal form").addEventListener("submit", function (e) {
+    const params = new URLSearchParams(new FormData(this));
+    console.log("Submitting filter URL:", `/web/v1/alerts?${params.toString()}`);
+  });
+
+  // Limit selector
+  const limitSelect = document.getElementById("limitSelect");
+  if (limitSelect) {
+    limitSelect.addEventListener("change", function () {
+      const params = new URLSearchParams(window.location.search);
+      params.set("limit", this.value);
+      params.set("page", "1");
+      window.location.search = params.toString();
+    });
+  }
+
+  // Selection update for card UI
+  function updateSelectionUI() {
+    const checkboxes = document.querySelectorAll(".alert-checkbox");
+    let selectedCount = 0;
+
+    checkboxes.forEach(cb => {
+      const card = cb.closest(".card");
+      if (cb.checked) {
+        selectedCount++;
+        card.classList.add("border-opacity-100");
+        card.classList.add("bg-body-tertiary");
+      } else {
+        card.classList.remove("border-opacity-100");
+        card.classList.remove("bg-body-tertiary");
+      }
     });
 
-    /**
-     * Handle "alerts per page" selection changes.
-     * Resets page to 1 and updates the query params.
-     */
-    document.getElementById("limitSelect").addEventListener("change", function () {
-        const params = new URLSearchParams(window.location.search);
-        params.set('limit', this.value);
-        params.set('page', '1');
-        window.location.search = params.toString();
+    const countDisplay = document.getElementById("selected-count");
+    if (countDisplay) {
+      countDisplay.textContent = `${selectedCount} alert${selectedCount === 1 ? '' : 's'} selected`;
+    }
+  }
+
+  // Attach listeners to checkboxes
+  document.querySelectorAll(".alert-checkbox").forEach(cb =>
+    cb.addEventListener("change", updateSelectionUI)
+  );
+
+  // Select All checkbox
+  const selectAll = document.getElementById("select-all-visible");
+  if (selectAll) {
+    selectAll.addEventListener("change", function () {
+      const checkboxes = document.querySelectorAll(".alert-checkbox");
+      checkboxes.forEach(cb => {
+        cb.checked = this.checked;
+      });
+      updateSelectionUI();
     });
+  }
 
-    /**
-     * Update UI when alerts are selected or deselected.
-     * Highlights selected cards and updates the selected count.
-     */
-    function updateSelectionUI() {
-        const checkboxes = document.querySelectorAll(".alert-checkbox");
-        let selectedCount = 0;
+  // Bulk action form submission
+  document.getElementById("bulkActionForm").addEventListener("submit", function (e) {
+    e.preventDefault();
 
-        checkboxes.forEach(cb => {
-            const row = cb.closest("tr");
-            if (cb.checked) {
-                selectedCount++;
-                row.classList.add("selected-alert");
-            } else {
-                row.classList.remove("selected-alert");
-            }
-        });
+    const selectedIds = Array.from(
+      document.querySelectorAll(".alert-checkbox:checked")
+    ).map(cb => cb.value);
 
-        document.getElementById("selected-count").textContent = `${selectedCount} alert${selectedCount === 1 ? '' : 's'} selected`;
+    if (selectedIds.length === 0) {
+      alert("No alerts selected.");
+      return;
     }
 
-    /**
-     * Bind individual checkbox selection handlers.
-     */
-    document.querySelectorAll(".alert-checkbox").forEach(cb =>
-        cb.addEventListener("change", updateSelectionUI)
-    );
+    document.getElementById("selectedAlertIds").value = selectedIds.join(",");
+    this.submit();
+  });
 
-    /**
-     * Handle "Select All" checkbox functionality.
-     * Selects/deselects all visible alert checkboxes.
-     */
-    document.getElementById("select-all-visible").addEventListener("change", function () {
-        const checked = this.checked;
-        document.querySelectorAll(".alert-checkbox").forEach(cb => {
-            cb.checked = checked;
-        });
-        updateSelectionUI();
-    });
-    /**
-     * Handle bulk action form submission.
-     * Validates selection and sets hidden input with alert IDs.
-     */
-    document.getElementById("bulkActionForm").addEventListener("submit", function (e) {
-        e.preventDefault();
+  // Clear filter logic
+  document.getElementById("clearFiltersBtn").addEventListener("click", function () {
+    window.location.href = "/web/v1/alerts";
+  });
 
-        const selectedIds = Array.from(
-            document.querySelectorAll(".alert-checkbox:checked")
-        ).map(cb => cb.value);
-
-        if (selectedIds.length === 0) {
-            alert("No alerts selected.");
-            return;
-        }
-
-        document.getElementById("selectedAlertIds").value = selectedIds.join(",");
-        this.submit(); // Proceed with form submission
+  // Open single alert in edit modal
+  function openEditModal(alertId) {
+    document.querySelectorAll(".alert-checkbox").forEach(cb => {
+      cb.checked = cb.value === alertId;
     });
 
-    /**
-     * Clears filters by redirecting to the base alerts URL.
-     */
-    document.getElementById("clearFiltersBtn").addEventListener("click", function () {
-        window.location.href = '/web/v1/alerts';
-    });
+    document.getElementById("selectedAlertIds").value = alertId;
 
-    /**
-     * Open edit modal for a single alert.
-     * Automatically checks the alert and updates modal content.
-     */
-    function openEditModal(alertId) {
-        document.querySelectorAll(".alert-checkbox").forEach(cb => {
-            cb.checked = cb.value === alertId;
-        });
-
-        document.getElementById("selectedAlertIds").value = alertId;
-        document.getElementById("selected-count").textContent = `1 alert selected`;
-
-        const bulkModal = new bootstrap.Modal(document.getElementById('bulkModal'));
-        bulkModal.show();
+    const selectedCountDisplay = document.getElementById("selected-count");
+    if (selectedCountDisplay) {
+      selectedCountDisplay.textContent = "1 alert selected";
     }
+
+    updateSelectionUI();
+    const modal = new bootstrap.Modal(document.getElementById("bulkModal"));
+    modal.show();
+  }
 </script>
-
 
 {% endblock %}

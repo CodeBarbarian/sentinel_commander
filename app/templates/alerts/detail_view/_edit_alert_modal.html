@@ -1,0 +1,46 @@
+<div class="modal fade" id="editAlertModal" tabindex="-1" aria-labelledby="editAlertModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <form method="post" action="/web/v1/alerts/{{ alert.id }}/update" class="modal-content bg-dark text-white border border-secondary">
+      <div class="modal-header border-0">
+        <h5 class="modal-title" id="editAlertModalLabel">Edit Alert #{{ alert.id }}</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="mb-3">
+          <label for="status" class="form-label fw-semibold">Status</label>
+          <select class="form-select bg-dark text-white border-secondary" name="status" id="status">
+            <option value="">-- No Change --</option>
+            <option value="new">New</option>
+            <option value="in_progress">In Progress</option>
+            <option value="done">Done</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label for="resolution" class="form-label fw-semibold">Resolution</label>
+          <select class="form-select bg-dark text-white border-secondary" name="resolution" id="resolution">
+            <option value="">-- No Change --</option>
+            <option value="under_investigation">Under Investigation</option>
+            <option value="false_positive">False Positive</option>
+            <option value="true_positive_no_impact">TP (No Impact)</option>
+            <option value="true_positive_with_impact">TP (Impact)</option>
+            <option value="not_applicable">Not Applicable</option>
+            <option value="legitimate">Legitimate</option>
+            <option value="unknown">Unknown</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label for="resolution_comment" class="form-label fw-semibold">Resolution Comment</label>
+          <textarea class="form-control bg-dark text-white border-secondary" name="resolution_comment" id="resolution_comment" rows="4">{{ alert.resolution_comment or '' }}</textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer border-0">
+        <button type="submit" class="btn btn-success btn-sm">💾 Save Changes</button>
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>

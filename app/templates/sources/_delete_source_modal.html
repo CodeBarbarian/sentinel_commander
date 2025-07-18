@@ -1,20 +1,22 @@
 {% for source in sources %}
 <!-- Delete Confirmation Modal -->
 <div class="modal fade" id="deleteSourceModal-{{ source.guid }}" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content border border-danger">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-light border border-danger shadow">
             <form method="post" action="/web/v1/sources/{{ source.guid }}/delete">
-                <div class="modal-header">
+                <div class="modal-header border-bottom border-danger">
                     <h5 class="modal-title text-danger">Delete Source</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    Are you sure you want to delete the source <strong>{{ source.display_name }}</strong>?
-                    <p class="tactical-muted mt-2 mb-0">This action cannot be undone.</p>
+                    <p class="mb-2">
+                        Are you sure you want to delete the source <strong>{{ source.display_name }}</strong>?
+                    </p>
+                    <p class="small text-danger mb-0">This action cannot be undone.</p>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-outline-danger">Delete Source</button>
+                <div class="modal-footer border-top border-danger">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-outline-danger btn-sm">Delete Source</button>
                 </div>
             </form>
         </div>

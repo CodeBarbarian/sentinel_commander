@@ -3,88 +3,96 @@
 
 {% block content %}
 <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4 class="tactical-heading mb-0">📄 {{ list.name }}</h4>
-        <a href="/web/v1/sentineliq/publisher" class="btn btn-sm btn-outline-secondary">← Back to Lists</a>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="text-light mb-0">📄 {{ list.name }}</h4>
+    <a href="/web/v1/sentineliq/publisher" class="btn btn-sm btn-outline-secondary">← Back to Lists</a>
+  </div>
+
+  <div class="card bg-dark border border-secondary shadow-sm mb-4">
+    <div class="card-body">
+      <p class="mb-1 text-light">{{ list.description or "No description provided." }}</p>
+      <p class="mb-0 small text-light">GUID: <code>{{ list.guid }}</code> | Type: <span class="badge bg-info text-dark text-uppercase">{{ list.list_type }}</span></p>
     </div>
+  </div>
 
-    <p class="text-muted">{{ list.description or "No description provided." }}</p>
-    <p class="small text-muted">GUID: <code>{{ list.guid }}</code> | Type: <strong>{{ list.list_type }}</strong></p>
+  <!-- Add Entry -->
+  <form class="row g-2 mb-4" method="post" action="/web/v1/sentineliq/publisher/{{ list.id }}/entries/add">
+    <div class="col-md-6">
+      <input type="text" name="value" class="form-control border-secondary" placeholder="Enter value" required>
+    </div>
+    <div class="col-md-4">
+      <input type="text" name="comment" class="form-control border-secondary" placeholder="Comment (optional)">
+    </div>
+    <div class="col-md-2">
+      <button type="submit" class="btn btn-sm btn-outline-success w-100">➕ Add</button>
+    </div>
+  </form>
 
-    <!-- Add Entry -->
-    <form class="row g-2 mb-4" method="post" action="/web/v1/sentineliq/publisher/{{ list.id }}/entries/add">
-        <div class="col-md-6">
-            <input type="text" name="value" class="form-control" placeholder="Enter value" required>
-        </div>
-        <div class="col-md-4">
-            <input type="text" name="comment" class="form-control" placeholder="Comment (optional)">
-        </div>
-        <div class="col-md-2">
-            <button type="submit" class="btn btn-sm btn-outline-success w-100">➕ Add</button>
-        </div>
-    </form>
-
-    {% if entries %}
-    <div class="table-responsive">
-        <table class="table table-sm table-dark table-striped align-middle">
-            <thead>
+  {% if entries %}
+  <div class="card bg-dark border border-secondary shadow-sm">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-dark table-hover table-sm align-middle mb-0">
+          <thead class="border-bottom border-secondary text-light">
             <tr>
-                <th>Value</th>
-                <th>Comment</th>
-                <th>Created</th>
-                <th>Actions</th>
+              <th>Value</th>
+              <th>Comment</th>
+              <th>Created</th>
+              <th>Actions</th>
             </tr>
-            </thead>
-            <tbody>
+          </thead>
+          <tbody>
             {% for e in entries %}
             <tr>
-                <td class="font-monospace">{{ e.value }}</td>
-                <td>{{ e.comment or "—" }}</td>
-                <td>{{ e.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
-                <td>
-                    <button class="btn btn-sm btn-outline-warning"
-                            data-bs-toggle="modal"
-                            data-bs-target="#editEntryModal"
-                            data-id="{{ e.id }}"
-                            data-value="{{ e.value }}"
-                            data-comment="{{ e.comment or '' }}">
-                        ✏️ Edit
-                    </button>
-
-                    <button class="btn btn-sm btn-outline-danger"
-                            data-bs-toggle="modal"
-                            data-bs-target="#deleteEntryModal"
-                            data-id="{{ e.id }}"
-                            data-value="{{ e.value }}">
-                        🗑 Delete
-                    </button>
-                </td>
+              <td class="font-monospace text-light">{{ e.value }}</td>
+              <td class="text-light">{{ e.comment or "—" }}</td>
+              <td class="text-light">{{ e.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+              <td class="d-flex flex-wrap gap-1">
+                <button class="btn btn-sm btn-outline-warning"
+                        data-bs-toggle="modal"
+                        data-bs-target="#editEntryModal"
+                        data-id="{{ e.id }}"
+                        data-value="{{ e.value }}"
+                        data-comment="{{ e.comment or '' }}">
+                  ✏️ Edit
+                </button>
+                <button class="btn btn-sm btn-outline-danger"
+                        data-bs-toggle="modal"
+                        data-bs-target="#deleteEntryModal"
+                        data-id="{{ e.id }}"
+                        data-value="{{ e.value }}">
+                  🗑 Delete
+                </button>
+              </td>
             </tr>
             {% endfor %}
-            </tbody>
+          </tbody>
         </table>
+      </div>
     </div>
-    {% else %}
-    <p class="text-muted">No entries in this list yet.</p>
-    {% endif %}
+  </div>
+  {% else %}
+  <p class="fst-italic text-secondary">No entries in this list yet.</p>
+  {% endif %}
 </div>
 
+<!-- Edit Entry Modal -->
 <div class="modal fade" id="editEntryModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
-    <div class="modal-content">
+    <div class="modal-content bg-dark text-light border border-secondary">
       <form id="editEntryForm" method="post">
         <div class="modal-header">
           <h5 class="modal-title">✏️ Edit Entry</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <div class="mb-3">
             <label class="form-label">Value</label>
-            <input type="text" class="form-control" name="value" id="editEntryValue" required>
+            <input type="text" class="form-control bg-dark text-light border-secondary" name="value" id="editEntryValue" required>
           </div>
           <div class="mb-3">
             <label class="form-label">Comment</label>
-            <input type="text" class="form-control" name="comment" id="editEntryComment">
+            <input type="text" class="form-control bg-dark text-light border-secondary" name="comment" id="editEntryComment">
           </div>
         </div>
         <div class="modal-footer">
@@ -96,17 +104,18 @@
   </div>
 </div>
 
+<!-- Delete Entry Modal -->
 <div class="modal fade" id="deleteEntryModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
-    <div class="modal-content">
+    <div class="modal-content bg-dark text-light border border-secondary">
       <form id="deleteEntryForm" method="post">
         <div class="modal-header">
           <h5 class="modal-title text-danger">Confirm Entry Deletion</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           Are you sure you want to delete this entry?<br>
-          <code id="deleteEntryValue"></code>
+          <code id="deleteEntryValue" class="text-danger"></code>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -143,5 +152,4 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 </script>
-
 {% endblock %}
