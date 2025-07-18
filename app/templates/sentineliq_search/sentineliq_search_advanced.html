@@ -3,114 +3,115 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h3 class="tactical-heading mb-3">🔬 Advanced Search</h3>
+  <div class="card bg-dark border border-secondary shadow-sm">
+    <div class="card-body">
+      <h4 class="text-light mb-3">🔬 Advanced Search</h4>
 
-    <!-- Saved Searches -->
-    <div class="mb-4">
-        <label for="savedSearches" class="form-label">📁 Load Saved Search</label>
+      <!-- Saved Searches -->
+      <div class="mb-4">
+        <label for="savedSearches" class="form-label text-light">📁 Load Saved Search</label>
         <div class="d-flex gap-2">
-            <select id="savedSearches" class="form-select">
-                <option value="">— Select —</option>
-                {% for s in saved_searches %}
-                <option value="{{ s.query_string }}" data-id="{{ s.id }}">{{ s.name }}</option>
-                {% endfor %}
+          <select id="savedSearches" class="form-select bg-dark text-light border-secondary">
+            <option value="">— Select —</option>
+            {% for s in saved_searches %}
+            <option value="{{ s.query_string }}" data-id="{{ s.id }}">{{ s.name }}</option>
+            {% endfor %}
+          </select>
+          <button class="btn btn-outline-info" id="loadSearch">🔄 Load</button>
+          <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteSearchModal">🗑️ Delete</button>
+        </div>
+      </div>
+
+      <!-- Form -->
+      <form method="get" action="/web/v1/sentineliq/search" id="searchForm">
+        <div class="row g-3">
+          <!-- Keyword -->
+          <div class="col-md-6">
+            <label for="q" class="form-label text-light">Keyword</label>
+            <input type="text" class="form-control bg-dark text-light border-secondary" id="q" name="q" placeholder="Enter keyword..." required>
+          </div>
+
+          <!-- Search Type -->
+          <div class="col-md-6">
+            <label for="type" class="form-label text-light">Search Type</label>
+            <select class="form-select bg-dark text-light border-secondary" id="type" name="type">
+              <option value="">All</option>
+              <option value="alert">Alerts</option>
+              <option value="case">Cases</option>
+              <option value="customer">Customers</option>
+              <option value="asset">Assets</option>
+              <option value="ioc">IOCs</option>
+              <option value="publisher_list">Publisher Lists</option>
+              <option value="publisher_entry">Publisher Entries</option>
             </select>
-            <button class="btn btn-outline-primary" id="loadSearch">🔄 Load</button>
-            <!-- Delete Button -->
-            <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteSearchModal">
-                🗑️ Delete
-            </button>
-        </div>
-    </div>
+          </div>
 
-    <form method="get" action="/web/v1/sentineliq/search" class="bg-dark p-4 rounded border border-secondary"
-          id="searchForm">
+          <!-- Tags -->
+          <div class="col-md-6">
+            <label for="tags" class="form-label text-light">Tags</label>
+            <input type="text" class="form-control bg-dark text-light border-secondary" id="tags" name="tags" placeholder="Comma-separated tags">
+          </div>
 
-        <!-- Keyword -->
-        <div class="mb-3">
-            <label for="q" class="form-label">Keyword</label>
-            <input type="text" class="form-control" id="q" name="q" placeholder="Enter keyword..." required>
-        </div>
-
-        <!-- Type Selector -->
-        <div class="mb-3">
-            <label for="type" class="form-label">Search Type</label>
-            <select class="form-select" id="type" name="type">
-                <option value="">All</option>
-                <option value="alert">Alerts</option>
-                <option value="case">Cases</option>
-                <option value="customer">Customers</option>
-                <option value="asset">Assets</option>
-                <option value="ioc">IOCs</option>
-                <option value="publisher_list">Publisher Lists</option>
-                <option value="publisher_entry">Publisher Entries</option>
-            </select>
-        </div>
-
-        <!-- Tags -->
-        <div class="mb-3">
-            <label for="tags" class="form-label">Tags</label>
-            <input type="text" class="form-control" id="tags" name="tags" placeholder="comma-separated tags">
-        </div>
-
-        <!-- Date Range -->
-        <div class="mb-3">
-            <label class="form-label">Created Between</label>
+          <!-- Date Range -->
+          <div class="col-md-6">
+            <label class="form-label text-light">Created Between</label>
             <div class="d-flex gap-2">
-                <input type="date" class="form-control" name="start" id="start">
-                <input type="date" class="form-control" name="end" id="end">
+              <input type="date" class="form-control bg-dark text-light border-secondary" name="start" id="start">
+              <input type="date" class="form-control bg-dark text-light border-secondary" name="end" id="end">
             </div>
-        </div>
+          </div>
 
-        <!-- Result Limit -->
-        <div class="mb-3">
-            <label for="limit" class="form-label">Result Limit</label>
-            <select class="form-select" id="limit" name="limit">
-                <option value="20" selected>20</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
-                <option value="200">200</option>
+          <!-- Result Limit -->
+          <div class="col-md-6">
+            <label for="limit" class="form-label text-light">Result Limit</label>
+            <select class="form-select bg-dark text-light border-secondary" id="limit" name="limit">
+              <option value="20" selected>20</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+              <option value="200">200</option>
             </select>
+          </div>
         </div>
 
-        <div class="d-flex justify-content-between">
-            <button type="submit" class="btn btn-outline-success">🔍 Search</button>
-            <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal"
-                    data-bs-target="#saveSearchModal">💾 Save Search
-            </button>
+        <div class="d-flex justify-content-between align-items-center mt-4">
+          <button type="submit" class="btn btn-outline-success">🔍 Search</button>
+          <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#saveSearchModal">💾 Save Search</button>
         </div>
-    </form>
-</div>
-
-<!-- Save Modal -->
-<div class="modal fade" id="saveSearchModal" tabindex="-1" aria-labelledby="saveSearchModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <form class="modal-content" method="post" action="/web/v1/sentineliq/save_search">
-            <div class="modal-header">
-                <h5 class="modal-title" id="saveSearchModalLabel">💾 Save This Search</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <label for="searchName" class="form-label">Name</label>
-                <input type="text" class="form-control" id="searchName" name="name" required>
-                <input type="hidden" id="queryString" name="query_string">
-            </div>
-            <div class="modal-footer">
-                <button type="submit" class="btn btn-primary">✅ Save</button>
-            </div>
-        </form>
+      </form>
     </div>
+  </div>
 </div>
-<!-- Delete Search Modal -->
-<div class="modal fade" id="deleteSearchModal" tabindex="-1" aria-labelledby="deleteSearchModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <form class="modal-content" id="deleteSearchForm">
+
+<!-- Save Search Modal -->
+<div class="modal fade" id="saveSearchModal" tabindex="-1" aria-labelledby="saveSearchModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <form class="modal-content bg-dark text-light border border-secondary" method="post" action="/web/v1/sentineliq/save_search">
       <div class="modal-header">
-        <h5 class="modal-title" id="deleteSearchModalLabel">🗑️ Confirm Delete</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <h5 class="modal-title">💾 Save This Search</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <p>Are you sure you want to delete the saved search <strong id="deleteSearchName">this search</strong>?</p>
+        <label for="searchName" class="form-label">Name</label>
+        <input type="text" class="form-control bg-dark text-light border-secondary" id="searchName" name="name" required>
+        <input type="hidden" id="queryString" name="query_string">
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-success">✅ Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Delete Search Modal -->
+<div class="modal fade" id="deleteSearchModal" tabindex="-1" aria-labelledby="deleteSearchModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <form class="modal-content bg-dark text-light border border-secondary" id="deleteSearchForm">
+      <div class="modal-header">
+        <h5 class="modal-title">🗑️ Confirm Delete</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete <strong id="deleteSearchName">this search</strong>?
         <input type="hidden" id="deleteSearchId">
       </div>
       <div class="modal-footer">
@@ -120,6 +121,7 @@
     </form>
   </div>
 </div>
+
 <script>
   // Load saved search
   document.getElementById("loadSearch").addEventListener("click", () => {
@@ -129,31 +131,28 @@
     }
   });
 
-  // Save current form query string before opening modal
+  // Save search: capture current query string
   document.getElementById("saveSearchModal").addEventListener("show.bs.modal", () => {
     const form = document.getElementById("searchForm");
     const params = new URLSearchParams(new FormData(form)).toString();
     document.getElementById("queryString").value = params;
   });
 
-  // Setup delete modal data when saved search is selected
+  // Setup delete modal
   document.getElementById("savedSearches").addEventListener("change", function () {
     const selectedOption = this.options[this.selectedIndex];
     document.getElementById("deleteSearchName").innerText = selectedOption.text || "this search";
     document.getElementById("deleteSearchId").value = selectedOption.getAttribute("data-id") || "";
   });
 
-  // Handle confirmed deletion in modal
+  // Delete search
   document.getElementById("deleteSearchForm").addEventListener("submit", async function (e) {
     e.preventDefault();
-    const searchId = document.getElementById("deleteSearchId").value;
-    if (!searchId) return;
+    const id = document.getElementById("deleteSearchId").value;
+    if (!id) return;
 
-    const response = await fetch(`/web/v1/sentineliq/search/saved/${searchId}`, {
-      method: "DELETE"
-    });
-
-    if (response.ok) {
+    const res = await fetch(`/web/v1/sentineliq/search/saved/${id}`, { method: "DELETE" });
+    if (res.ok) {
       bootstrap.Modal.getInstance(document.getElementById("deleteSearchModal")).hide();
       location.reload();
     } else {
@@ -161,5 +160,4 @@
     }
   });
 </script>
-
 {% endblock %}

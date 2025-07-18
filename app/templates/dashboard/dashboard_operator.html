@@ -26,7 +26,8 @@
             <a href="/web/v1/alerts?severity=critical" class="btn btn-outline-danger w-100 p-4">
                 🔴 <strong>Critical Alerts</strong>
                 <div class="mt-2">
-                    <span id="critical-alert-count" class="badge bg-danger fs-5">{{ critical_alerts_count or "n/a" }}</span>
+                    <span id="critical-alert-count"
+                          class="badge bg-danger fs-5">{{ critical_alerts_count or "n/a" }}</span>
                 </div>
             </a>
         </div>
@@ -34,7 +35,8 @@
             <a href="/web/v1/alerts?status=new" class="btn btn-outline-warning w-100 p-4">
                 🟡 <strong>Open Alerts</strong>
                 <div class="mt-2">
-                    <span id="open-alert-count" class="badge bg-warning text-dark fs-5">{{ open_alerts_count or "n/a" }}</span>
+                    <span id="open-alert-count"
+                          class="badge bg-warning text-dark fs-5">{{ open_alerts_count or "n/a" }}</span>
                 </div>
             </a>
         </div>
@@ -47,7 +49,7 @@
                 <div class="card-header bg-dark text-white">Alert Feed</div>
                 <div class="card-body">
                     <div id="intel-feed">
-                        <p>Real-time events loading...</p>
+                        <p class="text-muted">📡 Waiting for alerts...</p>
                     </div>
                 </div>
             </div>
@@ -75,45 +77,107 @@
         wsStatus.style.backgroundColor = "red";
     };
 
+function renderAlertCard(alert) {
+    // Severity to Bootstrap color and icon
+    let icon = "🟢", border = "border-success", titleClass = "text-success", severityColor = "success";
+    switch ((alert.severity || "").toLowerCase()) {
+        case "critical":
+            icon = "🔴";
+            border = "border-danger";
+            titleClass = "text-danger";
+            severityColor = "danger";
+            break;
+        case "high":
+            icon = "🟡";
+            border = "border-warning";
+            titleClass = "text-warning";
+            severityColor = "warning";
+            break;
+        case "medium":
+            icon = "🔵";
+            border = "border-info";
+            titleClass = "text-info";
+            severityColor = "info";
+            break;
+        case "low":
+            icon = "🟢";
+            border = "border-success";
+            titleClass = "text-success";
+            severityColor = "success";
+            break;
+    }
+
+    // Resolution label map
+    const resolutionLabels = {
+        "not_applicable": "Not Applicable",
+        "false_positive": "False Positive",
+        "true_positive_without_impact": "True Positive (No Impact)",
+        "true_positive_with_impact": "True Positive (With Impact)",
+        "legitimate": "Legitimate",
+        "unknown": "Unknown",
+        "under_investigation": "Under Investigation"
+    };
+    const resolutionRaw = (alert.resolution || "").toLowerCase();
+    const resolutionLabel = resolutionLabels[resolutionRaw] || alert.resolution || "—";
+
+    // Format status like title: "in_progress" → "In Progress"
+    const formatStatus = (status) => {
+        if (!status) return "—";
+        return status.replace(/_/g, " ").replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1));
+    };
+
+    // Status badge color map
+    const statusColors = {
+        "new": "danger",          // red
+        "in_progress": "info",    // blue
+        "done": "success"         // green
+    };
+    const statusRaw = (alert.status || "").toLowerCase();
+    const statusColor = statusColors[statusRaw] || "secondary";
+    const statusLabel = formatStatus(alert.status);
+
+    const item = document.createElement("div");
+    item.className = `alert-card border-start ${border} ps-3 mb-3`;
+    item.id = `alert-${alert.id}`;
+    item.innerHTML = `
+        <div class="fw-bold ${titleClass}">${icon} ${alert.id} - ${alert.severity?.toUpperCase() || "ALERT"}</div>
+        <div><strong>Message:</strong> ${alert.message || "—"}</div>
+        <div><strong>Status:</strong> <span class="badge bg-${statusColor}">${statusLabel}</span></div>
+        <div><strong>Resolution:</strong> <span class="badge bg-secondary">${resolutionLabel}</span></div>
+        <div class="small">${alert.created_at || ""}</div>
+        <hr class="my-2">
+    `;
+    return item;
+}
+
+
+
     socket.onmessage = function (event) {
         const data = JSON.parse(event.data);
         console.log("[Dashboard] Event received:", data);
 
+        if (data.type === "open_alerts_update") {
+            const intelFeed = document.getElementById("intel-feed");
+            intelFeed.innerHTML = "";  // Clear previous alerts
+
+            data.alerts.forEach(alert => {
+                const card = renderAlertCard(alert);
+                intelFeed.appendChild(card);
+            });
+        }
+
         if (data.type === "new_alert") {
             const intelFeed = document.getElementById("intel-feed");
-            const item = document.createElement("div");
-
-            let icon = "🟢", border = "border-success", titleClass = "text-success";
-            switch ((data.severity || "").toLowerCase()) {
-                case "critical":
-                    icon = "🔴";
-                    border = "border-danger";
-                    titleClass = "text-danger";
-                    break;
-                case "high":
-                    icon = "🟠";
-                    border = "border-warning";
-                    titleClass = "text-warning";
-                    break;
-                case "medium":
-                    icon = "🟡";
-                    border = "border-warning";
-                    titleClass = "text-warning";
-                    break;
-                case "low":
-                    icon = "🔵";
-                    border = "border-info";
-                    titleClass = "text-info";
-                    break;
-            }
-
-            item.className = `border-start ${border} ps-3 mb-3`;
-            item.innerHTML = `
-                <div class="fw-bold ${titleClass}">${icon} ${data.id} - ${data.severity?.toUpperCase() || "ALERT"}</div>
-                <div class="small">${data.message || "No message provided."}</div>
-                <hr class="my-2">
-            `;
-            intelFeed.prepend(item);
+            const alert = {
+                id: data.id,
+                severity: data.severity,
+                title: data.message || "No title",
+                status: "new",
+                resolution: "—",
+                created_at: new Date().toISOString()
+            };
+            const card = renderAlertCard(alert);
+            intelFeed.prepend(card);
         }
 
         if (data.type === "metrics") {
@@ -126,4 +190,5 @@
         }
     };
 </script>
+
 {% endblock %}

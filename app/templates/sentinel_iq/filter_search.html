@@ -1,0 +1,39 @@
+<form method="get" class="row g-2 mb-3 align-items-end">
+    <div class="col-sm-4">
+        <input type="text" name="q" class="form-control form-control-sm" placeholder="🔍 Search message"
+               value="{{ request.query_params.get('q', '') }}">
+    </div>
+    <div class="col-sm-3">
+        <select name="min_severity" class="form-select form-select-sm">
+            <option value="">Min Severity</option>
+            {% for level in [0, 4, 8, 12] %}
+            <option value="{{ level }}" {% if request.query_params.get(
+            'min_severity') == level|string %}selected{% endif %}>
+            ≥ {{ level }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-sm-3">
+        <select name="status" class="form-select form-select-sm">
+            <option value="">Any Status</option>
+            {% for s in ['new', 'in_progress'] %}
+            <option value="{{ s }}" {% if request.query_params.get(
+            'status') == s %}selected{% endif %}>{{ s.replace('_', ' ').capitalize() }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-sm-2 d-flex gap-2">
+        <button type="submit" class="btn btn-sm btn-outline-primary w-100">Apply Filters</button>
+        {% if request.query_params %}
+        <a href="/web/v1/sentineliq/triage" class="btn btn-sm btn-outline-secondary w-100">Clear</a>
+        {% endif %}
+    </div>
+    <div class="col-auto">
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" name="only_eligible" value="true" id="onlyEligibleToggle"
+                   {% if only_eligible %}checked{% endif %} onchange="this.form.submit()">
+            <label class="form-check-label text-light" for="onlyEligibleToggle">Only show triage-eligible</label>
+        </div>
+    </div>
+</form>

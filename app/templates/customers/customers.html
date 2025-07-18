@@ -2,155 +2,138 @@
 {% block title %}Customers - Sentinel Commander{% endblock %}
 
 {% block content %}
-<div class="card alert-card">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="tactical-heading">🛡️ Customer Management</h5>
-        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addCustomerModal">
-            + Add Customer
+<div class="container mt-4">
+  <div class="card bg-dark border border-secondary shadow-sm">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="text-light mb-0">🛡️ Customer Management</h5>
+        <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#addCustomerModal">
+          ➕ Add Customer
         </button>
-    </div>
+      </div>
 
-    {% if customers %}
-    <div class="table-responsive">
-        <table class="tactical-table">
-            <thead>
-            <tr class="tactical-table-header">
-                <th>Name</th>
-                <th>Description</th>
-                <th class="text-end">Actions</th>
+      {% if customers %}
+      <div class="table-responsive">
+        <table class="table table-dark table-sm table-hover align-middle mb-0 border border-secondary rounded">
+          <thead class="bg-body-tertiary text-light border-bottom border-secondary">
+            <tr>
+              <th>Name</th>
+              <th>Description</th>
+              <th class="text-end">Actions</th>
             </tr>
-            </thead>
-            <tbody>
+          </thead>
+          <tbody>
             {% for customer in customers %}
-            <tr class="{% if loop.index is even %}tactical-table-row{% else %}tactical-table-row-alt{% endif %} tactical-table-hover">
-                <td class="fw-semibold">{{ customer.name }}</td>
-                <td class="text-muted">{{ customer.description or "—" }}</td>
-                <td class="text-end">
-                    <a href="/web/v1/customers/{{ customer.id }}" class="btn btn-sm btn-outline-success me-1">
-                        View
-                    </a>
-                    <button
-                            type="button"
-                            class="btn btn-sm btn-outline-primary me-1"
-                            data-bs-toggle="modal"
-                            data-bs-target="#editCustomerModal"
-                            data-customer-id="{{ customer.id }}"
-                            data-customer-name="{{ customer.name }}"
-                            data-customer-description="{{ customer.description }}"
-                    >
-                        Edit
-                    </button>
-                    <button
-                            type="button"
-                            class="btn btn-sm btn-outline-danger"
-                            data-bs-toggle="modal"
-                            data-bs-target="#confirmDeleteModal"
-                            data-customer-id="{{ customer.id }}"
-                            data-customer-name="{{ customer.name }}"
-                    >
-                        Delete
-                    </button>
-                </td>
+            <tr>
+              <td class="fw-semibold text-light">{{ customer.name }}</td>
+              <td class="text-light">{{ customer.description or "—" }}</td>
+              <td class="text-end">
+                <a href="/web/v1/customers/{{ customer.id }}" class="btn btn-sm btn-outline-info me-1">🔍 View</a>
+                <button type="button"
+                        class="btn btn-sm btn-outline-primary me-1"
+                        data-bs-toggle="modal"
+                        data-bs-target="#editCustomerModal"
+                        data-customer-id="{{ customer.id }}"
+                        data-customer-name="{{ customer.name }}"
+                        data-customer-description="{{ customer.description }}">
+                  ✏️ Edit
+                </button>
+                <button type="button"
+                        class="btn btn-sm btn-outline-danger"
+                        data-bs-toggle="modal"
+                        data-bs-target="#confirmDeleteModal"
+                        data-customer-id="{{ customer.id }}"
+                        data-customer-name="{{ customer.name }}">
+                  🗑️ Delete
+                </button>
+              </td>
             </tr>
             {% endfor %}
-            </tbody>
+          </tbody>
         </table>
+      </div>
+      {% else %}
+      <div class="fst-italic text-secondary">No customers registered yet.</div>
+      {% endif %}
     </div>
-    {% else %}
-    <div class="text-muted">No customers registered yet.</div>
-    {% endif %}
+  </div>
 </div>
 
 <!-- Add Customer Modal -->
 <div class="modal fade" id="addCustomerModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <form method="post" action="/web/v1/customers/create" class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Add New Customer</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <input class="form-control mb-3" name="name" placeholder="Customer Name" required>
-                <textarea class="form-control" name="description" rows="3"
-                          placeholder="Description (optional)"></textarea>
-            </div>
-            <div class="modal-footer">
-                <button type="submit" class="btn btn-success">Create</button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-
-<!-- Delete Confirmation Modal -->
-<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <form method="post" action="/web/v1/customers/delete" class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Confirm Deletion</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Are you sure you want to delete <strong id="customerName"></strong>?</p>
-                <input type="hidden" name="customer_id" id="customerIdInput">
-            </div>
-            <div class="modal-footer">
-                <button type="submit" class="btn btn-danger">Confirm Delete</button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            </div>
-        </form>
-    </div>
+  <div class="modal-dialog modal-dialog-centered">
+    <form method="post" action="/web/v1/customers/create" class="modal-content bg-dark text-light border border-secondary">
+      <div class="modal-header">
+        <h5 class="modal-title">➕ Add New Customer</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input class="form-control mb-3 bg-dark text-light border-secondary" name="name" placeholder="Customer Name" required>
+        <textarea class="form-control bg-dark text-light border-secondary" name="description" rows="3" placeholder="Description (optional)"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-success">Create</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <!-- Edit Customer Modal -->
 <div class="modal fade" id="editCustomerModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <form method="post" action="/web/v1/customers/edit" class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Edit Customer</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" name="customer_id" id="editCustomerId">
-                <input class="form-control mb-3" name="name" id="editCustomerName" placeholder="Customer Name" required>
-                <textarea class="form-control" name="description" id="editCustomerDescription" rows="3"
-                          placeholder="Description (optional)"></textarea>
-            </div>
-            <div class="modal-footer">
-                <button type="submit" class="btn btn-primary">Update</button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            </div>
-        </form>
-    </div>
+  <div class="modal-dialog modal-dialog-centered">
+    <form method="post" action="/web/v1/customers/edit" class="modal-content bg-dark text-light border border-secondary">
+      <div class="modal-header">
+        <h5 class="modal-title">✏️ Edit Customer</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" name="customer_id" id="editCustomerId">
+        <input class="form-control mb-3 bg-dark text-light border-secondary" name="name" id="editCustomerName" required>
+        <textarea class="form-control bg-dark text-light border-secondary" name="description" id="editCustomerDescription" rows="3"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary">Update</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+    </form>
+  </div>
 </div>
 
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <form method="post" action="/web/v1/customers/delete" class="modal-content bg-dark text-light border border-secondary">
+      <div class="modal-header">
+        <h5 class="modal-title text-danger">Confirm Deletion</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete <strong id="customerName"></strong>?</p>
+        <input type="hidden" name="customer_id" id="customerIdInput">
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <script>
-    const deleteModal = document.getElementById('confirmDeleteModal');
-    deleteModal.addEventListener('show.bs.modal', function (event) {
-        const button = event.relatedTarget;
-        const customerId = button.getAttribute('data-customer-id');
-        const customerName = button.getAttribute('data-customer-name');
+  const deleteModal = document.getElementById('confirmDeleteModal');
+  deleteModal.addEventListener('show.bs.modal', function (event) {
+    const button = event.relatedTarget;
+    deleteModal.querySelector('#customerIdInput').value = button.dataset.customerId;
+    deleteModal.querySelector('#customerName').textContent = button.dataset.customerName;
+  });
 
-        deleteModal.querySelector('#customerIdInput').value = customerId;
-        deleteModal.querySelector('#customerName').textContent = customerName;
-    });
-
-    const editModal = document.getElementById('editCustomerModal');
-    editModal.addEventListener('show.bs.modal', function (event) {
-        const button = event.relatedTarget;
-        const id = button.getAttribute('data-customer-id');
-        const name = button.getAttribute('data-customer-name');
-        const description = button.getAttribute('data-customer-description');
-
-        editModal.querySelector('#editCustomerId').value = id;
-        editModal.querySelector('#editCustomerName').value = name || "";
-        editModal.querySelector('#editCustomerDescription').value = description || "";
-    });
+  const editModal = document.getElementById('editCustomerModal');
+  editModal.addEventListener('show.bs.modal', function (event) {
+    const button = event.relatedTarget;
+    editModal.querySelector('#editCustomerId').value = button.dataset.customerId;
+    editModal.querySelector('#editCustomerName').value = button.dataset.customerName || "";
+    editModal.querySelector('#editCustomerDescription').value = button.dataset.customerDescription || "";
+  });
 </script>
-
 {% endblock %}

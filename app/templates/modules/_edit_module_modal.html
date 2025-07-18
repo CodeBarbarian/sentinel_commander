@@ -1,0 +1,42 @@
+<div class="modal fade" id="editModuleModal{{ module.id }}" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-md modal-dialog-centered">
+    <div class="modal-content bg-dark text-white">
+      <form method="post" action="/web/v1/modules/update">
+        <div class="modal-header border-secondary">
+          <h5 class="modal-title">✏️ Edit Module</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="id" value="{{ module.id }}">
+          <div class="mb-3">
+            <label class="form-label">Name</label>
+            <input type="text" name="name" class="form-control" value="{{ module.name }}" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Module Type</label>
+            <select name="is_local" class="form-select" onchange="toggleEditFields({{ module.id }}, this.value)">
+              <option value="true" {% if module.is_local %}selected{% endif %}>Local</option>
+              <option value="false" {% if not module.is_local %}selected{% endif %}>Remote API</option>
+            </select>
+          </div>
+          <div class="mb-3 edit-local-{{ module.id }}"{% if not module.is_local %} style="display:none"{% endif %}>
+            <label class="form-label">Local Key</label>
+            <input type="text" name="local_key" class="form-control" value="{{ module.local_key or '' }}">
+          </div>
+          <div class="mb-3 edit-remote-{{ module.id }}"{% if module.is_local %} style="display:none"{% endif %}>
+            <label class="form-label">Remote URL</label>
+            <input type="url" name="remote_url" class="form-control" value="{{ module.remote_url or '' }}">
+          </div>
+          <div class="mb-3 edit-remote-{{ module.id }}"{% if module.is_local %} style="display:none"{% endif %}>
+            <label class="form-label">Remote API Key</label>
+            <input type="text" name="remote_api_key" class="form-control" value="{{ module.remote_api_key or '' }}">
+          </div>
+        </div>
+        <div class="modal-footer border-secondary">
+          <button type="submit" class="btn btn-sm btn-warning">Update</button>
+          <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

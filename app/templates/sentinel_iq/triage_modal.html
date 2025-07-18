@@ -1,0 +1,23 @@
+<div class="modal fade" id="triageAllModal" tabindex="-1" aria-labelledby="triageAllLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg"> <!-- Large modal -->
+    <div class="modal-content bg-dark text-light border border-secondary">
+      <div class="modal-header border-bottom border-secondary">
+        <h5 class="modal-title" id="triageAllLabel">🧠 Confirm Bulk Triage</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>
+          This will apply automated triage recommendations to
+          <strong>{{ triage_eligible_count }}</strong> eligible alert{{ 's' if triage_eligible_count != 1 }}.
+        </p>
+        <p class="mt-3 mb-0 text-warning">This action cannot be undone. Do you want to proceed?</p>
+      </div>
+      <div class="modal-footer border-top border-secondary">
+        <form method="post" action="/web/v1/sentineliq/triage/all" class="d-flex w-100 justify-content-between">
+          <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-sm btn-success">✅ Apply All</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

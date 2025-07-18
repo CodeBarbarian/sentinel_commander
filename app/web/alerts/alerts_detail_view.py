@@ -37,54 +37,9 @@ def safe_get_agent_name(payload: dict) -> str:
         return host
     return "—"
 
-@router.get("/alerts/{alert_id}", response_class=HTMLResponse)
-def alert_detail_view(
-    alert_id: int,
-    request: Request,
-    page: int = Query(1, ge=1),
-    message_page: int = Query(1, ge=1),
-    db: Session = Depends(get_db),
-    user=Depends(auth.get_current_user)
-):
-    alert = db.query(Alert).filter(Alert.id == alert_id).first()
-    if not alert:
-        return templates.TemplateResponse("404.html", {"request": request}, status_code=404)
 
-    try:
-        if isinstance(alert.source_payload, str):
-            source_payload_json = json.loads(alert.source_payload)
-        elif isinstance(alert.source_payload, dict):
-            source_payload_json = alert.source_payload
-        else:
-            source_payload_json = {}
-    except Exception as e:
-        source_payload_json = {"error": f"Invalid JSON: {str(e)}"}
-
-    try:
-        parsed = run_parser_for_type("alert", source_payload_json, db)
-        parsed_fields = parsed.get("mapped_fields", {})
-        parsed_tags = parsed.get("tags", [])
-        parsed_enrichment = parsed.get("enrichment", {})
-        parser_metadata = {
-            "parser_name": parsed.get("parser_name"),
-            "matched": parsed.get("matched", False)
-        }
-    except Exception as e:
-        parsed_fields = {"error": f"Parser failed: {str(e)}"}
-        parsed_tags = []
-        parsed_enrichment = {}
-        parser_metadata = {"parser_name": "unknown", "matched": False}
-
-    mitre_info = source_payload_json.get("rule", {}).get("mitre", {}) or {}
-    mitre_ids = mitre_info.get("id", []) if isinstance(mitre_info, dict) else []
-    mitre_tactics = mitre_info.get("tactic", []) if isinstance(mitre_info, dict) else []
-
-    page_size = 10
-    offset = (page - 1) * page_size
-
-    raw_agent = parsed_fields.get("agent_name") or parsed_fields.get("agent")
-    agent_name = raw_agent if isinstance(raw_agent, str) else None
-
+"""
+Should be added back when the database is ready to handle related alerts
     related_alerts = []
     total_related = 0
     total_pages = 1
@@ -163,6 +118,80 @@ def alert_detail_view(
                 r.parsed_agent = "—"
 
         total_pages_msg = max((total_related_msg + msg_page_size - 1) // msg_page_size, 1)
+        
+And in return
+        "related_alerts": related_alerts,
+        "related_total": total_related,
+        "related_page": page,
+        "related_pages": total_pages,
+        "related_alerts_by_message": related_alerts_by_message,
+        "related_total_msg": total_related_msg,
+        "related_page_msg": message_page,
+        "related_pages_msg": total_pages_msg,
+        
+        
+    Add back to HTML
+    <!--
+<div class="container-fluid my-4">
+ Related Alerts Pane
+{% include 'alerts/detail_view/related_alerts_pane.html' %}
+
+Edit Alert Modal
+{% include 'alerts/detail_view/_edit_alert_modal.html' %}
+</div>
+Search Result Modal
+{% include 'alerts/detail_view/_search_modal.html' %}
+-->        
+"""
+
+@router.get("/alerts/{alert_id}", response_class=HTMLResponse)
+def alert_detail_view(
+    alert_id: int,
+    request: Request,
+    page: int = Query(1, ge=1),
+    message_page: int = Query(1, ge=1),
+    db: Session = Depends(get_db),
+    user=Depends(auth.get_current_user)
+):
+    alert = db.query(Alert).filter(Alert.id == alert_id).first()
+    if not alert:
+        return templates.TemplateResponse("404.html", {"request": request}, status_code=404)
+
+    try:
+        if isinstance(alert.source_payload, str):
+            source_payload_json = json.loads(alert.source_payload)
+        elif isinstance(alert.source_payload, dict):
+            source_payload_json = alert.source_payload
+        else:
+            source_payload_json = {}
+    except Exception as e:
+        source_payload_json = {"error": f"Invalid JSON: {str(e)}"}
+
+    try:
+        parsed = run_parser_for_type("alert", source_payload_json, db)
+        parsed_fields = parsed.get("mapped_fields", {})
+        parsed_tags = parsed.get("tags", [])
+        parsed_enrichment = parsed.get("enrichment", {})
+        parser_metadata = {
+            "parser_name": parsed.get("parser_name"),
+            "matched": parsed.get("matched", False)
+        }
+    except Exception as e:
+        parsed_fields = {"error": f"Parser failed: {str(e)}"}
+        parsed_tags = []
+        parsed_enrichment = {}
+        parser_metadata = {"parser_name": "unknown", "matched": False}
+
+    mitre_info = source_payload_json.get("rule", {}).get("mitre", {}) or {}
+    mitre_ids = mitre_info.get("id", []) if isinstance(mitre_info, dict) else []
+    mitre_tactics = mitre_info.get("tactic", []) if isinstance(mitre_info, dict) else []
+
+    page_size = 10
+    offset = (page - 1) * page_size
+
+    raw_agent = parsed_fields.get("agent_name") or parsed_fields.get("agent")
+    agent_name = raw_agent if isinstance(raw_agent, str) else None
+
 
 
     return templates.TemplateResponse("alerts/alert_detail.html", {
@@ -173,14 +202,6 @@ def alert_detail_view(
         "parsed_enrichment": parsed_enrichment,
         "parser_metadata": parser_metadata,
         "source_payload_json": source_payload_json,
-        "related_alerts": related_alerts,
-        "related_total": total_related,
-        "related_page": page,
-        "related_pages": total_pages,
-        "related_alerts_by_message": related_alerts_by_message,
-        "related_total_msg": total_related_msg,
-        "related_page_msg": message_page,
-        "related_pages_msg": total_pages_msg,
         "mitre_ids": mitre_ids,
         "mitre_tactics": mitre_tactics,
         "mitre_info": mitre_info,

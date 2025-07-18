@@ -2,89 +2,75 @@
 {% block title %}Customer - {{ customer.name }}{% endblock %}
 
 {% block content %}
-<div class="card alert-card">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="tactical-heading mb-0">🧾 Customer Detail: {{ customer.name }}</h5>
-        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editDetailModal">
-            ✏️ Edit Details
+<div class="container mt-4">
+  <div class="card bg-dark border-secondary shadow-sm">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5 class="text-light mb-0">🧾 {{ customer.name }}</h5>
+        <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#editDetailModal">
+          ✏️ Edit
         </button>
-    </div>
+      </div>
 
-    <div class="row mb-3">
+      <div class="row mb-4">
         <div class="col-md-6">
-            <h6>📇 Contact</h6>
-            <p><strong>Name:</strong> {{ detail.contact_name or "—" }}</p>
-            <p><strong>Email:</strong> {{ detail.contact_email or "—" }}</p>
-            <p><strong>Phone:</strong> {{ detail.contact_phone or "—" }}</p>
+          <h6 class="text-secondary">📇 Contact</h6>
+          <p><strong>Name:</strong> {{ detail.contact_name or "—" }}</p>
+          <p><strong>Email:</strong> {{ detail.contact_email or "—" }}</p>
+          <p><strong>Phone:</strong> {{ detail.contact_phone or "—" }}</p>
         </div>
         <div class="col-md-6">
-            <h6>🏢 Address</h6>
-            <p>{{ detail.address or "—" }}</p>
+          <h6 class="text-secondary">🏢 Address</h6>
+          <p>{{ detail.address or "—" }}</p>
         </div>
-    </div>
+      </div>
 
-    <div class="row mb-3">
+      <div class="row mb-4">
         <div class="col-md-6">
-            <h6>📄 SLA</h6>
-            <p>{{ detail.sla or "—" }}</p>
+          <h6 class="text-secondary">📄 SLA</h6>
+          <p>{{ detail.sla or "—" }}</p>
         </div>
         <div class="col-md-6">
-            <h6>🔗 Dependencies</h6>
-            <p>{{ detail.dependencies or "—" }}</p>
+          <h6 class="text-secondary">🔗 Dependencies</h6>
+          <p>{{ detail.dependencies or "—" }}</p>
         </div>
-    </div>
+      </div>
 
-    <div>
-        <h6>📝 Additional Information</h6>
-        <div class="tactical-markdown-block">
-            {{ detail.notes or "No additional notes." }}
+      <div>
+        <h6 class="text-secondary">📝 Notes</h6>
+        <div class="bg-secondary bg-opacity-25 rounded p-3">
+          {{ detail.notes or "No additional notes." }}
         </div>
+      </div>
     </div>
+  </div>
 </div>
 
 <!-- Edit Detail Modal -->
 <div class="modal fade" id="editDetailModal" tabindex="-1" aria-labelledby="editDetailModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <form method="post" action="/web/v1/customers/{{ customer.id }}/details" class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">✏️ Edit Customer Detail</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body row g-3">
-                <div class="col-md-6">
-                    <label class="form-label">Contact Name</label>
-                    <input type="text" name="contact_name" class="form-control" value="{{ detail.contact_name or '' }}">
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">Contact Email</label>
-                    <input type="email" name="contact_email" class="form-control" value="{{ detail.contact_email or '' }}">
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">Contact Phone</label>
-                    <input type="text" name="contact_phone" class="form-control" value="{{ detail.contact_phone or '' }}">
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">Address</label>
-                    <input type="text" name="address" class="form-control" value="{{ detail.address or '' }}">
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">SLA</label>
-                    <input type="text" name="sla" class="form-control" value="{{ detail.sla or '' }}">
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">Dependencies</label>
-                    <input type="text" name="dependencies" class="form-control" value="{{ detail.dependencies or '' }}">
-                </div>
-                <div class="col-12">
-                    <label class="form-label">Additional Information</label>
-                    <textarea name="notes" class="form-control" rows="4">{{ detail.notes or '' }}</textarea>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="submit" class="btn btn-success">💾 Save</button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            </div>
-        </form>
-    </div>
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <form method="post" action="/web/v1/customers/{{ customer.id }}/details" class="modal-content bg-dark text-light border border-secondary">
+      <div class="modal-header">
+        <h5 class="modal-title">✏️ Edit Customer Detail</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body row g-3">
+        {% for field, label in fields.items() %}
+        <div class="col-md-6">
+          <label class="form-label">{{ label }}</label>
+          <input type="text" name="{{ field }}" class="form-control bg-dark text-light border-secondary" value="{{ values[field] }}">
+        </div>
+        {% endfor %}
+        <div class="col-12">
+          <label class="form-label">Additional Information</label>
+          <textarea name="notes" class="form-control bg-dark text-light border-secondary" rows="4">{{ detail.notes or '' }}</textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-success">💾 Save</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+    </form>
+  </div>
 </div>
 {% endblock %}

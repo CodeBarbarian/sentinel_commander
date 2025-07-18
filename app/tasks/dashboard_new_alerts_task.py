@@ -1,41 +1,46 @@
 import asyncio
 from sqlalchemy.orm import Session
+from sqlalchemy import desc
 from app.core.database import SessionLocal
 from app.utils.sockets.broadcast import broadcast_dashboard_event
-from sqlalchemy import desc
 from app.models.alert import Alert
 from app.utils.severity import SEVERITY_LABELS
+from fastapi.encoders import jsonable_encoder
 import logging
 
-async def broadcast_new_alerts_loop():
+async def broadcast_open_alerts_loop():
     logger = logging.getLogger(__name__)
-    latest_seen_id = None
 
     while True:
         try:
             db: Session = SessionLocal()
-            latest_alert = db.query(Alert).order_by(desc(Alert.id)).first()
 
-            if latest_alert:
-                if latest_seen_id is None:
-                    latest_seen_id = latest_alert.id
-                elif latest_alert.id > latest_seen_id:
-                    new_alerts = db.query(Alert).filter(Alert.id > latest_seen_id).order_by(Alert.id.asc()).all()
-                    for alert in new_alerts:
-                        severity_label = SEVERITY_LABELS.get(alert.severity, "Unknown")
+            open_alerts = (
+                db.query(Alert)
+                .filter(Alert.status != "done")
+                .order_by(desc(Alert.severity), desc(Alert.created_at))
+                .all()
+            )
 
-                        await broadcast_dashboard_event({
-                            "type": "new_alert",
-                            "id": alert.id,
-                            "severity": severity_label,  # Now a string!
-                            "message": alert.message or "No message",
-                        })
+            alert_list = []
+            for alert in open_alerts:
+                alert_list.append({
+                    "id": alert.id,
+                    "severity": SEVERITY_LABELS.get(alert.severity, "Unknown"),
+                    "message": alert.message,  # Use existing field!
+                    "status": alert.status,
+                    "resolution": alert.resolution,
+                    "created_at": alert.created_at.isoformat() if alert.created_at else None,
+                })
 
-                        latest_seen_id = max(latest_seen_id, alert.id)
+            await broadcast_dashboard_event({
+                "type": "open_alerts_update",
+                "alerts": alert_list
+            })
 
         except Exception as e:
-            logger.error("Error broadcasting new alerts:", e)
+            logger.exception("Error in broadcast_open_alerts_loop")
         finally:
             db.close()
 
-        await asyncio.sleep(1.0)
+        await asyncio.sleep(5)  # Or 10 seconds if less frequent updates are fine

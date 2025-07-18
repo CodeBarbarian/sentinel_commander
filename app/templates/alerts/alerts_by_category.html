@@ -2,9 +2,9 @@
 {% block title %}Alerts - Category: {{ category }}{% endblock %}
 
 {% block content %}
-<div class="container-fluid mt-4">
+<div class="container-fluid my-4">
 
-  <div class="d-flex justify-content-between align-items-center mb-3">
+  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
     <h4 class="mb-0">📂 Alerts in Category: <span class="text-info">{{ category }}</span></h4>
     <div class="d-flex gap-2">
       <a href="/web/v1/alerts/category" class="btn btn-sm btn-outline-secondary">
@@ -22,12 +22,12 @@
     </div>
   </div>
 
-  <div class="card bg-dark text-light border border-secondary shadow-sm">
+  <div class="card border-secondary shadow-sm">
     <div class="card-body p-0">
       {% if alerts %}
       <div class="table-responsive">
         <table class="table table-dark table-hover table-bordered align-middle mb-0">
-          <thead class="table-light text-dark">
+          <thead class="text-dark">
             <tr>
               <th>ID</th>
               <th>Agent</th>
@@ -41,10 +41,8 @@
           <tbody>
             {% for alert in alerts %}
             <tr>
-              <td class="fw-semibold text-info">#{{ alert.id }}</td>
-              <td>
-                {{ alert.parsed_agent or "—" }}
-              </td>
+              <td class="fw-semibold text-info"><a href="/web/v1/alerts/{{ alert.id }}">#{{ alert.id }}</a></td>
+              <td>{{ alert.parsed_agent or "—" }}</td>
               <td>{{ alert.parsed_message or "—" }}</td>
               <td>
                 {% set sev = alert.severity or 0 %}

@@ -53,11 +53,30 @@ def customer_detail_view(customer_id: int, request: Request, db: Session = Depen
         raise HTTPException(status_code=404, detail="Customer not found")
 
     detail = db.query(CustomerDetail).filter(CustomerDetail.customer_id == customer.id).first()
+    if not detail:
+        detail = CustomerDetail()  # So template doesn't fail on None
+
+    # Define field metadata
+    fields = {
+        "contact_name": "Contact Name",
+        "contact_email": "Contact Email",
+        "contact_phone": "Contact Phone",
+        "address": "Address",
+        "sla": "SLA",
+        "dependencies": "Dependencies"
+    }
+
+    # Precompute values safely
+    values = {key: getattr(detail, key, "") or "" for key in fields}
+
     return templates.TemplateResponse("customers/customer_detail.html", {
         "request": request,
         "customer": customer,
-        "detail": detail
+        "detail": detail,
+        "fields": fields,
+        "values": values
     })
+
 
 @router.post("/customers/{customer_id}/details")
 def update_customer_details(

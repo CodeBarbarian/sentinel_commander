@@ -27,6 +27,7 @@
             <li><a class="dropdown-item {% if request.url.path == '/web/v1/alerts' %}active{% endif %}" href="/web/v1/alerts">All Alerts</a></li>
             <li><a class="dropdown-item {% if request.url.path.startswith('/web/v1/alerts/category') %}active{% endif %}" href="/web/v1/alerts/category">By Category</a></li>
             <li><a class="dropdown-item {% if request.url.path.startswith('/web/v1/agents') %}active{% endif %}" href="/web/v1/agents">By Agent</a></li>
+            <li><a class="dropdown-item {% if request.url.path.startswith('/web/v1/alerts/tags') %}active{% endif %}" href="/web/v1/alerts/tags">By Tags</a></li>
           </ul>
         </li>
 

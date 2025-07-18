@@ -3,598 +3,92 @@
 
 {% block content %}
 <div class="container-fluid my-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div class="d-flex justify-content-end align-items-center mb-3">
-            <div class="input-group w-auto">
-                <input type="text" class="form-control form-control-sm" id="alertSearch"
-                       placeholder="Search alert details..." autofocus/>
-                <button class="btn btn-sm btn-outline-light" id="alertSearchButton">
+    <!-- Header Row -->
+    <div class="row align-items-center g-3 mb-3">
+        <!-- Title -->
+        <div class="col-lg-6 col-md-12">
+            <h4 class="mb-0">🚨 Alert #{{ alert.id }} — {{ alert.message or "—" }}</h4>
+        </div>
+
+        <!-- Search Input -->
+        <div class="col-lg-4 col-md-6 ms-auto">
+            <div class="input-group input-group-sm">
+                <input type="text" class="form-control border-secondary" id="alertSearch"
+                       placeholder="Search alert details..."/>
+                <button class="btn btn-outline-info" type="button" id="alertSearchButton">
                     <i class="bi bi-search"></i> Search
                 </button>
             </div>
         </div>
-        <h4 class="tactical-heading-xl mb-0">🚨 Alert #{{ alert.id }} - {{ alert.message or "—" }}</h4>
-        <a href="/web/v1/alerts" class="btn btn-sm btn-outline-secondary">
-            <i class="bi bi-arrow-left"></i> Back to Alerts
-        </a>
 
+        <!-- Back Button -->
+        <div class="col-lg-2 col-md-6 text-end">
+            <a href="/web/v1/alerts" class="btn btn-sm btn-outline-secondary w-100">
+                ⬅️ Back to Alerts
+            </a>
+        </div>
     </div>
-    <div class="d-flex justify-content-end gap-2 mt-4">
+
+    <!-- Actions -->
+    <div class="d-flex justify-content-end gap-2 mb-4">
         <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editAlertModal">
             ✏️ Edit Alert
         </button>
-        <!-- need to fix this to be compatible with whatever.
-        <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#promoteCaseModal">
-            🆕 Promote to Case
-        </button>
-        <button class="btn btn-sm btn-outline-warning" onclick="location.href='/web/v1/alerts/{{ alert.id }}/bulk_promote'">
-          ⚡ Smart Bulk Promote
-        </button>
-        -->
-    </div>
-    <!-- Tab Navigation -->
-    <ul class="nav nav-tabs modern-tabs mb-3" id="alertTabs" role="tablist">
-        <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#details">Details</a></li>
-        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#parsed">Parsed</a></li>
-        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#enrichment">Enrichment</a></li>
-        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#raw">Raw</a></li>
-        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#mitre">MITRE ATT&CK</a></li>
-    </ul>
-
-    <!-- Tab Content -->
-    <div class="tab-content tactical-tab-content">
-        <!-- Details Tab -->
-        <div class="tab-pane fade show active" id="details">
-            <div class="row g-4">
-                <div class="col-md-4"><strong>Status</strong><br>
-                    <span class="badge status-{{ alert.status|replace('_', '-') }}">{{ alert.status.replace('_', ' ')|capitalize }}</span>
-                </div>
-                <div class="col-md-4"><strong>Severity</strong><br>
-                    <span class="badge severity-{{ alert.severity_label|lower }}">{{ alert.severity }}</span>
-                </div>
-                <div class="col-md-4"><strong>Resolution</strong><br>
-                    {{ alert.resolution.replace('_', ' ')|capitalize if alert.resolution else '—' }}
-                </div>
-                <div class="col-md-4"><strong>Source</strong><br>{{ alert.source or "—" }}</div>
-                <div class="col-md-4">
-                    <strong>Agent</strong><br>
-                    {{ parsed_fields.get("agent_name") or parsed_fields.get("agent") or "—" }}
-                </div>
-                <div class="col-md-4"><strong>Created</strong><br>{{ alert.created_at.strftime('%Y-%m-%d %H:%M') }}
-                </div>
-                <div class="col-md-12">
-                    <strong>Message</strong>
-                    <div class="mt-2 tactical-note-card">{{ alert.message or "—" }}</div>
-                </div>
-                <div class="col-md-12">
-                    <strong>Tags</strong><br>
-                    {% for tag in parsed_tags %}
-                    <span class="badge bg-secondary me-1">{{ tag }}</span>
-                    {% else %}
-                    <span class="text-muted">No tags</span>
-                    {% endfor %}
-                </div>
-                <div class="col-md-12">
-                    <strong>Resolution Comment</strong>
-                    <div class="mt-2 tactical-note-card">{{ alert.resolution_comment or "—" }}</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Parsed Tab -->
-        <div class="tab-pane fade" id="parsed">
-            {% if parsed_fields %}
-            <div class="row g-3">
-                {% for key, value in parsed_fields.items() %}
-                <div class="col-md-6">
-                    <div class="tactical-note-card">
-                        <small class="text-muted">{{ key }}</small>
-                        <pre class="tactical-markdown-block mb-0"><code>{{ value }}</code></pre>
-                    </div>
-                </div>
-                {% endfor %}
-
-                <div class="mb-3">
-                    <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#parsedFieldsCollapse" aria-expanded="false"
-                            aria-controls="parsedFieldsCollapse">
-                        🧬 Show Parsed Data
-                    </button>
-
-                    <div class="collapse mt-2" id="parsedFieldsCollapse">
-                        <small class="text-muted">Parsed Data (Everything which is parsed)</small>
-                        <pre class="tactical-markdown-block mb-0"><code>{{ parsed_fields | tojson(indent=2) }}</code></pre>
-                    </div>
-                </div>
-            </div>
-            {% else %}
-            <p class="tactical-muted">No parsed fields available.</p>
-            {% endif %}
-        </div>
-
-        <!-- Enrichment Tab -->
-        <div class="tab-pane fade" id="enrichment">
-            {% if parsed_enrichment %}
-            <div class="row g-3">
-                {% for key, value in parsed_enrichment.items() %}
-                <div class="col-md-6">
-                    <div class="card shadow-sm border-0 h-100">
-                        <div class="card-body">
-                            <h6 class="card-subtitle mb-2 text-muted text-uppercase small">{{ key }}</h6>
-
-                            {% if key == 'geolocation' %}
-                            <div class="tactical-note-card mb-3">
-                                <div class="tactical-heading mb-2">🌍 Geolocation Details</div>
-                                <div class="row g-2">
-                                    <div class="col-md-4">
-                                        <div class="tactical-markdown-block p-3">
-                                            <span class="text-muted">🌐 IP</span><br>
-                                            <strong class="text-info">{{ value.ip }}</strong>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="tactical-markdown-block p-3">
-                                            <span class="text-muted">🏳️ Country</span><br>
-                                            <strong class="text-success">{{ value.country }}</strong>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="tactical-markdown-block p-3">
-                                            <span class="text-muted">🏁 ISO Code</span><br>
-                                            <strong class="text-warning">{{ value.iso_code }}</strong>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {% elif key == 'MISP' %}
-                            {% if value.matches > 0 %}
-                            {% for item in value.data %}
-                            <div class="tactical-note-card mb-3">
-                                <div class="tactical-heading mb-2">🔗 MISP Attribute: {{ item.type }}</div>
-                                <div class="row g-2">
-                                    <div class="col-md-6">
-                                        <div class="tactical-markdown-block p-3">
-                                            <span class="text-muted">🧬 Value</span><br>
-                                            <strong class="text-info">{{ item.value }}</strong>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="tactical-markdown-block p-3">
-                                            <span class="text-muted">📂 Category</span><br>
-                                            <strong class="text-warning">{{ item.category }}</strong>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="tactical-markdown-block p-3">
-                                            <span class="text-muted">🛡️ To IDS</span><br>
-                                            <strong class="text-success">{{ item.to_ids }}</strong>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="tactical-markdown-block p-3">
-                                            <span class="text-muted">🔢 Attribute ID</span><br>
-                                            <strong class="text-secondary">{{ item.attribute_id }}</strong>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="mt-3">
-                                    <div class="row g-2">
-                                        <div class="col-md-6">
-                                            <div class="tactical-markdown-block p-3">
-                                                <span class="text-muted">📄 Event Title</span><br>
-                                                <strong>{{ item.event.info }}</strong>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="tactical-markdown-block p-3">
-                                                <span class="text-muted">🏢 Org</span><br>
-                                                <strong>{{ item.event.org }}</strong>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="tactical-markdown-block p-3">
-                                                <span class="text-muted">📅 Date</span><br>
-                                                <strong>{{ item.event.date }}</strong>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="tactical-markdown-block p-3">
-                                                <span class="text-muted">🏷️ Tags</span><br>
-                                                {% if item.event.tags %}
-                                                <strong>{{ item.event.tags | join(", ") }}</strong>
-                                                {% else %}
-                                                <span class="text-muted">None</span>
-                                                {% endif %}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            {% endfor %}
-                            {% else %}
-                            <p class="text-muted">No matches in MISP.</p>
-                            {% endif %}
-
-                            {% elif key == 'host_threat_lookup' %}
-                            <div class="tactical-note-card mb-3">
-                                <div class="tactical-heading mb-2">🔗 Threat Lookup: {{ value.value }}</div>
-                                <div class="mb-3">
-                                    <p>Hint: Hold CTRL and click the services you would like to use</p>
-                                </div>
-
-                                <div class="row g-2">
-                                    <div class="col-md-6">
-                                        <button class="btn btn-sm btn-primary w-100"
-                                                onclick="window.open('{{ value.links.virustotal }}', '_blank')">
-                                            Open VirusTotal
-                                        </button>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <button class="btn btn-sm btn-success w-100"
-                                                onclick="window.open('{{ value.links.talos }}', '_blank')">
-                                            Open Talos Reputation
-                                        </button>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <button class="btn btn-sm btn-warning w-100"
-                                                onclick="window.open('{{ value.links.threatminer }}', '_blank')">
-                                            Open ThreatMiner
-                                                </button>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <button class="btn btn-sm btn-danger w-100"
-                                                onclick="window.open('{{ value.links.threatcrowd }}', '_blank')">
-                                            Open ThreatCrowd
-                                                </button>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <button class="btn btn-sm btn-secondary w-100"
-                                                onclick="window.open('{{ value.links.alienvault }}', '_blank')">
-                                            Open OTX AlienVault
-                                        </button>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <button class="btn btn-sm btn-secondary w-100"
-                                                onclick="window.open('{{ value.links.crowdsec }}', '_blank')">
-                                            Open CrowdSec
-                                                </button>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <button class="btn btn-sm btn-light w-100"
-                                                onclick="window.open('{{ value.links.abuseipdb }}', '_blank')">
-                                            Open AbuseIPDb
-                                                </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {% else %}
-                            <!-- Fallback for any other enrichment -->
-                            <pre class="bg-dark text-white p-2 rounded small"><code>{{ value | tojson(indent=2) }}</code></pre>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            {% else %}
-            <p class="text-muted fst-italic">No enrichment data for this alert.</p>
-            {% endif %}
-        </div>
-
-
-        <!-- Raw Payload Tab -->
-        <div class="tab-pane fade" id="raw">
-            <pre class="tactical-markdown-block"><code>{{ source_payload_json | tojson(indent=2) }}</code></pre>
-        </div>
-
-        <!-- MITRE ATT&CK Tab -->
-        <div class="tab-pane fade" id="mitre">
-            {% set mitre = mitre_info if mitre_info else parsed_enrichment.get("mitre", {}) %}
-            {% if mitre and mitre.get("id") %}
-            <div class="row g-3">
-                <div class="col-md-12">
-                    <strong>Technique ID(s):</strong><br>
-                    {% for tid in mitre.get("id", []) %}
-                    <a href="https://attack.mitre.org/techniques/{{ tid }}/" target="_blank"
-                       class="badge bg-primary me-1">{{ tid }}</a>
-                    {% endfor %}
-                </div>
-
-                {% if mitre.get("tactic") %}
-                <div class="col-md-12">
-                    <strong>Tactics:</strong><br>
-                    {% for tactic in mitre.get("tactic", []) %}
-                    <span class="badge bg-warning text-dark me-1">{{ tactic }}</span>
-                    {% endfor %}
-                </div>
-                {% endif %}
-
-                {% if mitre.get("technique") %}
-                <div class="col-md-12">
-                    <strong>Techniques:</strong><br>
-                    {% for technique in mitre.get("technique", []) %}
-                    <span class="badge bg-info text-dark me-1">{{ technique }}</span>
-                    {% endfor %}
-                </div>
-                {% endif %}
-            </div>
-            {% else %}
-            <p class="text-muted mt-2">No MITRE ATT&CK mapping found for this alert.</p>
-            {% endif %}
-        </div>
     </div>
 
-
-</div>
-
-<div class="container-fluid my-5">
-    <h4 class="tactical-heading mb-2">Related Alerts</h4>
-
-    <ul class="nav nav-tabs mb-2" role="tablist" id="relatedTabs">
-        <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" href="#related-by-agent" role="tab">By Agent</a>
+    <!-- Tabs -->
+    <ul class="nav nav-pills mb-3 gap-2" id="alertTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#details" type="button" role="tab">
+                Details
+            </button>
         </li>
-        <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" href="#related-by-message" role="tab">By Alert</a>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#parsed" type="button" role="tab">
+                Parsed
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#enrichment" type="button" role="tab">
+                Enrichment
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#raw" type="button" role="tab">
+                Raw
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#mitre" type="button" role="tab">
+                MITRE ATT&CK
+            </button>
         </li>
     </ul>
 
-<div class="tab-content">
-    <!-- Related by Agent -->
-    <div class="tab-pane fade" id="related-by-agent" role="tabpanel">
-        {% if related_alerts %}
-        <div class="card border border-secondary bg-dark">
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-dark table-hover table-sm tactical-table mb-0">
-                        <thead class="tactical-table-header">
-                        <tr>
-                            <th>ID</th>
-                            <th>Created</th>
-                            <th>Message</th>
-                            <th>Status</th>
-                            <th>Severity</th>
-                            <th>Resolution</th>
-                            <th></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for r in related_alerts %}
-                        <tr>
-                            <td>#{{ r.id }}</td>
-                            <td>{{ r.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
-                            <td>
-                                <div class="fw-bold">{{ r.message[:60] or "—" }}</div>
-                                <small class="text-muted">Agent: {{ r.parsed_agent }}</small>
-                            </td>
-                            <td><span class="badge status-{{ r.status|replace('_', '-') }}">{{ r.status.replace('_', ' ')|capitalize }}</span></td>
-                            <td><span class="badge severity-{{ r.severity_label|lower }}">{{ r.severity }}</span></td>
-                            <td>{{ r.resolution.replace('_', ' ')|capitalize if r.resolution else "—" }}</td>
-                            <td><a href="/web/v1/alerts/{{ r.id }}" class="btn btn-sm btn-outline-primary">View</a></td>
-                        </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
 
-                    {% if related_pages > 1 %}
-                    <nav class="mt-3">
-                        <ul class="pagination pagination-sm justify-content-center">
-                            <li class="page-item {% if related_page == 1 %}disabled{% endif %}">
-                                <a class="page-link" href="?page=1#related-by-agent">First</a>
-                            </li>
-                            <li class="page-item {% if related_page == 1 %}disabled{% endif %}">
-                                <a class="page-link" href="?page={{ related_page - 1 }}#related-by-agent">Prev</a>
-                            </li>
-                            {% set start = [related_page - 2, 1] | max %}
-                            {% set end = [start + 4, related_pages] | min %}
-                            {% set start = [end - 4, 1] | max %}
-                            {% for p in range(start, end + 1) %}
-                            <li class="page-item {% if p == related_page %}active{% endif %}">
-                                <a class="page-link" href="?page={{ p }}#related-by-agent">{{ p }}</a>
-                            </li>
-                            {% endfor %}
-                            <li class="page-item {% if related_page == related_pages %}disabled{% endif %}">
-                                <a class="page-link" href="?page={{ related_page + 1 }}#related-by-agent">Next</a>
-                            </li>
-                            <li class="page-item {% if related_page == related_pages %}disabled{% endif %}">
-                                <a class="page-link" href="?page={{ related_pages }}#related-by-agent">Last</a>
-                            </li>
-                        </ul>
-                    </nav>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        {% else %}
-        <p class="text-muted">No related alerts by agent found.</p>
-        {% endif %}
-    </div>
+    <!-- Tab Content Container -->
+    <div class="card bg-dark border border-secondary shadow-sm mt-3">
+        <div class="card-body tab-content">
 
-    <!-- Related by Message -->
-    <div class="tab-pane fade" id="related-by-message" role="tabpanel">
-        {% if related_alerts_by_message %}
-        <div class="card border border-secondary bg-dark">
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-dark table-hover table-sm tactical-table mb-0">
-                        <thead class="tactical-table-header">
-                        <tr>
-                            <th>ID</th>
-                            <th>Created</th>
-                            <th>Message</th>
-                            <th>Status</th>
-                            <th>Severity</th>
-                            <th>Resolution</th>
-                            <th></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for r in related_alerts_by_message %}
-                        <tr>
-                            <td>#{{ r.id }}</td>
-                            <td>{{ r.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
-                            <td>
-                                <div class="fw-bold">{{ r.message[:60] or "—" }}</div>
-                                <small class="text-muted">Agent: {{ r.parsed_agent }}</small>
-                            </td>
-                            <td><span class="badge status-{{ r.status|replace('_', '-') }}">{{ r.status.replace('_', ' ')|capitalize }}</span></td>
-                            <td><span class="badge severity-{{ r.severity_label|lower }}">{{ r.severity }}</span></td>
-                            <td>{{ r.resolution.replace('_', ' ')|capitalize if r.resolution else "—" }}</td>
-                            <td><a href="/web/v1/alerts/{{ r.id }}" class="btn btn-sm btn-outline-primary">View</a></td>
-                        </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
+            <!-- Details Tab -->
+            {% include 'alerts/detail_view/details_tab.html' %}
 
-                    {% if related_pages_msg > 1 %}
-                    <nav class="mt-3">
-                        <ul class="pagination pagination-sm justify-content-center">
-                            <li class="page-item {% if related_page_msg == 1 %}disabled{% endif %}">
-                                <a class="page-link" href="?message_page=1#related-by-message">First</a>
-                            </li>
-                            <li class="page-item {% if related_page_msg == 1 %}disabled{% endif %}">
-                                <a class="page-link" href="?message_page={{ related_page_msg - 1 }}#related-by-message">Prev</a>
-                            </li>
-                            {% set start = [related_page_msg - 2, 1] | max %}
-                            {% set end = [start + 4, related_pages_msg] | min %}
-                            {% set start = [end - 4, 1] | max %}
-                            {% for p in range(start, end + 1) %}
-                            <li class="page-item {% if p == related_page_msg %}active{% endif %}">
-                                <a class="page-link" href="?message_page={{ p }}#related-by-message">{{ p }}</a>
-                            </li>
-                            {% endfor %}
-                            <li class="page-item {% if related_page_msg == related_pages_msg %}disabled{% endif %}">
-                                <a class="page-link" href="?message_page={{ related_page_msg + 1 }}#related-by-message">Next</a>
-                            </li>
-                            <li class="page-item {% if related_page_msg == related_pages_msg %}disabled{% endif %}">
-                                <a class="page-link" href="?message_page={{ related_pages_msg }}#related-by-message">Last</a>
-                            </li>
-                        </ul>
-                    </nav>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        {% else %}
-        <p class="text-muted">No related alerts by message found.</p>
-        {% endif %}
-    </div>
-</div>
+            <!-- Parsed Tab -->
+            {% include 'alerts/detail_view/parsed_tab.html' %}
 
-</div>
+            <!-- Enrichment Tab -->
+            {% include 'alerts/detail_view/enrichment_tab.html' %}
 
+            <!-- Raw Payload Tab -->
+            {% include 'alerts/detail_view/raw_payload_tab.html' %}
 
-<!-- Edit Alert Modal -->
-<div class="modal fade" id="editAlertModal" tabindex="-1" aria-labelledby="editAlertModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <form method="post" action="/web/v1/alerts/{{ alert.id }}/update" class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Edit Alert #{{ alert.id }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label for="status" class="form-label">Status</label>
-                    <select class="form-select" name="status" id="status">
-                        <option value="">-- No Change --</option>
-                        <option value="new">New</option>
-                        <option value="in_progress">In Progress</option>
-                        <option value="done">Done</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label for="resolution" class="form-label">Resolution</label>
-                    <select class="form-select" name="resolution" id="resolution">
-                        <option value="">-- No Change --</option>
-                        <option value="under_investigation">Under Investigation</option>
-                        <option value="false_positive">False Positive</option>
-                        <option value="true_positive_no_impact">TP (No Impact)</option>
-                        <option value="true_positive_with_impact">TP (Impact)</option>
-                        <option value="not_applicable">Not Applicable</option>
-                        <option value="legitimate">Legitimate</option>
-                        <option value="unknown">Unknown</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label for="resolution_comment" class="form-label">Resolution Comment</label>
-                    <textarea class="form-control" name="resolution_comment" rows="3">{{ alert.resolution_comment or '' }}</textarea>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="submit" class="btn btn-sm btn-success">Save Changes</button>
-                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            </div>
-        </form>
-    </div>
-</div>
+            <!-- MITRE ATT&CK Tab -->
+            {% include 'alerts/detail_view/mitre_tab.html' %}
 
-<!-- Promote or Attach to Case Modal -->
-<div class="modal fade" id="promoteCaseModal" tabindex="-1" aria-labelledby="promoteCaseModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <form method="post" action="/web/v1/alerts/{{ alert.id }}/promote" class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">🆕 Promote or Attach Alert #{{ alert.id }} to Case</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-
-        <div class="mb-3">
-          <label class="form-label">Action</label>
-            <select class="form-select" name="action" id="promoteActionSelect" required>
-                <option value="new_case">🆕 Create New Case</option>
-                <option value="existing_case">📎 Attach to Existing Case</option>
-                <option value="bulk_promote">⚡ Smart Bulk Promote</option>
-            </select>
-        </div>
-
-        <!-- Existing Case Selector -->
-        <div id="existingCaseSelector" class="mb-3 d-none">
-          <label class="form-label">Select Existing Case</label>
-          <select class="form-select" name="existing_case_id">
-            {% for case in cases %}
-            <option value="{{ case.id }}">#{{ case.id }} - {{ case.title }}</option>
-            {% endfor %}
-          </select>
-        </div>
-
-        <!-- New Case Fields -->
-        <div id="newCaseFields" class="mb-3">
-          <label class="form-label">Case Title</label>
-          <input type="text" name="case_title" class="form-control" value="Case for Alert #{{ alert.id }}" required>
-          <label class="form-label mt-2">Case Description</label>
-          <textarea name="case_description" class="form-control" rows="3">{{ alert.message }}</textarea>
-        </div>
-
-      </div>
-      <div class="modal-footer">
-        <button type="submit" class="btn btn-success">✔️ Confirm</button>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-
-<!-- Search Result Modal -->
-<div class="modal fade" id="searchResultModal" tabindex="-1" aria-labelledby="searchResultModalLabel"
-     aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
-        <div class="modal-content bg-dark text-light">
-            <div class="modal-header">
-                <h5 class="modal-title" id="searchResultModalLabel">🔍 Search Results</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body" id="searchResultsContent">
-                <!-- Injected content by JS -->
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
         </div>
     </div>
 </div>
+
 <script>
     function highlightMatch(text, term) {
         const regex = new RegExp(`(${term})`, 'gi');
@@ -715,5 +209,4 @@
     });
 
 </script>
-
 {% endblock %}

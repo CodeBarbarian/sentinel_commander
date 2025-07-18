@@ -4,21 +4,21 @@
 {% block content %}
 <div class="container my-4">
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h4 class="tactical-heading mb-0">👤 Your Profile</h4>
+    <h4 class="text-white mb-0">👤 Your Profile</h4>
     <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editProfileModal">
       ✏️ Edit Profile
     </button>
   </div>
 
   <div class="card bg-dark border border-secondary mb-4">
-    <div class="card-body">
+    <div class="card-body text-white">
       <h5 class="card-title">{{ user.full_name or "—" }}</h5>
-      <p class="card-text"><strong>Username:</strong> {{ user.username }}</p>
-      <p class="card-text"><strong>Email:</strong> {{ user.email or "N/A" }}</p>
-      <p class="card-text"><strong>Role:</strong> {{ user.role }}</p>
-      <p class="card-text"><strong>Active:</strong> {{ "Yes" if user.is_active else "No" }}</p>
-      <p class="card-text"><strong>Superuser:</strong> {{ "Yes" if user.is_superuser else "No" }}</p>
-      <p class="card-text"><small class="text-muted">Created: {{ user.created_at }} | Updated: {{ user.updated_at }}</small></p>
+      <p class="mb-2"><strong>Username:</strong> {{ user.username }}</p>
+      <p class="mb-2"><strong>Email:</strong> {{ user.email or "N/A" }}</p>
+      <p class="mb-2"><strong>Role:</strong> {{ user.role|capitalize }}</p>
+      <p class="mb-2"><strong>Active:</strong> {{ "Yes" if user.is_active else "No" }}</p>
+      <p class="mb-2"><strong>Superuser:</strong> {{ "Yes" if user.is_superuser else "No" }}</p>
+      <p class="mb-0"><strong>Created:</strong> {{ user.created_at }} | <strong>Updated:</strong> {{ user.updated_at }}</p>
     </div>
   </div>
 </div>
@@ -26,10 +26,10 @@
 <!-- Edit Profile Modal -->
 <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
-    <form method="post" action="/web/v1/profile/update" class="modal-content">
+    <form method="post" action="/web/v1/profile/update" class="modal-content bg-dark border border-secondary text-white">
       <div class="modal-header">
         <h5 class="modal-title">✏️ Update Your Profile</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body row g-3">
         <div class="col-md-6">
@@ -51,7 +51,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="submit" class="btn btn-success" id="saveBtn">💾 Save</button>
+        <button type="submit" class="btn btn-success" id="saveBtn">📂 Save</button>
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
       </div>
     </form>

@@ -1,0 +1,45 @@
+<div class="tab-pane fade" id="mitre">
+  {% set mitre = mitre_info if mitre_info else parsed_enrichment.get("mitre", {}) %}
+  <div class="card bg-dark border border-secondary shadow-sm">
+    <div class="card-body p-3">
+      <h6 class="text-uppercase text-light mb-3">🧠 MITRE ATT&CK Mapping</h6>
+
+      {% if mitre and mitre.get("id") %}
+      <div class="row g-3">
+
+        <!-- Technique IDs -->
+        <div class="col-md-12">
+          <label class="form-label fw-semibold">Technique ID(s)</label><br>
+          {% for tid in mitre.get("id", []) %}
+          <a href="https://attack.mitre.org/techniques/{{ tid }}/" target="_blank" class="badge bg-primary me-1">
+            {{ tid }}
+          </a>
+          {% endfor %}
+        </div>
+
+        <!-- Tactics -->
+        {% if mitre.get("tactic") %}
+        <div class="col-md-12">
+          <label class="form-label fw-semibold">Tactics</label><br>
+          {% for tactic in mitre.get("tactic", []) %}
+          <span class="badge bg-warning text-dark me-1">{{ tactic }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Techniques -->
+        {% if mitre.get("technique") %}
+        <div class="col-md-12">
+          <label class="form-label fw-semibold">Techniques</label><br>
+          {% for technique in mitre.get("technique", []) %}
+          <span class="badge bg-info text-dark me-1">{{ technique }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+      {% else %}
+      <p class="fst-italic text-light">No MITRE ATT&CK mapping found for this alert.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
