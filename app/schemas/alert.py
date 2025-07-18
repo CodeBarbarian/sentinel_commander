@@ -15,6 +15,14 @@ class AlertCreate(BaseModel):
     source_event_time: Optional[datetime] = None
     source_payload: Optional[str] = None
 
+    # New fields to match model
+    agent_id: Optional[str] = None
+    agent_name: Optional[str] = None
+    agent_ip: Optional[str] = None
+    rule_id: Optional[str] = None
+    rule_description: Optional[str] = None
+    payload_flat_text: Optional[str] = None
+
 class AlertUpdate(BaseModel):
     message: Optional[str] = None
     observables: Optional[str] = None
