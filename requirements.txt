@@ -1,7 +1,7 @@
 SQLAlchemy~=2.0.39
 pydantic~=2.11.4
 fastapi~=0.115.11
-starlette~=0.46.1
+starlette~=0.47.2
 pytest~=8.3.5
 requests~=2.32.3
 httpx~=0.28.1
@@ -14,3 +14,6 @@ geoip2~=5.1.0
 pymisp~=2.5.12
 markdown2~=2.5.3
 alembic~=1.16.2
+dotenv~=0.9.9
+python-dotenv~=1.1.1
+typer~=0.16.0

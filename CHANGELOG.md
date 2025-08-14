@@ -15,6 +15,11 @@ Template
 
 ### Fixed
 ```
+## [0.6.1] - 2025-08-14 - Scripts
+### Added
+- manage.py (main configuration utility)
+- sc.sh (main application handler)
+
 ## [0.6.0] - 2025-07-18 - Design Update
 ### Added
 - New design for the alert detail view
