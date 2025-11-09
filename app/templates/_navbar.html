@@ -26,7 +26,6 @@
           <ul class="dropdown-menu dropdown-menu-dark">
             <li><a class="dropdown-item {% if request.url.path == '/web/v1/alerts' %}active{% endif %}" href="/web/v1/alerts">All Alerts</a></li>
             <li><a class="dropdown-item {% if request.url.path.startswith('/web/v1/alerts/category') %}active{% endif %}" href="/web/v1/alerts/category">By Category</a></li>
-            <li><a class="dropdown-item {% if request.url.path.startswith('/web/v1/agents') %}active{% endif %}" href="/web/v1/agents">By Agent</a></li>
             <li><a class="dropdown-item {% if request.url.path.startswith('/web/v1/alerts/tags') %}active{% endif %}" href="/web/v1/alerts/tags">By Tags</a></li>
           </ul>
         </li>
@@ -38,20 +37,12 @@
           </a>
           <ul class="dropdown-menu dropdown-menu-dark">
             <li><a class="dropdown-item" href="/web/v1/sentineliq/triage">Triage</a></li>
-            <li><a class="dropdown-item" href="/web/v1/sentineliq/search/advanced">Search</a></li>
-            <li><a class="dropdown-item" href="/web/v1/sentineliq/publisher">Publisher</a></li>
-            <li><a class="dropdown-item" href="/web/v1/sentineliq/enrichment">Enrichment</a></li>
           </ul>
         </li>
       </ul>
 
       <!-- Search and User Profile -->
       <div class="d-flex align-items-center">
-        <form class="d-flex align-items-center me-4" method="get" action="/web/v1/sentineliq/search">
-          <input class="form-control form-control-sm border-secondary me-2" type="search" name="q" placeholder="Search..." style="max-width: 300px;">
-          <button class="btn btn-sm btn-outline-info" type="submit">Search</button>
-        </form>
-
         {% if request.session.user %}
         <div class="dropdown">
           <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">

@@ -1,10 +1,6 @@
 import re
 from collections import OrderedDict
-
 from sqlalchemy.orm import Session
-
-from app.web.modules.maxmind_module import lookup_country
-from app.web.modules.misp_module import MISPEnrichment
 
 def extract_from_path(data, path):
     try:
@@ -133,22 +129,6 @@ def run_custom_parser(yaml_config, alert_input, db: Session = None):
                         "ip": ip_val,
                         "info": "This is a placeholder for IP enrichment."
                     }
-            elif enrich_type == "geolocation":
-                ip_val = extract_from_path(alert_source, enrich.get("field"))
-                if ip_val:
-                    geo_info = lookup_country(ip_val)
-                    parsed["enrichment"]["geolocation"] = geo_info
-
-            elif enrich_type == "misp_lookup":
-                field_path = enrich.get("field")
-                misp_key = enrich.get("key", "misp")
-                value = extract_from_path(alert_source, field_path)
-
-                if value:
-                    misp = MISPEnrichment(db)
-                    misp_data = misp.enrich_with_misp(value)
-                    parsed["enrichment"][misp_key] = misp_data
-
             elif enrich_type == "tag_if":
                 condition = enrich.get("condition", "")
                 tag = enrich.get("tag", "")

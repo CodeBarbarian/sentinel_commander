@@ -15,6 +15,15 @@ Template
 
 ### Fixed
 ```
+
+## [Unreleased]
+### Added
+
+### Changed
+
+### Fixed
+### Removed
+
 ## [0.6.1] - 2025-08-14 - Scripts
 ### Added
 - manage.py (main configuration utility)
